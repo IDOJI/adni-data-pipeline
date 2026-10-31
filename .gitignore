@@ -25,6 +25,27 @@ runtime/
 *.csv
 *.tsv
 *.sif
+
+# Genetic inputs, derived datasets and private server records
+*.bed
+*.bim
+*.fam
+*.pgen
+*.pvar
+*.pvar.zst
+*.psam
+*.vcf
+*.vcf.gz
+*.bcf
+*.bgen
+*.sample
+*.tbi
+*.csi
+*.frq
+*.frq.gz
+*.genome
+*.simg
+pass.txt
 *.zip
 *.tar.gz
 license.txt

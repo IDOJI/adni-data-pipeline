@@ -2,25 +2,32 @@
 
 Contribution and maintenance rules: [Repository instructions.md](<Repository instructions.md>)
 
-A research pipeline for processing and validating ADNI data by modality. **[RS-fMRI](RS-fMRI/README.md)** is implemented; an SNP pipeline is planned as a separate module.
+A research repository for processing and validating ADNI data by modality, with **[RS-fMRI](RS-fMRI/README.md)** and **[SNP](SNP/README.md)** modules. Each module separates pinned upstream code, project additions and validation records.
 
 | Area | Status | Guide |
 |---|---|---|
 | RS-fMRI | Pinned upstream submodule, Custom Steps, integrated execution guide, synthetic validation, XCP-D and integrated imaging QC | [RS-fMRI/README.md](RS-fMRI/README.md) |
-| SNP | Planned; no execution code yet | A separate module and protocol will be added |
+| SNP | Eissman-based TOPMed r3 workflow, pinned GWAS_QC submodule, command planning and synthetic variant-audit validation; cohort execution requires external resources and review | [SNP/README.md](SNP/README.md) |
 
 ```text
 adni-data-pipeline/
 ├── README.md
 ├── .gitmodules
 ├── LICENSE
-└── RS-fMRI/
-    ├── 01_upstream/ADNI_fMRI_protocol/  # Pinned upstream commit
-    ├── 02_custom/                      # Lab-specific additional steps
-    ├── 03_config/                      # Configuration examples and version records
-    ├── 04_workflow/                    # Handoff, configuration and command planning
+├── RS-fMRI/
+│   ├── 01_upstream/ADNI_fMRI_protocol/  # Pinned upstream commit
+│   ├── 02_custom/                      # Lab-specific additional steps
+│   ├── 03_config/                      # Configuration examples and version records
+│   ├── 04_workflow/                    # Handoff, configuration and command planning
+│   ├── 05_tests/                       # Synthetic validation
+│   └── 06_docs/                        # Installation, updates and validation
+└── SNP/
+    ├── 01_upstream/GWAS_QC/             # Pinned upstream commit
+    ├── 02_custom/                      # Multi-array variant audit
+    ├── 03_config/                      # Batch examples and source lock
+    ├── 04_workflow/                    # Source checks and command planning
     ├── 05_tests/                       # Synthetic validation
-    └── 06_docs/                        # Installation, updates and validation
+    └── 06_docs/                        # Methods, installation, merging and X
 ```
 
 ## 🚀 Getting started
@@ -37,4 +44,6 @@ python -m pytest -q
 
 Keep research data, private configuration and results outside the repository. Do not publish original ADNI images, clinical tables, SNP data, real participant lists or credentials here. Passing code tests does not establish scientific validity for the full cohort.
 
-See [RS-fMRI/NOTICE.md](RS-fMRI/NOTICE.md) for attribution and added code, and [GPL-3.0](LICENSE) for the license.
+For SNP setup, methods and the Mermaid workflow, start with the [SNP README](SNP/README.md). Its source check and tests require only Python and Git; genomic execution requires a validated Linux environment and external reference resources.
+
+See [RS-fMRI/NOTICE.md](RS-fMRI/NOTICE.md) and [SNP/NOTICE.md](SNP/NOTICE.md) for attribution and added code, and [GPL-3.0](LICENSE) for the license.

@@ -2,6 +2,9 @@
 	path = RS-fMRI/01_upstream/ADNI_fMRI_protocol
 	url = https://github.com/statMINDlab/ADNI_fMRI_protocol.git
 	branch = main
+[submodule "SNP/01_upstream/GWAS_QC"]
+	path = SNP/01_upstream/GWAS_QC
+	url = https://github.com/VUMC-VMAC/GWAS_QC.git
 [submodule "RS-fMRI/02_custom/s11_atlas_bold/01_sources/neuroparc"]
 	path = RS-fMRI/02_custom/s11_atlas_bold/01_sources/neuroparc
 	url = https://github.com/neurodata/neuroparc.git

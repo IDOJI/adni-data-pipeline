@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "note": "All paths and b37 builds are illustrative. Verify every delivery. Add ADNI4 only after confirming its actual array, build and metadata. Populate cleaned_genotypes and ancestry_subsets from reviewed output logs.",
+  "data_root": "/ABSOLUTE/PATH/adni-snp-data",
+  "reference_root": "/ABSOLUTE/PATH/genomic-references",
+  "container": "/ABSOLUTE/PATH/CNT_genomic_processing_v3.19.simg",
+  "runtime": "apptainer",
+  "memory_mb": 15000,
+  "references": {
+    "topmed_sites_stem": "topmed_r3/reference_sites",
+    "rsid_stem": "topmed_r3/topmed_snp_names",
+    "snpweights_stem": "1000g/1000G_snpwt"
+  },
+  "batches": [
+    {
+      "id": "human610",
+      "array": "Illumina Human610-Quad",
+      "delivery": "Replace with the actual delivery identifier",
+      "input_build": "b37",
+      "input_bfile": "raw/human610/genotypes",
+      "sex_file": "raw/human610/sex.txt",
+      "preimputation_stem": "preimputation/human610/human610",
+      "imputation_dir": "imputation/human610",
+      "postimputation_stem": "postimputation/human610/human610_imputed",
+      "cleaned_genotypes": null,
+      "ancestry_subsets": []
+    },
+    {
+      "id": "omniexpress",
+      "array": "Illumina HumanOmniExpress",
+      "delivery": "Replace with the actual delivery identifier",
+      "input_build": "b37",
+      "input_bfile": "raw/omniexpress/genotypes",
+      "sex_file": "raw/omniexpress/sex.txt",
+      "preimputation_stem": "preimputation/omniexpress/omniexpress",
+      "imputation_dir": "imputation/omniexpress",
+      "postimputation_stem": "postimputation/omniexpress/omniexpress_imputed",
+      "cleaned_genotypes": null,
+      "ancestry_subsets": []
+    },
+    {
+      "id": "omni25",
+      "array": "Illumina Omni 2.5M",
+      "delivery": "Replace with the actual delivery identifier",
+      "input_build": "b37",
+      "input_bfile": "raw/omni25/genotypes",
+      "sex_file": "raw/omni25/sex.txt",
+      "preimputation_stem": "preimputation/omni25/omni25",
+      "imputation_dir": "imputation/omni25",
+      "postimputation_stem": "postimputation/omni25/omni25_imputed",
+      "cleaned_genotypes": null,
+      "ancestry_subsets": []
+    },
+    {
+      "id": "gsa_v2",
+      "array": "Illumina Global Screening Array v2",
+      "delivery": "Replace with the actual delivery identifier",
+      "input_build": "b37",
+      "input_bfile": "raw/gsa_v2/genotypes",
+      "sex_file": "raw/gsa_v2/sex.txt",
+      "preimputation_stem": "preimputation/gsa_v2/gsa_v2",
+      "imputation_dir": "imputation/gsa_v2",
+      "postimputation_stem": "postimputation/gsa_v2/gsa_v2_imputed",
+      "cleaned_genotypes": null,
+      "ancestry_subsets": []
+    }
+  ]
+}

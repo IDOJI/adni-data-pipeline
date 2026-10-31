@@ -1,0 +1,18 @@
+{
+  "repository": "https://github.com/VUMC-VMAC/GWAS_QC.git",
+  "path": "SNP/01_upstream/GWAS_QC",
+  "commit": "5bbabfb54c2fffb86f39810386652daa124ce683",
+  "reviewed_at": "2026-11-01",
+  "sha256": {
+    "README.md": "c6f18ac3e9e676563b2c8a2160a64820aa356fd9238858999ff2c6f9bddfcbbc",
+    "gwas_qc_preimputation.sh": "5f041f427fd8bf1f991914712ca95bffab27497d749b3a84074c6eae6d7fb276",
+    "gwas_qc_postimputation_part1.sh": "cf414e090156cef21411949b39f5169a72af77a42618ea802022565a86f84d5f",
+    "gwas_qc_postimputation_part2.sh": "6b7015708fe6763c5da4851aaaf4ece649d6cc0321234c9ab638676cbd75992e",
+    "gwas_qc_preimputation_chrX.sh": "16cc3f19915ab40d0afdd84015ee7db5ba88c3f40a5920ca6b1f9ff80e961686",
+    "gwas_qc_postimputation_chrX.sh": "40530b992b6cd1e3a2613d3761a477f9278b56e0329cfcd04235ec7f0b501438",
+    "plot_het_check_outliers.R": "f8272211ca8a9a8899e1c73c89dd41d8a2e4d126a3232a9b933010360bc4d241",
+    "pre_merge_A1_MAF_check.R": "588b146aad8dba2dba6b587119c84df3974e5431ed1893fe7831655fb417afc0",
+    "calc_plot_PCs.sh": "a2ad13c2a240e153bf2af1259cdb4f89b057f92950991c59eb1d0fc69ddbb99d",
+    "calc_plot_PCs_snprelate.sh": "9145ce91eaff13cea583cd2457b424fb4c78950d55aa08c9c5e9dfd25aa396dc"
+  }
+}

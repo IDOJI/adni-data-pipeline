@@ -1,0 +1,12 @@
+{
+  "batch_id": "human610",
+  "job_id": null,
+  "panel": "r3",
+  "genome_build": "GRCh38",
+  "server_version": null,
+  "phasing": null,
+  "imputation_engine": null,
+  "completed_at": null,
+  "report_sha256": null,
+  "note": "Copy outside the repository. Fill all nulls from the actual autosomal server report, not the documentation. Keep original reports and upload checksums alongside this record."
+}
