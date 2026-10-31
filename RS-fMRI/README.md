@@ -19,6 +19,7 @@ RS-fMRI/
 │   ├── s3a_source_qc/            # Source QC, NFQ, deletion and identity audits
 │   ├── s5c_validate_handoff/     # Step 5 TSV → Step 6/7 input handoff
 │   ├── s7a_volume_workflow/     # Existing Docker volume profile, audit and recovery
+│   ├── s7b_sessionwise_preprocessing/ # Existing SB queue and surface/CIFTI adapter
 │   ├── s8a_motion_duration_qc/    # Retained duration from actual FD and TR
 │   ├── s9a_validate_clinical/    # Scan dates, diagnostic ties and demographics
 │   ├── s9b_validate_inclusion/   # Source QC, clinical and confirmed-exclusion gate
@@ -60,6 +61,7 @@ This environment supports handoff tools and tests. Prepare Clinica, MRIQC, fMRIP
 | 6 | MRIQC | [Upstream Step 6](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s6_mriqc/README.md) | Generate IQMs/reports; verify IQM fitting scope against Step-5 survivors |
 | 7 | fMRIPrep | [Upstream Step 7](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s7_fmriprep/README.md) | Explicitly pass 5.C session CSVs; generate images, confounds and reports |
 | **7.A** | **Separate Docker volume profile** | [Custom](02_custom/s7a_volume_workflow/README.md) | Existing aCompCor profile, independent audit and metadata repair; separate from upstream 7 and S10 |
+| **7.B** | **Live sessionwise preprocessing** | [Custom](02_custom/s7b_sessionwise_preprocessing/README.md) | Existing queue compatibility; new subjects use integrated source, active jobs retain their original runner |
 | 8 | Final QC | [Upstream Step 8](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s8_final_qc/README.md) | Motion, Euler, MRIQC and inclusion/exclusion reasons |
 | **8.A** | **Motion retained-duration checks** | [Custom](02_custom/s8a_motion_duration_qc/README.md) | Actual TR × retained frames, FD proportion, initial-frame sensitivity and masks |
 | 9 | Clinical Merge | [Upstream Step 9](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s9_clinical_imaging_merge/README.md) | Upstream cognitive-score linkage/reports; preserve original outputs |
@@ -184,3 +186,7 @@ These commands restore the commit recorded by the parent repository. Adopt new u
 ## 📚 Attribution and license
 
 Use the upstream [CITATION.cff](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/CITATION.cff) for authorship and citation. Added-code sources are recorded in [NOTICE](NOTICE.md); [LICENSE](../LICENSE) states the upstream-compatible GPL-3.0 terms. Original ADNI data is not redistributed.
+
+## Live automation
+
+See the [live-service handoff guide](06_docs/live_service_handoff.md) for switching existing preprocessing/XCP-D controllers to this repository while preserving running containers, historical configuration IDs, completed results, caches and the shared compute limit.

@@ -39,3 +39,7 @@ python 02_custom/s9a_validate_clinical/run.py \
 ## Scope not yet generalized
 
 The live S6/S7 queue, raw-zip staging, flat-derivative-to-published-pair adapters, automatic intersections of source QC/8.A/clinical criteria for an actual cohort, and real Slurm/CIFTI execution require separate work. Do not bypass pair-receipt contracts or fabricate metadata to label previous calculations successful. Step 7.A (no FreeSurfer) and S10 (Euler required) are not directly compatible profiles.
+
+## Subsequent live deployment
+
+The [live-service handoff](live_service_handoff.md) adds an explicit compatibility deployment for the existing SB queue. It retains historical scientific configuration and active-job ownership while routing new subjects to integrated sessionwise preprocessing and subsequent XCP-D runs to S10. The earlier consolidation-only boundary above describes the initial import, not this later operational transition.

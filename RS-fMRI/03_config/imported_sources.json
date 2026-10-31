@@ -135,5 +135,41 @@
     "destination": "02_custom/s9a_validate_clinical/run.py",
     "adaptation": "Raw eligible same-scope PTGENDER consensus fills structural missing values only; TEAM/QC errors excluded and source rows retained",
     "date": "2026-11-01"
+  },
+  "live_service_adapters": {
+    "date": "2026-11-01",
+    "files": [
+      {
+        "source": "run.py",
+        "source_sha256": "685f74ffd83f12eda6df0c26b78ed9516a469d85f3217d513efc0bb7798da461",
+        "destination": "02_custom/s7b_sessionwise_preprocessing/run.py"
+      },
+      {
+        "source": "make_source_manifest.py",
+        "source_sha256": "707a175bd000e0b422e6a2135a9d336cd9bdd3f8e7844c15ebfb908e3582823a",
+        "destination": "02_custom/s7b_sessionwise_preprocessing/make_source_manifest.py"
+      },
+      {
+        "source": "finalize_by_scan_dates.py",
+        "source_sha256": "cae5e7a4299c9a63344e3c877989f3bef885f6ec48cec9b002702f40ab34eebe",
+        "destination": "02_custom/s7b_sessionwise_preprocessing/publish_pairs.py"
+      },
+      {
+        "source": "recover_observers.py",
+        "source_sha256": "aca6ddaaa64395a81961dd57f90053fb50ede0565900f3277147c30611249023",
+        "destination": "02_custom/s7b_sessionwise_preprocessing/observe.py"
+      },
+      {
+        "source": "compute_slots.py",
+        "source_sha256": "80e3b09d1c17d7d73160816023a8bdfc1551d97a54c05a2c9592ad031862d985",
+        "destination": "04_workflow/compute_slots.py"
+      },
+      {
+        "source": "queue_runner.py",
+        "source_sha256": "d3dd59b55a543378566db369638bd6aacee17dda640ab0fc39b53c73bdf4829c",
+        "destination": "04_workflow/queue_service.py"
+      }
+    ],
+    "scope": "Existing explicit-pair queue compatibility, pinned-upstream sessionwise runner, observation and publication; private plans/settings remain external"
   }
 }
