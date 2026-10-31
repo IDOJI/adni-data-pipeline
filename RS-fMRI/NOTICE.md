@@ -12,3 +12,5 @@
 - `02_custom/s10_xcpd_integrated_qc/` adapts the user's active local S8/XCP-D integrated-QC extension and hash-verified offloader. Private paths/configs/participants were removed; explicit config, pinned upstream, external runtime guards, aggregation lock and clinical scan-link export were added. No active worker or original upstream source was replaced.
 
 - 9.A v2 adapts the Research participant-static PTDEMOG rules with raw-row provenance and TEAM exclusion. 9.B combines independently generated QC/clinical artifacts with explicitly confirmed ST/conversion exclusions; no private subject lists are embedded.
+
+- Step 11 links Neuroparc, CBIG, Nilearn and the TemplateFlow archive as separately licensed pinned submodules. Individual atlas provenance, label metadata and applicable terms remain with their sources. The parent repository stores a metadata catalog and its own extraction/QC code, not redistributed ADNI data.

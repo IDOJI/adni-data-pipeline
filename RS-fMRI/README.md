@@ -23,7 +23,8 @@ RS-fMRI/
 │   ├── s8a_motion_duration_qc/    # Retained duration from actual FD and TR
 │   ├── s9a_validate_clinical/    # Scan dates, diagnostic ties and demographics
 │   ├── s9b_validate_inclusion/   # Source QC, clinical and confirmed-exclusion gate
-│   └── s10_xcpd_integrated_qc/   # S8, XCP-D, ROI/FC, imaging QC and archival gates
+│   ├── s10_xcpd_integrated_qc/   # S8, XCP-D, ROI/FC, imaging QC and archival gates
+│   └── s11_atlas_bold/           # Pinned atlas library and audited ROI BOLD means
 ├── 03_config/                     # Public configuration examples and version locks
 ├── 04_workflow/                   # Version checks, external configuration and command plans
 ├── 05_tests/                      # Synthetic and upstream compatibility tests
@@ -35,8 +36,9 @@ Top-level numbers `01`–`06` classify directories. Actual execution follows the
 ## 🚀 Initial installation
 
 ```sh
-git clone --recurse-submodules https://github.com/IDOJI/adni-data-pipeline.git
+git clone https://github.com/IDOJI/adni-data-pipeline.git
 cd adni-data-pipeline/RS-fMRI
+git submodule update --init 01_upstream/ADNI_fMRI_protocol
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
@@ -68,6 +70,7 @@ This environment supports handoff tools and tests. Prepare Clinica, MRIQC, fMRIP
 | **9.A** | **Clinical validation** | [Custom](02_custom/s9a_validate_clinical/README.md) | Actual scan dates, all nearest diagnoses, 28-day window, Dementia/suspected etiology and PTDEMOG/APOE |
 | **9.B** | **Final inclusion validation** | [Custom](02_custom/s9b_validate_inclusion/README.md) | Combine source QC, clinical validation and confirmed ST/conversion failures; retain pending under nearest/28-day policy |
 | **10** | **XCP-D and integrated imaging QC** | [Custom](02_custom/s10_xcpd_integrated_qc/README.md) | Completed S7 pair → S8 metrics → provisional XCP-D → validation/human review → explicit cohort finalization; export 9.A links |
+| **11** | **Atlas-based BOLD signals** | [Custom](02_custom/s11_atlas_bold/README.md) | Select a pinned matching-space atlas; audit labels/coverage and extract ROI means from reviewed BOLD |
 
 Steps 1.A/1.B have not been defined and are not created yet. Add them when needed using the [Custom Step guide](06_docs/pipeline_guide.md).
 
@@ -76,6 +79,18 @@ Steps 1.A/1.B have not been defined and are not created yet. Add them when neede
 Connect upstream 1–7 → **S8/8.A + S10 pre-QC → XCP-D → quantitative/visual review → cohort imaging-QC finalization → S9/9.A clinical validation → 9.B final inclusion validation**. S10 can start as a separate worker once S7 pairs complete. `watch/collect` never makes final inclusion decisions. See the [S10 README](02_custom/s10_xcpd_integrated_qc/README.md) for commands, pair-input contracts and archival gates, and the [consolidation guide](06_docs/xcpd_consolidation.md) for directory retirement and service-transition boundaries.
 
 Preserve 7.A's existing aCompCor profile separately from S10's 36P/GSR profile; do not mix their results. Pass S10 finalization's `final_included_runs.tsv` and `clinical_scan_links.tsv` together to 9.A. Imaging QC alone does not establish full research inclusion.
+
+## 🧠 Atlas library and BOLD extraction
+
+After S10 imaging review → 9.A → 9.B, [Step 11](02_custom/s11_atlas_bold/README.md) can extract a separately selected atlas from the intended BOLD derivative. The library links Neuroparc, CBIG, Nilearn and TemplateFlow at fixed commits, with 252 registered file variants. Install these optional sources explicitly; ordinary setup and CI initialize only the core ADNI submodule.
+
+```sh
+python 02_custom/s11_atlas_bold/sources.py install
+python 02_custom/s11_atlas_bold/sources.py fetch-templateflow
+python 02_custom/s11_atlas_bold/run.py list --space MNI152NLin6Asym
+```
+
+Use the [extraction command](02_custom/s11_atlas_bold/README.md#execution) with 9.B evidence and an actual image/run mapping. No space aliasing or cross-template registration is inferred. Masked/lost ROIs stay in the audit and expected columns; failed coverage produces a nonzero status. S10's existing atlas/FC products remain separate. See the [locking and space guide](06_docs/atlas_library.md).
 
 ## 🔎 Scope of ported Research rules
 
@@ -177,7 +192,7 @@ Existing clones using the initial unnumbered layout must first follow the [one-t
 
 ```sh
 git pull --ff-only
-git submodule update --init --recursive
+git submodule update --init 01_upstream/ADNI_fMRI_protocol
 python 04_workflow/lab.py doctor
 ```
 

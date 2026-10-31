@@ -19,6 +19,7 @@ Independent reporting steps create new outputs only. Steps that alter participan
 - 9.A: validate evidence and exceptions for diagnoses, PTDEMOG and optional APOE/auxiliary sex sources linked to actual scan dates. Exclude TEAM and preserve same-scope participant-static sex-filling evidence.
 - 9.B: combine 3.A, corrected 9.A v2 and explicitly confirmed ST absence; fix nearest/28-day matching and retain pending. Optionally apply reviewed conversion failures and preserve S10 imaging decisions.
 - S10: S8 collection, 36P/LINC XCP-D, integrated imaging QC and validated archival gates for completed pairs; export actual image dates/IDs to 9.A. See [input and transition boundaries](xcpd_consolidation.md).
+- 11: optional pinned atlas library and streaming volumetric ROI extraction after 9.B; exact spaces, labels, brain-mask coverage and frame identities audited. No temporal re-cleaning or FC calculation.
 - `04_workflow/lab.py plan`: print commands for known entry points. It is not an orchestration engine for automatic stage execution, scheduler submission or error recovery.
 
 ## Unresolved upstream boundaries

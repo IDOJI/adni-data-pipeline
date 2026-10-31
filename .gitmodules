@@ -2,3 +2,15 @@
 	path = RS-fMRI/01_upstream/ADNI_fMRI_protocol
 	url = https://github.com/statMINDlab/ADNI_fMRI_protocol.git
 	branch = main
+[submodule "RS-fMRI/02_custom/s11_atlas_bold/01_sources/neuroparc"]
+	path = RS-fMRI/02_custom/s11_atlas_bold/01_sources/neuroparc
+	url = https://github.com/neurodata/neuroparc.git
+[submodule "RS-fMRI/02_custom/s11_atlas_bold/01_sources/CBIG"]
+	path = RS-fMRI/02_custom/s11_atlas_bold/01_sources/CBIG
+	url = https://github.com/ThomasYeoLab/CBIG.git
+[submodule "RS-fMRI/02_custom/s11_atlas_bold/01_sources/nilearn"]
+	path = RS-fMRI/02_custom/s11_atlas_bold/01_sources/nilearn
+	url = https://github.com/nilearn/nilearn.git
+[submodule "RS-fMRI/02_custom/s11_atlas_bold/01_sources/templateflow"]
+	path = RS-fMRI/02_custom/s11_atlas_bold/01_sources/templateflow
+	url = https://github.com/templateflow/templateflow.git

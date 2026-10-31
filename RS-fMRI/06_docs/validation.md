@@ -66,3 +66,10 @@ The three existing preprocessing, XCP-D and offload services were connected to t
 With the actual private template, old and integrated MRIQC/fMRIPrep command arguments and work directories matched exactly. Read-only dispatch verification selected the integrated 7.B adapter for the next previously unstarted subject. No additional imaging calculation was forced while all five shared slots were occupied. Previously started subjects retain their original runner/cache until completion, and the active XCP-D attempt retains its verified completion observer. This verifies continuity and future dispatch; it does not establish completion or scientific inclusion of the active calculations.
 
 See [live_service_handoff.md](live_service_handoff.md) for the deployment boundary and preservation checks. Participant-specific operational evidence remains outside the public repository.
+## 2026-11-01 Atlas library and BOLD extraction
+
+Local verification: **262 passed, 17 subtests passed**. A new clone independently installed CBIG/TemplateFlow and verified all 54 cached payloads.
+
+Step 11 registers 252 discrete-label file variants: 141 Neuroparc, 60 original CBIG Schaefer and 51 TemplateFlow atlases. All four source repositories are pinned; both TemplateFlow template datasets are also fixed, and 54 two-mm payloads are materialized locally with pinned annex digests and SHA-256 verification. Three reference segmentations are excluded from the atlas catalog. Nilearn is a source reference, not a claim that all its fetched datasets were cloned.
+
+Synthetic tests verify means, agreement with the installed Nilearn masker, space/grid distinctions, label preservation, mask/reference-volume ROI coverage, missing/nonfinite/constant signals, temporal masks/TR, hashes, memory caps, 9.B inclusion and CLI status. Real public CBIG and TemplateFlow Schaefer-100 geometries and Neuroparc AAL were tested with known synthetic signals: 100/100/116 ROI means agreed within 3.1e-7. This is not actual ADNI signal extraction. Source-space ambiguity and source ROI-count discrepancies remain explicit rather than being silently corrected.

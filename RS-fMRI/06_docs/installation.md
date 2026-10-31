@@ -2,7 +2,7 @@
 
 ## Wrapper and Custom Steps
 
-After the recursive clone in the root README, create a Python 3.11+ virtual environment under `RS-fMRI/` and install `requirements.txt`. `doctor` compares the gitlink, lock, actual upstream checkout and working-tree cleanliness.
+After cloning and selectively initializing the core ADNI submodule as shown in the root README, create a Python 3.11+ virtual environment under `RS-fMRI/` and install `requirements.txt`. `doctor` compares the gitlink, lock, actual upstream checkout and working-tree cleanliness.
 
 ## Upstream environment
 
@@ -17,3 +17,7 @@ Custom Steps and configuration tools are tested on Mac. Upstream s4/s6/s7 launch
 ## Output locations
 
 `prepare-config` writes only outside the repository. Because s5.A writes `data/` in its working directory, run it from external `ADNI_DATA/qc/step5a/`. The upstream s4 Slurm template contains hardcoded paths, environments and mail directives. Review actual paths, accounts, modality and notification policy in an external lab template before submission.
+
+## Optional atlas library
+
+Step 11 sources and TemplateFlow payloads are installed explicitly using its source manager. Do not recursively clone the whole TemplateFlow archive or full CBIG history as part of ordinary installation. See the [atlas guide](atlas_library.md).

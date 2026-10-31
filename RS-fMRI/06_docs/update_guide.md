@@ -1,6 +1,6 @@
 # Updating upstream
 
-For normal updates, run `git pull --ff-only` followed by `git submodule update --init --recursive` from the repository root. These restore the recorded upstream commit. Do not add `--remote` to routine installation commands.
+For normal updates, run `git pull --ff-only` followed by `git submodule update --init RS-fMRI/01_upstream/ADNI_fMRI_protocol` from the repository root. These restore the recorded upstream commit. Do not add `--remote` to routine installation commands.
 
 ## One-time migration from the initial unnumbered layout
 
@@ -9,7 +9,7 @@ If an existing clone still uses `RS-fMRI/upstream/ADNI_fMRI_protocol`, run the f
 ```sh
 git submodule deinit -- RS-fMRI/upstream/ADNI_fMRI_protocol
 git pull --ff-only
-git submodule update --init --recursive
+git submodule update --init RS-fMRI/01_upstream/ADNI_fMRI_protocol
 cd RS-fMRI
 python 04_workflow/lab.py doctor
 ```
@@ -35,6 +35,8 @@ python 04_workflow/lab.py doctor
 
 Alongside synthetic compatibility tests, compare conversion, QC, preprocessing and clinical-linkage results on lab validation data in a separate external run. If successful, record actual tools, image digests, changes and validation scope in `03_config/versions.md`, then adopt through PR review.
 
-If validation fails, return to the existing main branch and run `git submodule update --init --recursive` to restore the pinned version. Preserve experimental branches/user changes first; do not use forced checkout or reset.
+If validation fails, return to the existing main branch and run `git submodule update --init RS-fMRI/01_upstream/ADNI_fMRI_protocol` to restore the pinned version. Preserve experimental branches/user changes first; do not use forced checkout or reset.
 
 Reference: [official Git submodule documentation](https://git-scm.com/docs/git-submodule).
+
+Optional atlas pins follow the [separate atlas review process](atlas_library.md). Routine core updates do not materialize every atlas dataset.
