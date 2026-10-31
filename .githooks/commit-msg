@@ -1,0 +1,11 @@
+#!/bin/sh
+# Attribute Codex-assisted commits without changing ordinary manual commits.
+set -eu
+
+if [ -z "${CODEX_THREAD_ID:-}" ] && [ "${CODEX_COAUTHOR:-0}" != "1" ]; then
+    exit 0
+fi
+
+git interpret-trailers --in-place \
+    --if-exists addIfDifferent --if-missing add \
+    --trailer 'Co-authored-by: Codex <codex@openai.com>' "$1"
