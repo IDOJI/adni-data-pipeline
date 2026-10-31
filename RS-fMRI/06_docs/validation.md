@@ -56,3 +56,13 @@ Step 9.A v2 fills missing sex only from consistent eligible same-scope raw visit
 Actual Research sources were rerun through 3.A → 9.A → 9.B. Among 16,638 candidate images, 9,582 were eligible, 2,068 pending and 4,988 excluded. The retained 11,650 images (including 2,239 EPI) exactly reproduced the Research retained image set. All 119 additional unresolved-sex images were reconciled; the original one unresolved image remained. All 33 TEAM rows were excluded. Reasons cover 254 source-QC blocks, 4,804 clinical failures, five confirmed ST-absence images and seven conversion failures; these categories overlap and must not be summed.
 
 The actual-data input used explicit per-image metadata-audit labels, not a BIDS inclusion table approved by physical/visual QC. Every result remains ANALYSIS_READY=False. Participant-level outputs and private source paths stay outside this public repository.
+
+## 2026-11-01 Live automation handoff
+
+Local verification: **234 passed, 17 subtests passed**, including eight live-service compatibility tests. These cover legacy/new runner dispatch, the shared five-subject limit, full surface/CIFTI command settings, independently captured container exit receipts, scientific-configuration identity and active-attempt ownership.
+
+The three existing preprocessing, XCP-D and offload services were connected to this repository. All five calculations active at cutover retained their container IDs and start times. Completed-result manifests, scientific configuration and admission settings were unchanged. The replacement services remained running without stderr errors, and the operational automation registry passed validation.
+
+With the actual private template, old and integrated MRIQC/fMRIPrep command arguments and work directories matched exactly. Read-only dispatch verification selected the integrated 7.B adapter for the next previously unstarted subject. No additional imaging calculation was forced while all five shared slots were occupied. Previously started subjects retain their original runner/cache until completion, and the active XCP-D attempt retains its verified completion observer. This verifies continuity and future dispatch; it does not establish completion or scientific inclusion of the active calculations.
+
+See [live_service_handoff.md](live_service_handoff.md) for the deployment boundary and preservation checks. Participant-specific operational evidence remains outside the public repository.
