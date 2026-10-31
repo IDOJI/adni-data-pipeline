@@ -1,0 +1,28 @@
+name: RS-fMRI compatibility tests
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  synthetic-validation:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11', '3.12']
+    defaults:
+      run:
+        working-directory: RS-fMRI
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: RS-fMRI/requirements.txt
+      - run: python -m pip install -r requirements.txt
+      - run: python workflow/lab.py doctor
+      - run: python -m pytest -q

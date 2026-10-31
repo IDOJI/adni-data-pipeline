@@ -1,0 +1,9 @@
+{
+  "motion_duration_qc": {
+    "source": "Existing local ADNI_fMRI_protocol/local_mac/paper_motion_qc.py",
+    "sha256": "428f3e79a8d0f43be24cdc823caf62b35742420cd422734b54188abdd6198b8c",
+    "destination": "custom/s8a_motion_duration_qc/run.py",
+    "copy": "byte-identical at initial import",
+    "date": "2026-10-31"
+  }
+}

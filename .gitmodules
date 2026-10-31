@@ -1,0 +1,4 @@
+[submodule "upstream/ADNI_fMRI_protocol"]
+	path = RS-fMRI/upstream/ADNI_fMRI_protocol
+	url = https://github.com/statMINDlab/ADNI_fMRI_protocol.git
+	branch = main

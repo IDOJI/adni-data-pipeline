@@ -1,0 +1,12 @@
+# 개인 경로를 넣은 사본은 config/lab_config.local.yaml 또는 저장소 밖에 저장.
+data_root: /ABSOLUTE/PATH/ADNI_DATA
+scratch_root: /ABSOLUTE/PATH/ADNI_SCRATCH
+containers_root: /ABSOLUTE/PATH/containers
+freesurfer_license: /ABSOLUTE/PATH/license.txt
+
+# 실제 실행 환경에 맞게 별도 설치. 이 파일은 이미지를 다운로드하지 않음.
+mriqc_image: mriqc-24.0.2.sif
+fmriprep_image: fmriprep-25.2.7.sif
+
+# upstream schema에 대한 명시적 덮어쓰기만 사용. 예: hpc.account.
+upstream_overrides: {}

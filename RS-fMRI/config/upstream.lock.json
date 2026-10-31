@@ -1,0 +1,7 @@
+{
+  "repository": "https://github.com/statMINDlab/ADNI_fMRI_protocol.git",
+  "path": "upstream/ADNI_fMRI_protocol",
+  "commit": "e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3",
+  "reviewed_on": "2026-10-31",
+  "validation_scope": "Source, configuration and synthetic compatibility tests; no full-cohort scientific validation"
+}
