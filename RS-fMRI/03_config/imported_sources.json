@@ -26,5 +26,107 @@
     "destination": "02_custom/s9a_validate_clinical/run.py",
     "adaptation": "Selected clinical policies reimplemented for explicit CSV/run inputs; no RDS/snapshot discovery and no full numerical equivalence claim",
     "date": "2026-11-01"
+  },
+  "xcpd_consolidation": {
+    "date": "2026-11-01",
+    "adaptation": "Private paths and subject examples removed; native tests ported; explicit external config, pinned upstream and pair receipt checks. Historical one-case staging/migration and actual validation evidence preserved in private archive, not published.",
+    "files": [
+      {
+        "source": "pipeline.py",
+        "source_group": "adni-rsfmri-pipeline",
+        "source_sha256": "83138ec4fa90164cbe6ee40f1b8586674e13b3bd5a7972c20bb03ee7153f5b89",
+        "destination": "02_custom/s7a_volume_workflow/pipeline.py"
+      },
+      {
+        "source": "audit_outputs.py",
+        "source_group": "adni-rsfmri-pipeline",
+        "source_sha256": "254cf94ffeff093c8142543e4482181104f0670181c45937b3412da79b830e7b",
+        "destination": "02_custom/s7a_volume_workflow/audit_outputs.py"
+      },
+      {
+        "source": "repair_xcpd_metadata.py",
+        "source_group": "adni-rsfmri-pipeline",
+        "source_sha256": "997c9060147a86bcc47e7075aad1f2e3969822e06db7762b85be0eb13bf2e72b",
+        "destination": "02_custom/s7a_volume_workflow/repair_xcpd_metadata.py"
+      },
+      {
+        "source": "qc_images.py",
+        "source_group": "adni-rsfmri-pipeline",
+        "source_sha256": "4f22b7419efb7b72c48b02e9ee912c53f1dcf7effe5d4c2717c090c07ff683bd",
+        "destination": "02_custom/s7a_volume_workflow/qc_images.py"
+      },
+      {
+        "source": "pipeline.py",
+        "source_group": "s10_xcpd_integrated_qc",
+        "source_sha256": "387247282adc4e9ea12e7115186527ea294b8ef253a4a40429b148a8a9d081cb",
+        "destination": "02_custom/s10_xcpd_integrated_qc/pipeline.py"
+      },
+      {
+        "source": "container_entry.py",
+        "source_group": "s10_xcpd_integrated_qc",
+        "source_sha256": "2df57b51b1fc4224fc81068e9e522eff2fe401ae29700e3dd6a5f4ed815e86db",
+        "destination": "02_custom/s10_xcpd_integrated_qc/container_entry.py"
+      },
+      {
+        "source": "slurm_task.py",
+        "source_group": "s10_xcpd_integrated_qc",
+        "source_sha256": "5288953f6aa0e2b154a1aa98bfe90a379d29ffcad10da59a86bf01bcdd7fde90",
+        "destination": "02_custom/s10_xcpd_integrated_qc/slurm_task.py"
+      },
+      {
+        "source": "offload_completed.py",
+        "source_group": "continuous5",
+        "source_sha256": "d5bf11f39261a56e8670aa8ece04d7a2ae00265ff96f50cbab2981c6dd310614",
+        "destination": "02_custom/s10_xcpd_integrated_qc/offload_completed.py"
+      },
+      {
+        "source": "test_audit_outputs.py",
+        "source_group": "tests",
+        "source_sha256": "b030e56948933a47813feda6a0ad9671a43e5560a7cc1d18626734fcd70c7e9c",
+        "destination": "05_tests/volume_workflow/test_volume_audit_outputs.py"
+      },
+      {
+        "source": "test_pipeline.py",
+        "source_group": "tests",
+        "source_sha256": "8ab490eb5478c5a108816d7b7179cb1cac03ea9535a4e84d8e865310cb6c776a",
+        "destination": "05_tests/volume_workflow/test_volume_pipeline.py"
+      },
+      {
+        "source": "test_qc_images.py",
+        "source_group": "tests",
+        "source_sha256": "e1c27fa1543127efa5e4fae0ffd9300242ba3156c2987f34f3a126876a10dfa8",
+        "destination": "05_tests/volume_workflow/test_volume_qc_images.py"
+      },
+      {
+        "source": "test_repair_xcpd_metadata.py",
+        "source_group": "tests",
+        "source_sha256": "5d508eb8a63dd105024105755d0f9643deb65db33fb21713a31d30baa59fb0e9",
+        "destination": "05_tests/volume_workflow/test_volume_repair_xcpd_metadata.py"
+      },
+      {
+        "source": "test_pipeline.py",
+        "source_group": "tests",
+        "source_sha256": "0e94d754d361854e181afafca18429d3e9e45a395743d2a23715bd64fd223ade",
+        "destination": "05_tests/test_xcpd_integrated.py"
+      },
+      {
+        "source": "test_offload_completed.py",
+        "source_group": "continuous5",
+        "source_sha256": "f92363e854f251e63af69d2b8a9cd2ce507d39423c7220c55f3ae3a562d39a33",
+        "destination": "05_tests/test_xcpd_offload.py"
+      },
+      {
+        "source": "METHODS.md",
+        "source_group": "adni-rsfmri-pipeline",
+        "source_sha256": "557c26540cb3ce34b1fa2d8af53b014adb4fc45bdedbab578dbefccad853dc3e",
+        "destination": "02_custom/s7a_volume_workflow/METHODS.md"
+      },
+      {
+        "source": "literature.md",
+        "source_group": "adni-rsfmri-pipeline",
+        "source_sha256": "60023b9c1c9c146ae750a094348fa102ca298397777526e0a052ef311969028d",
+        "destination": "02_custom/s7a_volume_workflow/literature.md"
+      }
+    ]
   }
 }

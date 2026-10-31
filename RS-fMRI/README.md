@@ -16,8 +16,10 @@ RS-fMRI/
 ├── 02_custom/
 │   ├── s3a_source_qc/            # 원본 QC·NFQ·삭제·식별 감사
 │   ├── s5c_validate_handoff/     # Step 5 TSV → Step 6/7 입력 연결
+│   ├── s7a_volume_workflow/     # 기존 Docker volume profile·감사·복구
 │   ├── s8a_motion_duration_qc/    # 실제 FD·TR로 잔여 시간 검증
-│   └── s9a_validate_clinical/    # 촬영일·진단 동률·인구통계 대조
+│   ├── s9a_validate_clinical/    # 촬영일·진단 동률·인구통계 대조
+│   └── s10_xcpd_integrated_qc/   # S8 수집·XCP-D·ROI/FC·영상 QC·보관 gate
 ├── 03_config/                     # 개인 데이터가 없는 설정 예시·버전 lock
 ├── 04_workflow/                   # 버전 검사·외부 설정 생성·명령 계획
 ├── 05_tests/                      # 합성 자료 및 원본 호환성 검사
@@ -54,12 +56,20 @@ python -m pytest -q
 | **5.C** | **입력 연결 검증** | [Custom](02_custom/s5c_validate_handoff/README.md) | 3.A 근거와 선택 BOLD를 대조, 실패·충돌 차단 및 pending 표시 후 6/7 입력 생성 |
 | 6 | MRIQC | [원본 Step 6](01_upstream/ADNI_fMRI_protocol/s6_mriqc/README.md) | IQM·보고서 산출, Step-5 생존 세션으로 IQM 적합 범위 확인 |
 | 7 | fMRIPrep | [원본 Step 7](01_upstream/ADNI_fMRI_protocol/s7_fmriprep/README.md) | 5.C의 세션 CSV를 명시 전달, 영상·confounds·보고서 생성 |
+| **7.A** | **별도 Docker volume profile** | [Custom](02_custom/s7a_volume_workflow/README.md) | 기존 aCompCor profile·독립 감사·metadata 복구, 원본 7 및 S10과 다른 실행 경로 |
 | 8 | Final QC | [원본 Step 8](01_upstream/ADNI_fMRI_protocol/s8_final_qc/README.md) | motion·Euler·MRIQC 및 포함·제외 사유 |
 | **8.A** | **motion 잔여시간 검사** | [Custom](02_custom/s8a_motion_duration_qc/README.md) | 실제 TR×남은 frame, FD 비율, 초기 시점 제외 민감도와 mask |
 | 9 | Clinical Merge | [원본 Step 9](01_upstream/ADNI_fMRI_protocol/s9_clinical_imaging_merge/README.md) | 원본 인지평가 연결·보고서 생성, 원본 출력 보존 |
 | **9.A** | **임상정보 검증** | [Custom](02_custom/s9a_validate_clinical/README.md) | 실제 촬영일·최근접 진단 전부·28일 창·Dementia/의심 원인·PTDEMOG/APOE 검증 |
+| **10** | **XCP-D·통합 영상 QC** | [Custom](02_custom/s10_xcpd_integrated_qc/README.md) | S7 완료 pair부터 S8 지표 → 잠정 후보 XCP-D → 검증·사람 검토 → 명시 cohort 최종화, 9.A link 생성 |
 
-Step 1.A/1.B/7.A는 아직 확정된 처리 과정이 아니므로 생성하지 않았습니다. [Custom Step 추가 방법](06_docs/pipeline_guide.md)에 따라 필요한 시점에 추가합니다.
+Step 1.A/1.B는 아직 확정된 처리 과정이 아니므로 생성하지 않았습니다. [Custom Step 추가 방법](06_docs/pipeline_guide.md)에 따라 필요한 시점에 추가합니다.
+
+## 🧩 XCP-D 실행 순서
+
+원본 1–7 → **S8/8.A + S10 pre-QC → XCP-D → 정량·시각 검토 → cohort 영상 QC finalize → S9/9.A 임상 검증** 순서로 연결합니다. S10은 S7 완료 pair부터 별도 worker로 시작할 수 있습니다. `watch/collect`는 최종 판정을 하지 않습니다. 실제 실행 명령·pair 입력 계약·외장 보관 gate는 [S10 README](02_custom/s10_xcpd_integrated_qc/README.md), 기존 폴더 정리와 서비스 전환 경계는 [통합 안내](06_docs/xcpd_consolidation.md)를 따릅니다.
+
+7.A의 기존 aCompCor profile과 S10의 36P/GSR profile은 별도로 보존하며 같은 결과를 혼합하지 않습니다. S10 finalization의 `final_included_runs.tsv`와 `clinical_scan_links.tsv`를 9.A에 함께 전달합니다. 영상 QC만으로 전체 연구 포함을 확정하지 않습니다.
 
 ## 🔎 Research 규칙의 이식 범위
 
@@ -137,7 +147,7 @@ APOE/ADSL/DM은 각각 `--apoe`, `--adsl`, `--dm`으로 선택 연결합니다. 
 - 원본 Step 8의 IQM 입력은 기본 CSV reader를 사용합니다. s6의 TSV를 바로 넘기지 말고 구분자를 확인한 CSV를 별도로 준비합니다. QC 결측은 연구 포함으로 해석하지 않습니다.
 - 원본 Step 9의 `DIAGNOSIS=3 → AD` 표기는 현행 DXSUM Dementia 정의와 구분해야 합니다. `build_imaging_input.py --max-dx-days`와 후속 `--max-days`는 각각 명시합니다. 이후 분석의 진단은 9.A의 원자료 검증 결과를 사용하며, 원본 Step 9 보고서의 AD 표기를 임상 AD/생물학적 AD 확정으로 해석하지 않습니다.
 - 5.C source QC gate는 선택 BOLD의 ID·날짜·UID에 적용됩니다. T1의 실제 참조 연결·영상 header/ST 축·coverage/시각 QC는 별도 검증 대상입니다. source QC가 없는 기존 형식 검증만의 사용도 가능하지만 source QC 완료로 표시하지 않습니다.
-- 초기 Mac 파일럿과 별도 XCP-D 코드는 이 submodule에 포함되지 않습니다. 기존 파일럿을 완성된 전체 코호트 adapter로 소개하지 않으며, 240초 등 다른 프로젝트 기준을 이 300초 검사에 섞지 않습니다.
+- Mac volume 파일럿·XCP-D 코드는 7.A/S10 custom으로 통합했습니다. S10은 참조 스레드의 게시 완료 pair layout을 요구하며 평면형 Slurm 결과나 FreeSurfer 없는 7.A 결과를 자동 변환하지 않습니다. 8.A의 300초와 XCP-D의 240초 기준은 별도로 기록합니다.
 - [설치·Mac 제한](06_docs/installation.md), [자료 준비](06_docs/data_preparation.md), [검증 결과](06_docs/validation.md), [원본 업데이트](06_docs/update_guide.md)를 확인하세요.
 
 ## 🔄 검증된 버전으로 업데이트

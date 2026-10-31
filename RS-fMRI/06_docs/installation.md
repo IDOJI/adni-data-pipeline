@@ -12,7 +12,7 @@ root README의 recursive clone 후 `RS-fMRI/`에서 Python 3.11+ 가상환경을
 
 ## Mac
 
-Custom Step과 설정 도구는 Mac에서 테스트합니다. 원본 s4/s6/s7 launcher는 Slurm/Apptainer용이며 Mac용으로 자동 변환하지 않습니다. 기존 `local_mac` 파일럿은 원본에서 추적되지 않는 별도 로컬 확장이므로 submodule에 자동 포함되지 않습니다. Mac에서 모든 단계 실행을 원하면 해당 adapter를 검토·일반화하는 별도 구현이 필요합니다.
+Custom Step과 설정 도구는 Mac에서 테스트합니다. 원본 s4/s6/s7 launcher는 Slurm/Apptainer용이며 Mac용으로 자동 변환하지 않습니다. 기존 `local_mac` 파일럿은 원본에서 추적되지 않는 별도 로컬 확장이므로 submodule에 자동 포함되지 않습니다. 7.A에 별도 volume Docker 실행·감사 profile, S10에 완료 pair 후처리·통합 QC를 추가했습니다. 기존 local_mac 전체와 S6/S7 queue는 통합되지 않았으며, 평면 결과에서 S10 pair 계약으로의 자동 adapter도 별도입니다. [통합 범위](xcpd_consolidation.md)를 확인합니다.
 
 ## 출력 위치
 

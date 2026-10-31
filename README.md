@@ -4,7 +4,7 @@ ADNI 자료를 modality별로 처리하고 검증하는 연구 파이프라인�
 
 | 영역 | 상태 | 안내 |
 |---|---|---|
-| RS-fMRI | 원본 submodule + Custom Step + 통합 실행 안내 구현, 합성 자료 검증 | [RS-fMRI/README.md](RS-fMRI/README.md) |
+| RS-fMRI | 원본 submodule + Custom Step + 통합 실행 안내 구현, 합성 자료 검증·XCP-D 및 통합 영상 QC 구현 | [RS-fMRI/README.md](RS-fMRI/README.md) |
 | SNP | 향후 추가 예정, 실행 코드 없음 | 구현 시 독립 폴더와 프로토콜 추가 |
 
 ```text

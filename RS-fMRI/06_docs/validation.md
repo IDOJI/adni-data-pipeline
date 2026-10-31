@@ -38,3 +38,11 @@ GitHub Actions에는 Python 3.11/3.12 합성 검증을 구성했다. 원격 CI�
 원본 Study Files QC/NFQ 감사 3.A, 선택 BOLD에 적용하는 5.C source gate, run별 실제 날짜·임상정보 검증 9.A를 구현했습니다. 자체 테스트 **57 passed**로 실제 원본 Step-6 dry-run·Step-7 parser 호환성 외에 native CLI·source hash·실패 차단·pending 보존·동률·반복 방문·인구통계 결측·식별 충돌을 확인했습니다.
 
 원본 코드의 입력 규약을 합성 CSV/NIfTI로 검증한 결과입니다. Research 원본 CSV/RDS·실영상 전체를 새 저장소에서 처리한 결과가 아니며, source QC pass·clinical pass를 전체 연구 포함 완료로 해석하지 않습니다. source QC와 임상 구현의 이식/미이식 범위는 `research_validation_rules.md`를 참고합니다.
+
+## 2026-11-01 XCP-D 코드 통합
+
+7.A Docker volume 실행·감사·metadata 복구·영상 QA, S10 S8 수집·36P/LINC XCP-D·ROI/FC/coverage·통합 영상 QC·검증 후 외장 보관 코드를 이식했습니다. 자체 **193 passed, 17 subtests passed**입니다. 원래 테스트를 합성 참가자·외부 설정으로 이식하고 명시 config 요구·pinned upstream·외부 runtime 보호·두 profile 분리·9.A 연결을 추가 검증했습니다.
+
+컨테이너 재연결/실패 복구와 외장 단절·손상·중단 복구는 합성 파일 및 모의 subprocess로 검사했습니다. 실제 Docker 영상 계산이나 실제 외장 이동을 이번 통합에서 재실행한 결과가 아닙니다. 진행 중인 SB pilot과 과거 2방문 volume pilot의 실제 실행 증빙은 각각 기존 private runtime/로컬 archive에 보존합니다. 현재 worker의 완료를 이번 코드 테스트로 대신 판정하지 않습니다.
+
+기존 원본 submodule commit은 유지하며 7.A(FreeSurfer 없음)·S10(Euler 필수)의 입력 계약 차이를 문서화했습니다. Linux/Slurm·CIFTI 실제 계산, 평면형 derivatives → 게시 pair adapter, source QC/8.A/임상 조건과의 연구 포함표 자동 교집합은 미검증/미구현 범위입니다.

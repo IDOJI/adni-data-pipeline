@@ -14,8 +14,10 @@ README에 Purpose, Input, Processing, Output, Execution, Validation, Dependencie
 
 - 3.A: 원본 QC/NFQ/삭제·식별 감사, 과거 RDS 없이 source artifact 생성.
 - 5.C: 원본 final_heuristics.tsv를 형식 검증하고 선택적으로 3.A source QC gate 적용, Step 6/7 입력으로 연결. 임상 선별은 별도.
+- 7.A: 기존 Docker volume aCompCor profile의 실행·감사·metadata 복구, 최신 S10과 별도 과학적 설정.
 - 8.A: 기존 로컬 motion-duration QC의 코드 재사용. upstream 최종 표와 자동 결합하지 않으므로 실패·보류 run의 연구 포함 판정을 별도로 기록.
 - 9.A: 실제 촬영일에 연결된 진단·PTDEMOG·선택 APOE/성별 보조 원자료의 근거와 예외 검증.
+- S10: 완료 pair의 S8 수집·36P/LINC XCP-D·통합 영상 QC·검증 후 보관 gate, 실제 영상 날짜/ID를 9.A로 export. [입력·전환 경계](xcpd_consolidation.md).
 - `04_workflow/lab.py plan`: 알려진 실행 진입점의 명령을 출력. 자동 단계 실행·스케줄 제출·오류 복구를 구현한 orchestration engine은 아님.
 
 ## 아직 해결하지 않은 원본 경계

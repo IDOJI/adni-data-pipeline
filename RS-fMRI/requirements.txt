@@ -3,3 +3,5 @@ numpy>=1.26,<3
 pandas>=2.2,<4
 nibabel>=5.2,<6
 pytest>=8,<10
+matplotlib>=3.8,<4
+nilearn>=0.10,<0.14

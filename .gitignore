@@ -28,3 +28,12 @@ runtime/
 *.zip
 *.tar.gz
 license.txt
+
+# Private execution configs and generated imaging artifacts
+**/*.local.json
+**/*.local.yaml
+RS-fMRI/02_custom/**/config.json
+*.nii
+*.nii.gz
+*.dtseries.nii
+*.sif

@@ -7,3 +7,6 @@
 
 - `02_custom/s3a_source_qc/qc_registry.py` and `nfq_quality.py` adapt the user's Research QC/NFQ matching and decision functions. Hardcoded vault paths, file discovery, historical snapshot naming and legacy launch code were removed. Input schemas and matching rules are explicit; source code hashes are recorded in `03_config/imported_sources.json`.
 - `02_custom/s9a_validate_clinical/run.py` is a run/CSV implementation of selected Research clinical validation rules. It preserves date ties and clinical source rows; it does not claim complete equivalence with the original RDS/R module or establish biological AD.
+
+- `02_custom/s7a_volume_workflow/` consolidates the user's former local Docker volume workflow, independent audit, image QA and guarded metadata repair; scientific settings are retained as a separate aCompCor profile. The single-case staging/migration helpers and actual pilot records remain in a private archive.
+- `02_custom/s10_xcpd_integrated_qc/` adapts the user's active local S8/XCP-D integrated-QC extension and hash-verified offloader. Private paths/configs/participants were removed; explicit config, pinned upstream, external runtime guards, aggregation lock and clinical scan-link export were added. No active worker or original upstream source was replaced.

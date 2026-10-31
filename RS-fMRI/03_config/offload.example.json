@@ -1,0 +1,11 @@
+{
+  "mount": "/Volumes/ADNI_ARCHIVE",
+  "destination": "/Volumes/ADNI_ARCHIVE/ADNI",
+  "volume_uuid": "REPLACE_WITH_ACTUAL_VOLUME_UUID",
+  "thread_id": "local-study",
+  "external_reserve_gib": 10,
+  "preserve_work_cache": true,
+  "remove_local_copy_only_after_sha256_verification": true,
+  "require_postprocessing": true,
+  "postprocessing_config_id": "REPLACE_WITH_VALIDATED_CONFIG_ID"
+}
