@@ -128,5 +128,12 @@
         "destination": "02_custom/s7a_volume_workflow/literature.md"
       }
     ]
+  },
+  "research_ptdemog_static_rules": {
+    "source": "Research PTDEMOG participant-static preprocessing rules",
+    "source_sha256": "ef4ade47b940e3ff51595328725c3ac8be449f06b1410d3bab767d5be2575b20",
+    "destination": "02_custom/s9a_validate_clinical/run.py",
+    "adaptation": "Raw eligible same-scope PTGENDER consensus fills structural missing values only; TEAM/QC errors excluded and source rows retained",
+    "date": "2026-11-01"
   }
 }

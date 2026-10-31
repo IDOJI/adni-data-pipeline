@@ -80,10 +80,57 @@ def indexed(rows, table, date_column=None):
             reasons.append('missing_or_invalid_date')
         if table == 'DXSUM' and (row.get('DIAGNOSIS') not in STAGES or not phase(row.get('PHASE', ''))):
             reasons.append('invalid_diagnosis_or_phase')
+        if table == 'PTDEMOG' and str(row.get('PHASE', '')).strip().upper() == 'TEAM':
+            reasons.append('team_phase_excluded')
         audit.append({'TABLE': table, 'SOURCE_ROW': number, 'ELIGIBLE': not reasons, 'REASONS': ';'.join(reasons)})
         if not reasons:
             by_id[identifier].append((number, row, dt))
     return by_id, audit
+
+
+def sex_scope(row):
+    value = phase(row.get('PHASE', ''))
+    if value in {'ADNI1', 'ADNIGO', 'ADNI2', 'ADNI3'}:
+        return 'legacy_participant_gender'
+    return 'adni4_sex_assigned_at_birth' if value == 'ADNI4' else ''
+
+
+def validate_sex(nearest_rows, subject_rows, auxiliaries):
+    """Fill structural missingness only from consistent eligible same-scope raw rows."""
+    profiles = {}
+    for scope in ('legacy_participant_gender', 'adni4_sex_assigned_at_birth'):
+        evidence = [r for r in subject_rows if sex_scope(r[1]) == scope and known(r[1].get('PTGENDER'))]
+        value, resolution = consensus([r[1].get('PTGENDER') for r in evidence], {'1', '2'})
+        profiles[scope] = (value, resolution, evidence)
+    values, audit, evidence_rows, filled = [], [], set(), 0
+    for number, raw, _ in nearest_rows:
+        scope = sex_scope(raw)
+        original = known(raw.get('PTGENDER'))
+        value, method, refs = original, 'nearest_raw', [number]
+        if not original and scope:
+            candidate, resolution, evidence = profiles[scope]
+            if candidate:
+                value, method, refs = candidate, 'subject_static_fill', [r[0] for r in evidence]
+                filled += 1
+            else:
+                method = 'unresolved_' + resolution
+                refs = [number] + [r[0] for r in evidence]
+        # Missing phase can still retain raw evidence, but never permits static filling.
+        values.append({'1': 'Male', '2': 'Female'}.get(value, ''))
+        if value not in {'', '1', '2'}:
+            values[-1] = 'invalid_code'
+        evidence_rows.update(refs)
+        audit.append({'NEAREST_SOURCE_ROW': number, 'SCOPE': scope or 'unknown_phase',
+                      'RAW_PTGENDER': raw.get('PTGENDER', ''), 'RESOLVED_CODE': value,
+                      'METHOD': method, 'EVIDENCE_SOURCE_ROWS': ';'.join(map(str, refs))})
+    for rows in auxiliaries:
+        labels = {'M': 'Male', 'F': 'Female', 'MALE': 'Male', 'FEMALE': 'Female'}
+        values.extend([labels.get(known(r[1].get('SEX')).upper(), '') for r in rows] or [''])
+    value, resolution = consensus(values, {'Male', 'Female'})
+    return {'BIOLOGICAL_SEX': value, 'SEX_RESOLUTION': resolution,
+            'SEX_SUBJECT_STATIC_FILL_COUNT': filled,
+            'SEX_EVIDENCE_SOURCE_ROWS': ';'.join(map(str, sorted(evidence_rows))),
+            'SEX_SUBJECT_PROFILE_CONFLICT': any(p[1] in {'conflicting_ties', 'invalid_code'} for p in profiles.values())}, audit, evidence_rows
 
 
 def nearest(items, scan, direction='nearest'):
@@ -170,7 +217,7 @@ def process(included, scan_links, dxsum, ptdemog, output_dir, apoe=None, adsl=No
     link_index = defaultdict(list)
     for number, row in enumerate(links, 1):
         link_index[(link_subject(row), link_session(row))].append((number, row))
-    result, raw_ledger, seen = [], [], set()
+    result, raw_ledger, sex_audit, seen = [], [], [], set()
     for input_row, scan in enumerate(scans, 1):
         key = tuple(scan.get(k, '') for k in ENTITIES)
         if key in seen:
@@ -264,19 +311,14 @@ def process(included, scan_links, dxsum, ptdemog, output_dir, apoe=None, adsl=No
         for field, dest in [('PTHAND', 'HANDEDNESS_CODE'), ('PTETHCAT', 'ETHNICITY_CODE'), ('PTRACCAT', 'RACE_CODE')]:
             value, status = consensus([r[1].get(field, '') for r in pt])
             row.update({dest: value, dest + '_RESOLUTION': status})
-        sex_values = []
-        for _, raw, _ in pt:
-            codes = [known(raw.get(k)) for k in ('LEGACY_PARTICIPANT_GENDER_FILLED', 'ADNI4_SEX_ASSIGNED_AT_BIRTH_FILLED', 'PTGENDER')]
-            value, _ = consensus([v for v in codes if v], {'1', '2'})
-            sex_values.append({'1': 'Male', '2': 'Female'}.get(value, ''))
-        for name, path in [('ADSL', adsl), ('DM', dm)]:
-            if path:
-                aux = indexes[name].get(identifier, [])
-                labels = {'M': 'Male', 'F': 'Female', 'MALE': 'Male', 'FEMALE': 'Female'}
-                sex_values.extend([labels.get(known(r[1].get('SEX', '')).upper(), '') for r in aux] or [''])
-        sex, sex_resolution = consensus(sex_values, {'Male', 'Female'})
-        row.update(BIOLOGICAL_SEX=sex, SEX_RESOLUTION=sex_resolution,
-                   SEX_CROSS_SOURCE_VALIDATED=bool(adsl and dm and sex))
+        subject_pt = indexes['PTDEMOG'].get(identifier, [])
+        aux = [indexes[name].get(identifier, []) for name, path in [('ADSL', adsl), ('DM', dm)] if path]
+        sex, derivation, evidence = validate_sex(pt, subject_pt, aux)
+        row.update(sex, SEX_CROSS_SOURCE_VALIDATED=bool(adsl and dm and sex['BIOLOGICAL_SEX']))
+        sex_audit.extend({'INPUT_ROW': input_row, **r} for r in derivation)
+        for number, raw, _ in subject_pt:
+            if number in evidence and number not in {r[0] for r in pt}:
+                raw_ledger.append({'INPUT_ROW': input_row, 'TABLE': 'PTDEMOG_SEX_EVIDENCE', 'SOURCE_ROW': number, 'RAW_JSON': json.dumps(raw, ensure_ascii=False)})
         apo = indexes.get('APOERES', {}).get(identifier, [])
         genotype, genotype_status = consensus([r[1].get('GENOTYPE', '') for r in apo], {'2/2', '2/3', '2/4', '3/3', '3/4', '4/4'})
         row.update(APOE_GENOTYPE=genotype, APOE_RESOLUTION=genotype_status,
@@ -304,9 +346,11 @@ def process(included, scan_links, dxsum, ptdemog, output_dir, apoe=None, adsl=No
     write(output / 'clinically_validated_sessions.tsv', [{k: r.get(k, '') for k in fields} for r in result if r['CLINICAL_STATUS'] == 'pass'], fields)
     write(output / 'clinical_source_rows.tsv', raw_ledger, ['INPUT_ROW', 'TABLE', 'SOURCE_ROW', 'RAW_JSON'])
     write(output / 'clinical_source_eligibility.tsv', eligibility, ['TABLE', 'SOURCE_ROW', 'ELIGIBLE', 'REASONS'])
-    return finish(output, 'clinical_validation_v1', hashes, {
+    write(output / 'sex_derivation.tsv', sex_audit, ['INPUT_ROW', 'NEAREST_SOURCE_ROW', 'SCOPE', 'RAW_PTGENDER', 'RESOLVED_CODE', 'METHOD', 'EVIDENCE_SOURCE_ROWS'])
+    return finish(output, 'clinical_validation_v2', hashes, {
         'runs': len(result), 'clinical_status': dict(Counter(r['CLINICAL_STATUS'] for r in result)),
         'implementation_sha256': sha(__file__), 'max_dx_days': max_days, 'dx_direction': direction, 'diagnosis_mapping': STAGES,
+        'demographics_policy': 'subject_static_sex_team_excluded_v1',
         'policy': 'All runs and nearest ties preserved; no APOE/education complete-case gate. Clinical validity alone is not research inclusion.'})
 
 

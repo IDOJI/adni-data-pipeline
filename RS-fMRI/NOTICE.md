@@ -10,3 +10,5 @@
 
 - `02_custom/s7a_volume_workflow/` consolidates the user's former local Docker volume workflow, independent audit, image QA and guarded metadata repair; scientific settings are retained as a separate aCompCor profile. The single-case staging/migration helpers and actual pilot records remain in a private archive.
 - `02_custom/s10_xcpd_integrated_qc/` adapts the user's active local S8/XCP-D integrated-QC extension and hash-verified offloader. Private paths/configs/participants were removed; explicit config, pinned upstream, external runtime guards, aggregation lock and clinical scan-link export were added. No active worker or original upstream source was replaced.
+
+- 9.A v2 adapts the Research participant-static PTDEMOG rules with raw-row provenance and TEAM exclusion. 9.B combines independently generated QC/clinical artifacts with explicitly confirmed ST/conversion exclusions; no private subject lists are embedded.

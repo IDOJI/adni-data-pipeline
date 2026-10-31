@@ -63,3 +63,7 @@ python 02_custom/s10_xcpd_integrated_qc/offload_completed.py --root /ABSOLUTE/PA
 ## Dependencies
 
 Python 3.11+, [requirements](../../requirements.txt), pinned upstream S8, Docker, an existing XCP-D 26.2.0 image and atlas/template caches. See the [official CLI](https://xcp-d.readthedocs.io/en/26.2.0/usage.html), [official mode settings](https://xcp-d.readthedocs.io/en/26.2.0/workflows.html) and [consolidation and transition boundaries](../../06_docs/xcpd_consolidation.md).
+
+## Downstream research inclusion
+
+Pass finalized `final_included_runs.tsv` and `clinical_scan_links.tsv` to 9.A, then pass the corrected v2 artifact to [9.B](../s9b_validate_inclusion/README.md). The gate combines source QC, nearest/28-day clinical conditions and confirmed ST absence while preserving source-QC pending and imaging-review decisions. S10 imaging QC alone does not establish research inclusion.

@@ -12,7 +12,8 @@ The current baseline is Research's `2026-10-30-preserve-all-v1`. Publish process
 | Link actual MRI scan dates | 9.A | Hold multiple date/image/phase candidates; never select dates by row order |
 | DXSUM date gaps and ties | 9.A | Default 28-day window, nearest/past options and preservation of all nearest raw rows |
 | Distinguish Dementia from clinical etiology | 9.A | Code 3 means Dementia; label suspected etiology only for consistent cause codes |
-| PTDEMOG, APOE and sex | 9.A | Preserve date ties, auxiliary-source conflicts and partial missingness as unresolved; no complete-case exclusion |
+| PTDEMOG, APOE and sex | 9.A v2 | Exclude TEAM, fill missing sex from consistent eligible same-scope visits with raw provenance; no complete-case exclusion |
+| Final inclusion conditions | 9.B | Combine QC/clinical/confirmed ST and optional conversion evidence; nearest 28 days and pending preservation |
 | Preserve multiple visits and runs | 9.A | One result per input run, exact image/run correspondence and clinical-assessment reuse |
 | Compare Search Age and PTDOB | 9.A | Compare explicit scan-link Age with month-based approximate age; flag birth-information conflicts |
 
@@ -20,7 +21,7 @@ The current baseline is Research's `2026-10-30-preserve-all-v1`. Publish process
 
 - Actual BIDS/DICOM/UID file correspondence, NIfTI headers/hashes and SliceTiming axis/direction require physical validation. A 3.A metadata pass does not establish these.
 - Actual T1 reference selection, multiple-T1 combinations and cross-date T1 pairing are not resolved by the 5.C source-BOLD gate.
-- Research's QC1 sequence-description exclusions, known conversion-failure lists, confirmed missing-ST exclusions and historical PTDOB RDS snapshot policy were not automatically ported. They require separate validation against the upstream workflow and actual sources.
+- Step 9.B consumes explicitly supplied confirmed ST/conversion exclusions without embedding private image IDs or discovering historical Selection Tables. QC1 sequence-description exclusions and historical PTDOB snapshots remain separate validation work.
 - Upstream Step 6 participant-level execution, IQM fitting-population restrictions, upstream s8 missing-value/input-delimiter handling and complete cognitive-score merging are separate tasks.
 - `clinical pass` and `source QC pass` describe only their respective checks. Do not promote `ANALYSIS_READY=False` results to completed scientific eligibility.
 

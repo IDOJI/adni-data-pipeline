@@ -21,6 +21,7 @@ RS-fMRI/
 │   ├── s7a_volume_workflow/     # Existing Docker volume profile, audit and recovery
 │   ├── s8a_motion_duration_qc/    # Retained duration from actual FD and TR
 │   ├── s9a_validate_clinical/    # Scan dates, diagnostic ties and demographics
+│   ├── s9b_validate_inclusion/   # Source QC, clinical and confirmed-exclusion gate
 │   └── s10_xcpd_integrated_qc/   # S8, XCP-D, ROI/FC, imaging QC and archival gates
 ├── 03_config/                     # Public configuration examples and version locks
 ├── 04_workflow/                   # Version checks, external configuration and command plans
@@ -63,13 +64,14 @@ This environment supports handoff tools and tests. Prepare Clinica, MRIQC, fMRIP
 | **8.A** | **Motion retained-duration checks** | [Custom](02_custom/s8a_motion_duration_qc/README.md) | Actual TR × retained frames, FD proportion, initial-frame sensitivity and masks |
 | 9 | Clinical Merge | [Upstream Step 9](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s9_clinical_imaging_merge/README.md) | Upstream cognitive-score linkage/reports; preserve original outputs |
 | **9.A** | **Clinical validation** | [Custom](02_custom/s9a_validate_clinical/README.md) | Actual scan dates, all nearest diagnoses, 28-day window, Dementia/suspected etiology and PTDEMOG/APOE |
+| **9.B** | **Final inclusion validation** | [Custom](02_custom/s9b_validate_inclusion/README.md) | Combine source QC, clinical validation and confirmed ST/conversion failures; retain pending under nearest/28-day policy |
 | **10** | **XCP-D and integrated imaging QC** | [Custom](02_custom/s10_xcpd_integrated_qc/README.md) | Completed S7 pair → S8 metrics → provisional XCP-D → validation/human review → explicit cohort finalization; export 9.A links |
 
 Steps 1.A/1.B have not been defined and are not created yet. Add them when needed using the [Custom Step guide](06_docs/pipeline_guide.md).
 
 ## 🧩 XCP-D execution order
 
-Connect upstream 1–7 → **S8/8.A + S10 pre-QC → XCP-D → quantitative/visual review → cohort imaging-QC finalization → S9/9.A clinical validation**. S10 can start as a separate worker once S7 pairs complete. `watch/collect` never makes final inclusion decisions. See the [S10 README](02_custom/s10_xcpd_integrated_qc/README.md) for commands, pair-input contracts and archival gates, and the [consolidation guide](06_docs/xcpd_consolidation.md) for directory retirement and service-transition boundaries.
+Connect upstream 1–7 → **S8/8.A + S10 pre-QC → XCP-D → quantitative/visual review → cohort imaging-QC finalization → S9/9.A clinical validation → 9.B final inclusion validation**. S10 can start as a separate worker once S7 pairs complete. `watch/collect` never makes final inclusion decisions. See the [S10 README](02_custom/s10_xcpd_integrated_qc/README.md) for commands, pair-input contracts and archival gates, and the [consolidation guide](06_docs/xcpd_consolidation.md) for directory retirement and service-transition boundaries.
 
 Preserve 7.A's existing aCompCor profile separately from S10's 36P/GSR profile; do not mix their results. Pass S10 finalization's `final_included_runs.tsv` and `clinical_scan_links.tsv` together to 9.A. Imaging QC alone does not establish full research inclusion.
 
@@ -141,6 +143,21 @@ python 02_custom/s9a_validate_clinical/run.py \
 ```
 
 Optionally supply APOE/ADSL/DM through `--apoe`, `--adsl` and `--dm`. `clinical_validation.tsv` preserves every input run with pass/hold and reasons; `clinically_validated_sessions.tsv` additionally stores the clinical-pass subset. A clinical pass alone does not establish analysis readiness.
+
+## 🔗 Step 9.B final inclusion validation
+
+Run the reviewed imaging inclusion table through **9.A v2 → 9.B**. Step 9.A excludes TEAM records and fills structurally missing sex values only from consistent, eligible same-scope visits, retaining raw-row evidence. Supply both ADSL and DM for cross-source sex validation. Regenerate old v1 results in a new directory.
+
+```sh
+python 02_custom/s9b_validate_inclusion/run.py \
+  --source-qc /ABSOLUTE/PATH/ADNI_DATA/qc/step3a \
+  --clinical /ABSOLUTE/PATH/ADNI_DATA/qc/step9a \
+  --confirmed-st-absence /ABSOLUTE/PATH/ADNI_DATA/qc/confirmed-st-absence.csv \
+  --conversion-failures /ABSOLUTE/PATH/ADNI_DATA/qc/confirmed-conversion-failures.csv \
+  --output-dir /ABSOLUTE/PATH/ADNI_DATA/qc/step9b
+```
+
+The gate requires nearest diagnoses within 28 days and preserves source-QC pending candidates. Known source-QC blocks, clinical failures and confirmed ST absence cannot reenter. `retained_sessions.tsv` contains eligible and pending rows; `inclusion_audit.tsv` preserves every run and decision. Use the [confirmed-evidence schemas](02_custom/s9b_validate_inclusion/README.md#input): a missing ST record does not establish confirmed absence. Imaging-review status is preserved; `ANALYSIS_READY=False` remains explicit.
 
 ## ⚠️ Current scope boundaries
 

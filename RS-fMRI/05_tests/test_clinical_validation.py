@@ -211,3 +211,60 @@ def test_included_rid_cannot_override_imaging_subject(tmp_path):
     with pytest.raises(ValueError, match='RID disagrees'):
         clinical.process(*inputs, tmp_path / 'out')
     assert not (tmp_path / 'out').exists()
+
+
+def test_static_sex_fill_keeps_provenance_and_missing_education(tmp_path):
+    inputs = fixture(tmp_path); row = clinical.read(inputs[3])[0]
+    write(inputs[3], [{**row, 'PHASE': 'ADNI3', 'PTGENDER': ''},
+                      {**row, 'PHASE': 'ADNI2', 'VISDATE': '2015-01-01', 'PTEDUCAT': '16'}])
+    clinical.process(*inputs, tmp_path / 'out')
+    out = clinical.read(tmp_path / 'out/clinical_validation.tsv')[0]
+    assert out['BIOLOGICAL_SEX'] == 'Male' and out['EDUCATION_PTEDUCAT'] == ''
+    assert out['SEX_SUBJECT_STATIC_FILL_COUNT'] == '1'
+    audit = clinical.read(tmp_path / 'out/sex_derivation.tsv')[0]
+    assert audit['METHOD'] == 'subject_static_fill' and audit['EVIDENCE_SOURCE_ROWS'] == '2'
+    assert any(r['TABLE'] == 'PTDEMOG_SEX_EVIDENCE' and r['SOURCE_ROW'] == '2' for r in clinical.read(tmp_path / 'out/clinical_source_rows.tsv'))
+
+
+def test_team_never_supplies_nearest_or_static_evidence(tmp_path):
+    inputs = fixture(tmp_path); row = clinical.read(inputs[3])[0]
+    write(inputs[3], [{**row, 'PHASE': 'TEAM', 'PTGENDER': '2'},
+                      {**row, 'PHASE': 'ADNI3', 'VISDATE': '2020-01-02', 'PTGENDER': ''},
+                      {**row, 'PHASE': 'ADNI2', 'VISDATE': '2015-01-01'}])
+    clinical.process(*inputs, tmp_path / 'out')
+    out = clinical.read(tmp_path / 'out/clinical_validation.tsv')[0]
+    assert out['PTDEMOG_SOURCE_ROWS'] == '2' and out['BIOLOGICAL_SEX'] == 'Male'
+    assert out['SEX_EVIDENCE_SOURCE_ROWS'] == '3'
+    audit = [r for r in clinical.read(tmp_path / 'out/clinical_source_eligibility.tsv') if r['TABLE'] == 'PTDEMOG']
+    assert audit[0]['ELIGIBLE'] == 'False' and 'team_phase_excluded' in audit[0]['REASONS']
+
+
+def test_conflicting_subject_values_do_not_impute_or_drop(tmp_path):
+    inputs = fixture(tmp_path); row = clinical.read(inputs[3])[0]
+    write(inputs[3], [{**row, 'PHASE': 'ADNI3', 'PTGENDER': ''},
+                      {**row, 'PHASE': 'ADNI2', 'VISDATE': '2015-01-01', 'PTGENDER': '1'},
+                      {**row, 'PHASE': 'ADNI2', 'VISDATE': '2016-01-01', 'PTGENDER': '2'}])
+    clinical.process(*inputs, tmp_path / 'out')
+    out = clinical.read(tmp_path / 'out/clinical_validation.tsv')[0]
+    assert out['BIOLOGICAL_SEX'] == '' and out['CLINICAL_STATUS'] == 'pass'
+    assert out['SEX_SUBJECT_PROFILE_CONFLICT'] == 'True' and out['SEX_SUBJECT_STATIC_FILL_COUNT'] == '0'
+
+
+@pytest.mark.parametrize('evidence_phase,expected', [('ADNI3', ''), ('ADNI4', 'Male')])
+def test_adni4_does_not_borrow_legacy_gender(tmp_path, evidence_phase, expected):
+    inputs = fixture(tmp_path); row = clinical.read(inputs[3])[0]
+    write(inputs[3], [{**row, 'PHASE': 'ADNI4', 'PTGENDER': '', 'LEGACY_PARTICIPANT_GENDER_FILLED': '2'},
+                      {**row, 'PHASE': evidence_phase, 'VISDATE': '2015-01-01'}])
+    clinical.process(*inputs, tmp_path / 'out')
+    out = clinical.read(tmp_path / 'out/clinical_validation.tsv')[0]
+    assert out['BIOLOGICAL_SEX'] == expected
+    assert clinical.read(tmp_path / 'out/sex_derivation.tsv')[0]['SCOPE'] == 'adni4_sex_assigned_at_birth'
+
+
+def test_qc_error_cannot_supply_static_value(tmp_path):
+    inputs = fixture(tmp_path); row = clinical.read(inputs[3])[0]
+    write(inputs[3], [{**row, 'PHASE': 'ADNI3', 'PTGENDER': ''},
+                      {**row, 'PHASE': 'ADNI3', 'VISDATE': '2015-01-01', 'HAS_QC_ERROR': '1'}])
+    clinical.process(*inputs, tmp_path / 'out')
+    out = clinical.read(tmp_path / 'out/clinical_validation.tsv')[0]
+    assert out['BIOLOGICAL_SEX'] == '' and out['SEX_SUBJECT_STATIC_FILL_COUNT'] == '0'

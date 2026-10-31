@@ -3,7 +3,7 @@
 | Component | Initial pin or baseline | Status |
 |---|---|---|
 | Upstream | `e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3` | Previously reviewed local commit; no automatic adoption of remote updates |
-| Wrapper | 0.3.0, 2026-11-01 | Source QC, clinical validation, submodule/configuration handoff and synthetic tests |
+| Wrapper | 0.4.0, 2026-11-01 | Source QC, sex filling/TEAM exclusion, 9.B inclusion validation, configuration handoff and tests |
 | Motion-duration | Existing local_mac checker | Initially imported byte-identically; source hash recorded separately |
 | Example MRIQC | 24.0.2 | Actual installation, execution and digest require environment-specific verification |
 | Example fMRIPrep | 25.2.7 | Actual installation, execution and digest require environment-specific verification |

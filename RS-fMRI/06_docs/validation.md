@@ -46,3 +46,13 @@ Ported 7.A Docker volume execution/audit/metadata repair/image QA and S10 S8 col
 Container reconnection/failure recovery and external-volume disconnection/corruption/interrupted recovery were tested with synthetic files and mocked subprocesses. Actual Docker imaging calculations or external archiving were not rerun during this consolidation. Evidence for the active SB pilot and historical two-visit volume pilot remains in their private runtimes/local archive. Code tests do not establish completion of active workers.
 
 The upstream submodule commit remains pinned. Input-contract differences between 7.A (no FreeSurfer) and S10 (Euler required) are documented. Actual Linux/Slurm/CIFTI processing, flat-derivative-to-pair adapters and automated research-inclusion intersections across source QC/8.A/clinical conditions remain unvalidated or unimplemented.
+
+## 2026-11-01 Sex filling, TEAM exclusion and Step 9.B
+
+Local verification: **226 passed, 17 subtests passed**. Coverage includes raw-row sex filling, TEAM exclusion, artifact-version/hash enforcement, nearest/28-day policy, pending preservation, explicit ST evidence, identity conflicts and S10 decision preservation.
+
+Step 9.A v2 fills missing sex only from consistent eligible same-scope raw visits, excludes TEAM and records source rows. Step 9.B verifies 3.A/9.A artifacts and combines source QC, clinical conditions and confirmed ST/optional conversion exclusions. It fixes nearest/28-day matching, retains source-QC pending and preserves S10 exclusions, review holds and identity conflicts.
+
+Actual Research sources were rerun through 3.A → 9.A → 9.B. Among 16,638 candidate images, 9,582 were eligible, 2,068 pending and 4,988 excluded. The retained 11,650 images (including 2,239 EPI) exactly reproduced the Research retained image set. All 119 additional unresolved-sex images were reconciled; the original one unresolved image remained. All 33 TEAM rows were excluded. Reasons cover 254 source-QC blocks, 4,804 clinical failures, five confirmed ST-absence images and seven conversion failures; these categories overlap and must not be summed.
+
+The actual-data input used explicit per-image metadata-audit labels, not a BIDS inclusion table approved by physical/visual QC. Every result remains ANALYSIS_READY=False. Participant-level outputs and private source paths stay outside this public repository.

@@ -16,7 +16,8 @@ Independent reporting steps create new outputs only. Steps that alter participan
 - 5.C: validate upstream final_heuristics.tsv, optionally apply the 3.A source-QC gate and generate Step 6/7 inputs. Clinical selection is separate.
 - 7.A: execution, audit and metadata repair for the existing Docker volume aCompCor profile, with scientific settings separate from S10.
 - 8.A: reuse existing local motion-duration QC. It does not automatically join upstream final tables; record research inclusion decisions separately for failed/held runs.
-- 9.A: validate evidence and exceptions for diagnoses, PTDEMOG and optional APOE/auxiliary sex sources linked to actual scan dates.
+- 9.A: validate evidence and exceptions for diagnoses, PTDEMOG and optional APOE/auxiliary sex sources linked to actual scan dates. Exclude TEAM and preserve same-scope participant-static sex-filling evidence.
+- 9.B: combine 3.A, corrected 9.A v2 and explicitly confirmed ST absence; fix nearest/28-day matching and retain pending. Optionally apply reviewed conversion failures and preserve S10 imaging decisions.
 - S10: S8 collection, 36P/LINC XCP-D, integrated imaging QC and validated archival gates for completed pairs; export actual image dates/IDs to 9.A. See [input and transition boundaries](xcpd_consolidation.md).
 - `04_workflow/lab.py plan`: print commands for known entry points. It is not an orchestration engine for automatic stage execution, scheduler submission or error recovery.
 

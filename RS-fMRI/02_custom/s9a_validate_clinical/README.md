@@ -11,7 +11,7 @@ Apply Research's actual-date, diagnostic-tie and raw-evidence preservation rules
 - Multiple runs in a session require exact per-run Image ID mappings. Multiple date/phase/image candidates or reuse of the same ID across runs cause a hold, never automatic first-row selection.
 - Supports native `dicom_SeriesInstanceUID` and `SERIES_UID/SeriesInstanceUID`. Different UIDs for one image or conflicts between UID columns also cause a hold.
 - `--dxsum`: `PTID` or `RID`, `PHASE,EXAMDATE,DIAGNOSIS`, optional `HAS_QC_ERROR,DXMDUE,DXDDUE`.
-- `--ptdemog`: `PTID` or `RID`, `VISDATE`, optional `PTEDUCAT,PTHAND,PTETHCAT,PTRACCAT,PTDOB`, legacy/ADNI4 sex columns or `PTGENDER`.
+- `--ptdemog`: `PTID` or `RID`, `VISDATE`, optional `PHASE,PTGENDER,PTEDUCAT,PTHAND,PTETHCAT,PTRACCAT,PTDOB`. Sex filling uses raw `PHASE,PTGENDER`, not supplied `*_FILLED` values.
 - Optional `--apoe`: `PTID/RID,GENOTYPE`; `--adsl`,`--dm`: numeric `SUBJID` or RID and `SEX` (Male/Female or M/F). RDS inputs are unsupported; explicitly export CSV files.
 
 ## Processing
@@ -20,11 +20,13 @@ Apply Research's actual-date, diagnostic-tie and raw-evidence preservation rules
 - `--max-dx-days 28` is Research's initial policy and can be changed per study. `--dx-direction past` allows only assessments on or before the scan. Record gaps, signed differences, future visits and phase mismatch.
 - `1=CN`, `2=MCI`, `3=Dementia`; add suspected AD/other clinical etiology only with consistent `DXMDUE/DXDDUE` evidence. Do not apply later-phase etiology mapping to ADNI1 dementia or infer biological AD.
 - Preserve all nearest PTDEMOG ties. Missing/conflicting education, handedness, race, ethnicity, sex or APOE remains unresolved and does not alone exclude a run.
+- Exclude `PHASE=TEAM`, QC errors and invalid dates from nearest matching and sex evidence. Fill structurally missing nearest `PTGENDER` only when eligible participant visits provide one consistent known value; preserve education and raw values.
+- Keep legacy ADNI1/GO/2/3 gender and ADNI4 sex assigned at birth in separate scopes. Never borrow across scopes or resolve conflicting values automatically. Without PHASE, retain raw evidence but do not fill. Record auxiliary-source disagreements as unresolved.
 - Record scan-link Age as a separate source and compare it with month-based PTDOB approximate age and birth-information conflicts. Do not reproduce first-PTDOB selection from historical RDS snapshots.
 
 ## Output
 
-`clinical_validation.tsv`: every input run with pass/hold and reasons. `clinically_validated_sessions.tsv`: the subset passing clinical linkage conditions. `clinical_source_rows.tsv`: all linked raw rows with source row numbers and JSON. `clinical_source_eligibility.tsv`: reasons for ignoring QC-error rows or invalid dates/diagnoses. `artifact.json`: input/output/code hashes and policy.
+`clinical_validation.tsv`: every input run with pass/hold and reasons. `clinically_validated_sessions.tsv`: the subset passing clinical linkage conditions. `clinical_source_rows.tsv`: all linked raw rows and additional participant-level sex evidence with source row numbers and JSON. `clinical_source_eligibility.tsv`: reasons for ignoring TEAM, QC-error rows or invalid dates/diagnoses. `sex_derivation.tsv`: raw values, phase scope, filling method and source rows. `artifact.json`: input/output/code hashes, policy and kind `clinical_validation_v2`.
 
 Keep `ANALYSIS_READY=False` for every result. **A clinical pass does not establish MRI quality, physical-file validity or visual-QC approval.** Use this subset together with upstream and Custom QC decisions when forming research inclusion tables.
 
@@ -41,6 +43,8 @@ python 02_custom/s9a_validate_clinical/run.py \
 ```
 
 When APOE/ADSL/DM is not supplied, retain the corresponding unvalidated status. Do not force a single scan date, latest visit, AD-only cohort or complete-case cohort.
+
+Regenerate v1 results instead of editing their manifest. Pass the new v2 artifact to [9.B](../s9b_validate_inclusion/README.md) to combine source QC, clinical conditions and confirmed ST absence. Default nearest/28-day matching is unchanged.
 
 ## Validation
 
