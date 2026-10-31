@@ -46,20 +46,20 @@ python -m pytest -q
 
 | 순서 | 단계 | 코드 | 주요 입출력·완료 조건 |
 |---|---|---|---|
-| 1 | Account & Access | [원본 Step 1](01_upstream/ADNI_fMRI_protocol/s1_setup_account/README.md) | ADNI 이용 승인 |
-| 2 | Download | [원본 Step 2](01_upstream/ADNI_fMRI_protocol/s2_download/README.md) | 원본 UI에서 영상·메타데이터·임상표 다운로드, collection CSV 보존 |
-| 3 | Organize & Download QC | [원본 Step 3](01_upstream/ADNI_fMRI_protocol/s3_organize/README.md) | DICOM inventory와 다운로드 목록 대조 |
+| 1 | Account & Access | [원본 Step 1](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s1_setup_account/README.md) | ADNI 이용 승인 |
+| 2 | Download | [원본 Step 2](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s2_download/README.md) | 원본 UI에서 영상·메타데이터·임상표 다운로드, collection CSV 보존 |
+| 3 | Organize & Download QC | [원본 Step 3](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s3_organize/README.md) | DICOM inventory와 다운로드 목록 대조 |
 | **3.A** | **원본 QC·NFQ 검증** | [Custom](02_custom/s3a_source_qc/README.md) | 원본 표의 ID·날짜·UID·품질·삭제·NFQ 감사, 후속 5.C에 연결 |
-| 4 | Clinica | [원본 Step 4](01_upstream/ADNI_fMRI_protocol/s4_clinica/README.md) | DICOM → BIDS, conversion_info 보존 |
-| 4.B | Philips SliceTiming | [원본 Step 4b](01_upstream/ADNI_fMRI_protocol/s4b_slice_timing/README.md) | 먼저 dry-run, 실제 영상 식별·slice axis 대응 검토 |
-| 5.A–B | Post-Clinica QC | [원본 Step 5](01_upstream/ADNI_fMRI_protocol/s5_post_clinica_qc/README.md) | mastersheet → final_heuristics.tsv |
+| 4 | Clinica | [원본 Step 4](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s4_clinica/README.md) | DICOM → BIDS, conversion_info 보존 |
+| 4.B | Philips SliceTiming | [원본 Step 4b](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s4b_slice_timing/README.md) | 먼저 dry-run, 실제 영상 식별·slice axis 대응 검토 |
+| 5.A–B | Post-Clinica QC | [원본 Step 5](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s5_post_clinica_qc/README.md) | mastersheet → final_heuristics.tsv |
 | **5.C** | **입력 연결 검증** | [Custom](02_custom/s5c_validate_handoff/README.md) | 3.A 근거와 선택 BOLD를 대조, 실패·충돌 차단 및 pending 표시 후 6/7 입력 생성 |
-| 6 | MRIQC | [원본 Step 6](01_upstream/ADNI_fMRI_protocol/s6_mriqc/README.md) | IQM·보고서 산출, Step-5 생존 세션으로 IQM 적합 범위 확인 |
-| 7 | fMRIPrep | [원본 Step 7](01_upstream/ADNI_fMRI_protocol/s7_fmriprep/README.md) | 5.C의 세션 CSV를 명시 전달, 영상·confounds·보고서 생성 |
+| 6 | MRIQC | [원본 Step 6](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s6_mriqc/README.md) | IQM·보고서 산출, Step-5 생존 세션으로 IQM 적합 범위 확인 |
+| 7 | fMRIPrep | [원본 Step 7](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s7_fmriprep/README.md) | 5.C의 세션 CSV를 명시 전달, 영상·confounds·보고서 생성 |
 | **7.A** | **별도 Docker volume profile** | [Custom](02_custom/s7a_volume_workflow/README.md) | 기존 aCompCor profile·독립 감사·metadata 복구, 원본 7 및 S10과 다른 실행 경로 |
-| 8 | Final QC | [원본 Step 8](01_upstream/ADNI_fMRI_protocol/s8_final_qc/README.md) | motion·Euler·MRIQC 및 포함·제외 사유 |
+| 8 | Final QC | [원본 Step 8](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s8_final_qc/README.md) | motion·Euler·MRIQC 및 포함·제외 사유 |
 | **8.A** | **motion 잔여시간 검사** | [Custom](02_custom/s8a_motion_duration_qc/README.md) | 실제 TR×남은 frame, FD 비율, 초기 시점 제외 민감도와 mask |
-| 9 | Clinical Merge | [원본 Step 9](01_upstream/ADNI_fMRI_protocol/s9_clinical_imaging_merge/README.md) | 원본 인지평가 연결·보고서 생성, 원본 출력 보존 |
+| 9 | Clinical Merge | [원본 Step 9](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s9_clinical_imaging_merge/README.md) | 원본 인지평가 연결·보고서 생성, 원본 출력 보존 |
 | **9.A** | **임상정보 검증** | [Custom](02_custom/s9a_validate_clinical/README.md) | 실제 촬영일·최근접 진단 전부·28일 창·Dementia/의심 원인·PTDEMOG/APOE 검증 |
 | **10** | **XCP-D·통합 영상 QC** | [Custom](02_custom/s10_xcpd_integrated_qc/README.md) | S7 완료 pair부터 S8 지표 → 잠정 후보 XCP-D → 검증·사람 검토 → 명시 cohort 최종화, 9.A link 생성 |
 
@@ -164,4 +164,4 @@ python 04_workflow/lab.py doctor
 
 ## 📚 출처와 라이선스
 
-원본 저자와 protocol의 인용은 submodule의 [CITATION.cff](01_upstream/ADNI_fMRI_protocol/CITATION.cff)를 따릅니다. 추가 코드의 출처는 [NOTICE](NOTICE.md), 원본과 호환되는 GPL-3.0 조건은 [LICENSE](../LICENSE)에 기록했습니다. ADNI 원본 데이터는 재배포하지 않습니다.
+원본 저자와 protocol의 인용은 submodule의 [CITATION.cff](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/CITATION.cff)를 따릅니다. 추가 코드의 출처는 [NOTICE](NOTICE.md), 원본과 호환되는 GPL-3.0 조건은 [LICENSE](../LICENSE)에 기록했습니다. ADNI 원본 데이터는 재배포하지 않습니다.
