@@ -2,34 +2,34 @@
 
 ## Purpose
 
-기존 로컬 `adni-rsfmri-pipeline`의 fMRIPrep → XCP-D volume 실행·감사·영상 QC·안전한 metadata 복구 기능을 통합한 경로입니다. 최신 S10의 36P/LINC와 다른 분석 설정을 보존합니다. 원본 Step 7 Slurm 경로와 함께 같은 output/cache에 실행하지 않습니다.
+This consolidates fMRIPrep → XCP-D volume execution, audit, image QC and guarded metadata repair from the former local `adni-rsfmri-pipeline`. It preserves different scientific settings from S10's newer 36P/LINC workflow. Do not run it alongside upstream Step 7 against the same output/cache.
 
-| 항목 | 이 경로 | 주 후처리 S10 |
+| Setting | This workflow | Main S10 postprocessing |
 |---|---|---|
-| 표준 공간 | MNI152NLin2009cAsym/res-2 | MNI152NLin6Asym/res-2 |
-| 회귀 | aCompCor, GSR 없음 | 36P, GSR 포함 |
-| FD / 최소 잔여 시간 | 0.5 mm / 240초 | 0.3 mm / 240초 |
-| FreeSurfer reconstruction | 비활성 | S8 Euler를 위해 완료된 FreeSurfer 필요 |
-| ROI/FC | 이 profile에서 생략 | 4S256 ROI/FC·coverage 검증 |
+| Standard space | MNI152NLin2009cAsym/res-2 | MNI152NLin6Asym/res-2 |
+| Regression | aCompCor, no GSR | 36P, including GSR |
+| FD / minimum retained time | 0.5 mm / 240 seconds | 0.3 mm / 240 seconds |
+| FreeSurfer reconstruction | Disabled | Completed FreeSurfer outputs required for S8 Euler |
+| ROI/FC | Omitted in this profile | 4S256 ROI/FC and coverage validation |
 
 ## Input
 
-실제 BIDS T1w/rest BOLD와 원래 metadata, 별도의 FreeSurfer license, 외부 JSON 설정이 필요합니다. `config.example.json`의 참가자는 합성 예시입니다. 모든 runtime/data 경로를 저장소 밖 실제 위치로 바꿉니다. 지원 단위는 명시 subject/session이며 여러 run/echo로 일반화된 실행기로 간주하지 않습니다.
+Requires actual BIDS T1w/rest BOLD data with original metadata, a separate FreeSurfer license and external JSON configuration. Participants in `config.example.json` are synthetic examples. Set all runtime/data paths to actual locations outside the repository. The supported unit is an explicit subject/session, not a generalized multi-run/multi-echo workflow.
 
 ## Processing
 
-- fMRIPrep 25.2.7 및 XCP-D 26.2.0의 고정 tag를 설치된 immutable digest로 해석, shell 없는 argv 실행.
-- 입력 read-only mount·전후 SHA-256, 명령·설정·runner snapshot·CITATION 및 cache identity 기록.
-- `repair_xcpd_metadata.py`: 알려진 누락 단위만 조건부 보완, 압축 원본·전후 header 및 voxel payload 불변 증명 보존. 임의 헤더 수정 금지.
-- `audit_outputs.py`: confounds/Power FD·censoring·출력 volume·설정·보고서 대조. `qc_images.py`: voxel 유한값/시간 분산과 정합 mosaic. 영상 생성은 사람이 하는 시각 검토의 대체가 아님.
+- Resolve pinned fMRIPrep 25.2.7 and XCP-D 26.2.0 tags to installed immutable digests; execute argv lists without a shell.
+- Record read-only input mounts, before/after SHA-256, commands, configuration, runner snapshots, CITATION files and cache identity.
+- `repair_xcpd_metadata.py`: conditionally repair only the known missing units, preserving compressed originals, before/after headers and proof of unchanged voxel payloads. Arbitrary header edits are prohibited.
+- `audit_outputs.py`: compare confounds/Power FD, censoring, output volumes, settings and reports. `qc_images.py`: check voxel finiteness/temporal variance and render registration mosaics. Image generation does not replace human visual review.
 
 ## Output
 
-외부 `paths`의 derivatives/work/logs와 독립 QC JSON·PNG. 실행 완료와 기술 검사·시각/연구 판정을 구분합니다. 기존 실제 두 방문의 상세 결과와 개인 config는 로컬 보관본에만 유지합니다.
+Derivatives/work/logs under external `paths`, plus independent QC JSON/PNG files. Distinguish execution completion, technical checks and visual/scientific decisions. Detailed historical results for the two actual visits and private configuration remain only in the local archive.
 
 ## Execution
 
-`RS-fMRI/`에서 실제 외부 config를 지정합니다. 컨테이너 다운로드·계산은 아래 명령을 명시 실행할 때만 수행합니다.
+Run from `RS-fMRI/` with an actual external configuration. Container downloads and processing occur only when the corresponding commands below are explicitly executed.
 
 ```sh
 python 02_custom/s7a_volume_workflow/pipeline.py --config /ABSOLUTE/PATH/volume.local.json dry-run --stage fmriprep --subject 999S9999
@@ -39,12 +39,12 @@ python 02_custom/s7a_volume_workflow/pipeline.py --config /ABSOLUTE/PATH/volume.
 python 02_custom/s7a_volume_workflow/audit_outputs.py --data-root /ABSOLUTE/PATH/ADNI_DATA/volume --subject 999S9999 --session 20200101 --output /ABSOLUTE/PATH/ADNI_DATA/volume-qc/audit.json
 ```
 
-이전 성공한 XCP-D의 metadata 보완은 같은 config/subject에 `finalize-xcpd --stage xcpd`를 사용합니다. 성공·입력 불변·실행 identity를 확인하며 원래 실행 기록은 보존합니다. 이미 동작 중인 컨테이너를 이사하거나 cache identity를 새로 채워 우회하지 않습니다.
+For metadata finalization of a previously successful XCP-D run, use `finalize-xcpd --stage xcpd` with the same configuration/subject. It checks success, unchanged inputs and execution identity while preserving the original run record. Do not relocate active containers or invent cache identities to bypass checks.
 
 ## Validation
 
-기존 실행·실패 복구·header/voxel 불변·독립 감사·영상 QC 합성 테스트를 `05_tests/volume_workflow/`에 이식했습니다. 원래 실제 방문의 실행 기록은 이번 통합의 재실행 결과로 주장하지 않습니다. [전체 검증 범위](../../06_docs/validation.md).
+The existing synthetic execution, failure recovery, header/voxel invariance, independent audit and image-QC tests were ported to `05_tests/volume_workflow/`. Historical actual-visit records are not presented as new executions during this consolidation. See [full validation scope](../../06_docs/validation.md).
 
 ## Dependencies
 
-Python 3.11+, [requirements](../../requirements.txt), Docker 및 기존 이미지·template cache. 실행은 Linux AMD64이며 Mac emulation과 실제 소요 시간은 환경별 검증 대상입니다. [보존한 방법](METHODS.md), [문헌/적용 범위](literature.md), [통합·전환 안내](../../06_docs/xcpd_consolidation.md).
+Python 3.11+, [requirements](../../requirements.txt), Docker and existing image/template caches. Execution targets Linux AMD64; Mac emulation and runtime require environment-specific validation. See [preserved methods](METHODS.md), [literature and scope](literature.md), and the [consolidation and transition guide](../../06_docs/xcpd_consolidation.md).

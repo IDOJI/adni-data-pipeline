@@ -65,7 +65,7 @@ def test_upstream_document_links_use_pinned_github_blob_urls():
     prefix = lock['repository'].removesuffix('.git') + '/blob/' + lock['commit'] + '/'
     text = (ROOT / 'README.md').read_text()
     links = re.findall(r'\[([^]]+)\]\(([^)]+)\)', text)
-    original_steps = [(label, url) for label, url in links if label.startswith('원본 Step ')]
+    original_steps = [(label, url) for label, url in links if label.startswith('Upstream Step ')]
     assert len(original_steps) == 10
     for label, url in original_steps + [(label, url) for label, url in links if label == 'CITATION.cff']:
         assert url.startswith(prefix), (label, url)

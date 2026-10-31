@@ -1,48 +1,48 @@
-# Step 5.C — 원본 Step 5와 Step 6/7의 입력 연결
+# Step 5.C — Handoff from upstream Step 5 to Steps 6/7
 
 ## Purpose
 
-원본은 Step 5 결과를 TSV로 쓰지만 Step 6 launcher는 쉼표 CSV를 읽습니다. 이 단계는 **원본에서 이미 통과한 세션**을 형식 검증 후 전달합니다. Research의 과거 Selection Table이나 새 임상 선별은 사용하지 않습니다.
+Upstream writes Step 5 results as TSV, while the Step 6 launcher reads comma-delimited CSV. This step validates and passes on **sessions already retained upstream**. It does not use a historical Research Selection Table or perform new clinical selection.
 
 ## Input
 
-- 원본 `final_heuristics.tsv`: 필수 `Subject_ID`, `VISCODE`.
-- `NIfTI_exists`, `JSON_exists`, `T1w_exists`가 있으면 모두 true여야 합니다.
-- `bl`, `mNN`, `MNNN`, `ses-MNNN`을 Clinica 세션으로 정규화합니다. screening·달력 날짜를 방문코드로 추측하지 않습니다.
+- Upstream `final_heuristics.tsv`, requiring `Subject_ID` and `VISCODE`.
+- If `NIfTI_exists`, `JSON_exists` or `T1w_exists` are present, each must be true.
+- Normalize `bl`, `mNN`, `MNNN` and `ses-MNNN` to Clinica session labels. Do not infer visit codes from screening labels or calendar dates.
 
 ## Processing
 
-입력 전체를 먼저 검증하고 중복 정규화 세션·비정상 ID·빈 입력·모순된 존재 flag를 거절합니다. 세션을 임의 삭제하거나 대표 run을 고르지 않습니다. 같은 세션에 여러 run이 있으면 명시적인 추가 설계가 필요합니다.
+Validate the entire input first and reject duplicate normalized sessions, invalid IDs, empty inputs and contradictory existence flags. Do not arbitrarily drop sessions or choose a representative run. Multiple runs in a session require an explicit extension.
 
 ## Output
 
-| 파일 | 역할 |
+| File | Role |
 |---|---|
-| `mriqc_subjects.csv` | Step 6용 참가자당 한 행, 쉼표 구분 |
-| `post_clinica.csv` | Step 7용 `Subject_ID,sessions`, 공백 구분 `M000 M012` |
-| `mriqc_sessions.csv` | Step 7 `--sessions-csv`에 전달할 `Subject_ID,VISCODE` |
-| `valid_sessions.tsv` | 통과한 BIDS `sub,ses` 대조용 |
-| `handoff.json` | 입력·출력 hash와 범위, 연구 포함 미판정 상태 |
+| `mriqc_subjects.csv` | One comma-delimited row per participant for Step 6 |
+| `post_clinica.csv` | `Subject_ID,sessions` for Step 7, with space-delimited `M000 M012` |
+| `mriqc_sessions.csv` | `Subject_ID,VISCODE` for Step 7 `--sessions-csv` |
+| `valid_sessions.tsv` | Retained BIDS `sub,ses` pairs for comparison |
+| `handoff.json` | Input/output hashes, scope and unresolved research inclusion status |
 
-**MRIQC 원본 launcher는 세션 필터를 전달하지 않습니다.** 같은 참가자의 다른 BIDS 세션이 처리될 수 있으므로 group IQM의 적합 모집단을 별도로 확인해야 합니다. 이 변환만으로 세션 제한이 된다고 해석하지 않습니다.
+**The upstream MRIQC launcher does not pass a session filter.** Other BIDS sessions for a participant may be processed. Check the population used to fit group IQMs separately; this conversion alone does not restrict sessions.
 
 ## Execution
 
-root README의 `python 02_custom/s5c_validate_handoff/run.py --input ... --output-dir ...` 사용 후 `prepare-config --handoff ...`로 새로운 외부 설정을 생성합니다. Step 7 명령에는 `--sessions-csv .../mriqc_sessions.csv`도 명시합니다.
+Use `python 02_custom/s5c_validate_handoff/run.py --input ... --output-dir ...` from the root README, then generate a new external configuration with `prepare-config --handoff ...`. Also provide `--sessions-csv .../mriqc_sessions.csv` in the Step 7 command.
 
 ## Validation
 
-원본 입력 hash 불변, 참가자·세션의 일대일 보존, CSV를 원본 Step 7 parser로 읽은 결과와의 일치, 기존 출력 거절을 테스트합니다. 완료는 형식 검증이며 새로운 품질 통과 판정이 아닙니다.
+Tests verify unchanged source hashes, one-to-one participant/session preservation, round-trip agreement with the upstream Step 7 CSV parser and refusal to overwrite existing results. Completion means format validation, not a new quality pass.
 
 ## Dependencies
 
-Python 3.11+ 표준 라이브러리. 이 단계 자체는 MRI 파일·RDS·개인 설정을 읽지 않습니다.
+Python 3.11+ standard library. This step itself does not read MRI images, RDS files or private configuration.
 
 
-## Step 3.A 근거의 적용
+## Applying evidence from Step 3.A
 
-`--source-qc /external/qc/step3a`로 artifact를 전달하면 입력/출력 hash와 `Image_ID + Subject_ID + Scan_Date`를 대조하고 UID가 제공된 경우에도 일치를 요구합니다. 실패·충돌·삭제·식별 미확인 세션을 후속 목록에서 제외하되 모든 판정을 `source_qc_audit.tsv`에 기록합니다. 이 단계의 T1 참조 영상 QC는 검증하지 않습니다.
+Pass the artifact with `--source-qc /external/qc/step3a` to verify input/output hashes and `Image_ID + Subject_ID + Scan_Date`; supplied UIDs must also match. Exclude failed, conflicting, deleted or identity-unverified sessions from downstream lists and record every decision in `source_qc_audit.tsv`. This gate does not validate the T1 reference image.
 
-`pending`은 전처리 후보로 보존하면서 연구 품질 통과와 구분합니다. 연구실에서 사전 확인된 QC만 처리하려면 `--require-confirmed-qc`를 명시합니다. 전부 차단된 경우 감사 파일은 보존하지만 `no_surviving_sessions`로 기록하고 CLI는 종료 코드 2를 반환합니다. `prepare-config`도 이 결과를 거절합니다.
+Retain `pending` sessions as preprocessing candidates without treating them as research-quality passes. Use `--require-confirmed-qc` to process only confirmed source QC. If all sessions are blocked, preserve the audit files, record `no_surviving_sessions` and return CLI exit code 2. `prepare-config` also rejects that result.
 
-3.A 없이 실행하면 기존 형식 검증 mode를 유지합니다. `source_qc_audit.tsv`, source artifact hash, 제외·pending 수가 실제 연결 여부를 판별하는 근거입니다. 임상 판정은 9.A에서 별도로 수행합니다.
+Without 3.A, the existing format-validation mode remains available. `source_qc_audit.tsv`, source-artifact hashes and excluded/pending counts identify whether the gate was applied. Clinical validation is performed separately in 9.A.

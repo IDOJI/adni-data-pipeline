@@ -1,9 +1,11 @@
 # Repository instructions
 
-- 원본 `01_upstream/ADNI_fMRI_protocol`은 고정 commit의 submodule이다. 호환성 보완은 `02_custom/` 또는 `04_workflow/`에서 구현한다.
-- 이 저장소의 기본 흐름은 upstream s1–s9다. 과거 Research Selection Table을 실행의 필수 입력이나 선택의 정본으로 추가하지 않는다.
-- 실행 순서와 각 Custom Step의 입력·출력·검증 조건은 root README와 해당 단계 README에 함께 갱신한다.
-- 데이터·임상 원본·실제 참가자 ID 목록·개인 설정·실행 결과·라이선스 파일은 저장소 밖에 둔다. 예시는 합성 자료만 사용한다.
-- 원본 업데이트는 테스트 브랜치에서 gitlink·lock·문서·호환성 테스트를 함께 검토한다. 자동 `--remote` 갱신을 설치 과정에 넣지 않는다.
-- 명령 계획과 실행 완료, 기술 검증과 연구 포함 판정을 구분한다. 전체 MRIQC·fMRIPrep 실행은 별도 요청과 실제 환경 확인 후 진행한다.
-- 검증: `python -m pytest -q`, `python 04_workflow/lab.py doctor`. 기존 upstream 작업 사본과 데이터는 수정하지 않는다.
+- `01_upstream/ADNI_fMRI_protocol` is a submodule pinned to a commit. Implement compatibility changes in `02_custom/` or `04_workflow/`.
+- Upstream s1–s9 remains the main workflow. Do not make a historical Research Selection Table a required input or the authoritative selection source.
+- Update execution order and each Custom Step's input/output/validation contract in both the root README and the step README.
+- Keep data, raw clinical tables, real participant lists, private configuration, execution results and license files outside the repository. Use synthetic examples only.
+- Review upstream updates on a test branch together with the gitlink, lock, documentation and compatibility tests. Do not use automatic `--remote` updates during installation.
+- Distinguish command plans from completed execution, and technical validation from research inclusion decisions. Full MRIQC/fMRIPrep execution requires a separate request and verification of the actual environment.
+- Validation: `python -m pytest -q` and `python 04_workflow/lab.py doctor`. Do not modify the existing upstream working copy or data.
+
+- Write all repository-owned Markdown explanations, headings, tables and example comments in English. Keep the pinned upstream submodule unchanged.

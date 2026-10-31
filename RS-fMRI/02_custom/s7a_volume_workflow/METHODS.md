@@ -1,4 +1,4 @@
-> 보존된 volume 파일럿의 방법 문서입니다. 예시는 합성 식별자로 치환했으며, 최신 36P/LINC 경로의 방법·검증 결과로 사용하지 않습니다.
+> Preserved methods for the volume pilot. Examples use synthetic identifiers; this document does not describe the methods or validation results of the newer 36P/LINC workflow.
 
 # 🟥1️⃣ Reporting status
 
@@ -31,15 +31,15 @@ Within the selected XCP-D workflow, high-motion samples were interpolated intern
 
 Technical quality control checked input-file integrity, image dimensions and units, TR, confound/censor-mask alignment, retained duration, finite image values and successful software execution. Selected reports and image mosaics were inspected for extraction, tissue boundaries, registration, distortion correction, coverage and temporal artifacts. Technical completion and automated motion/duration eligibility were recorded separately from the final research inclusion decision. Original frame indices were preserved alongside censored outputs so that subsequent temporal analyses could account for gaps in sampling.
 
-# 🟥1️⃣ 한국어 설명
+# 🟥1️⃣ Protocol summary
 
-- 참가자·방문별 BIDS 입력과 Docker 버전을 고정한 실행 및 원본 읽기 전용 연결
-- fMRIPrep에서 해부학 영상 보정·분할, 움직임·slice timing 보정, BOLD–T1 정합, MNI 표준공간 정규화를 수행하도록 설정
-- 제공된 테스트 BIDS에 field map이 없어 해부학 영상 기반 SyN 왜곡 보정을 요청하고 실제 적용 기록 검증
-- XCP-D에서 초기 비정상 volume 제거, aCompCor·움직임·cosine 회귀, 0.01–0.08 Hz 필터, FD >0.5 mm censoring을 수행하도록 설정
-- 보존 시간 240초 이상·초기 제거 후 motion censoring 비율 30% 이하를 분석 적격 기준으로 지정하고 별도 audit에서 판정. 6 mm 평활화 전·후 결과 출력 요청
-- 입력 무결성·영상 차원·시간축·실제 회귀변수·보고서의 왜곡 보정 기록 대조
-- 실행 성공, 움직임 기준 통과, 시각 QC, 최종 분석 포함 판정의 별도 기록
+- Pin participant/visit BIDS inputs and Docker versions, with original inputs mounted read-only.
+- Configure fMRIPrep for anatomical correction/segmentation, motion and slice-timing correction, BOLD–T1 registration and MNI normalization.
+- Request anatomy-based SyN distortion correction for the supplied field-map-free test BIDS and verify actual execution records.
+- Configure XCP-D for initial non-steady-state removal, aCompCor/motion/cosine regression, 0.01–0.08 Hz filtering and FD >0.5 mm censoring.
+- Specify at least 240 retained seconds and at most 30% motion censoring after dummy removal as eligibility criteria, evaluated by an independent audit. Request outputs before and after 6 mm smoothing.
+- Compare input integrity, image dimensions, time axes, actual regressors and distortion-correction evidence in reports.
+- Record execution success, motion eligibility, visual QC and final research inclusion separately.
 
 Report the actual slice-timing reference offset from each run's generated command; do not assume TR/2. Per-visit measured values remain in the private run record.
 

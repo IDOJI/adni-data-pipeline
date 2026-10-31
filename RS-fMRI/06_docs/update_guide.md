@@ -1,10 +1,10 @@
-# 원본 업데이트
+# Updating upstream
 
-일반 사용자는 저장소 root에서 `git pull --ff-only` 후 `git submodule update --init --recursive`로 기록된 원본 commit을 받습니다. `--remote`는 일상 설치 명령에 넣지 않습니다.
+For normal updates, run `git pull --ff-only` followed by `git submodule update --init --recursive` from the repository root. These restore the recorded upstream commit. Do not add `--remote` to routine installation commands.
 
-## 초기 무번호 구조에서 한 번만 전환
+## One-time migration from the initial unnumbered layout
 
-기존 clone에서 아직 `RS-fMRI/upstream/ADNI_fMRI_protocol`을 사용한다면 **업데이트 전에** 저장소 root에서 다음 순서로 진행합니다. `deinit`은 수정이 있는 submodule을 강제로 제거하지 않도록 `--force` 없이 사용합니다. 진행이 거절되면 원본 변경을 먼저 보존합니다.
+If an existing clone still uses `RS-fMRI/upstream/ADNI_fMRI_protocol`, run the following sequence from the repository root **before updating**. Use `deinit` without `--force` so modified submodules are not forcibly removed. If it refuses, preserve upstream changes first.
 
 ```sh
 git submodule deinit -- RS-fMRI/upstream/ADNI_fMRI_protocol
@@ -14,9 +14,9 @@ cd RS-fMRI
 python 04_workflow/lab.py doctor
 ```
 
-이 절의 무번호 경로는 이전 clone을 정리하는 일회성 입력입니다. 새 경로는 `RS-fMRI/01_upstream/ADNI_fMRI_protocol`이며, submodule 식별 이름과 고정 원본 commit은 유지합니다. 새 clone이나 이미 번호화한 clone은 위 deinit 단계를 생략합니다.
+The unnumbered path in this section is a one-time input for cleaning up an older clone. The new path is `RS-fMRI/01_upstream/ADNI_fMRI_protocol`; the submodule identifier and pinned upstream commit remain unchanged. Skip deinit for new or already migrated clones.
 
-원본 업데이트를 평가할 때는 깨끗한 root에서 별도 브랜치를 만듭니다.
+To evaluate an upstream update, start a separate branch from a clean repository root.
 
 ```sh
 git switch -c test/upstream-update
@@ -24,7 +24,7 @@ git submodule update --remote --checkout RS-fMRI/01_upstream/ADNI_fMRI_protocol
 git diff --submodule=log -- RS-fMRI/01_upstream/ADNI_fMRI_protocol
 ```
 
-새 source commit과 입력·출력 변경을 확인한 뒤 `RS-fMRI/03_config/upstream.lock.json`의 commit과 검토일을 갱신하고 gitlink를 stage합니다. lock 변경만으로 검증 완료로 표시하지 않습니다.
+Review the new source commit and input/output changes, then update the commit and review date in `RS-fMRI/03_config/upstream.lock.json` and stage the gitlink. A lock change alone does not establish validation.
 
 ```sh
 git add RS-fMRI/01_upstream/ADNI_fMRI_protocol RS-fMRI/03_config/upstream.lock.json
@@ -33,8 +33,8 @@ python -m pytest -q
 python 04_workflow/lab.py doctor
 ```
 
-합성 호환성 테스트 외에 연구실 검증 자료의 변환·QC·전처리·임상 연결 결과를 별도 외부 run에서 비교합니다. 통과하면 `03_config/versions.md`에 실제 도구·이미지 digest·변경·검증 범위를 기록하고 PR 검토 후 채택합니다.
+Alongside synthetic compatibility tests, compare conversion, QC, preprocessing and clinical-linkage results on lab validation data in a separate external run. If successful, record actual tools, image digests, changes and validation scope in `03_config/versions.md`, then adopt through PR review.
 
-실패하면 기존 main으로 돌아간 후 `git submodule update --init --recursive`로 원래 고정 버전을 복원합니다. 실험 branch나 사용자 변경이 있으면 먼저 보존하며 강제 checkout·reset을 사용하지 않습니다.
+If validation fails, return to the existing main branch and run `git submodule update --init --recursive` to restore the pinned version. Preserve experimental branches/user changes first; do not use forced checkout or reset.
 
-참고: [Git submodule 공식 문서](https://git-scm.com/docs/git-submodule).
+Reference: [official Git submodule documentation](https://git-scm.com/docs/git-submodule).

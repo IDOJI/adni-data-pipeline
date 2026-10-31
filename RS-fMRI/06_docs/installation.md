@@ -1,19 +1,19 @@
-# 설치와 실행 환경
+# Installation and execution environments
 
-## Wrapper와 Custom Step
+## Wrapper and Custom Steps
 
-root README의 recursive clone 후 `RS-fMRI/`에서 Python 3.11+ 가상환경을 만들고 `requirements.txt`를 설치합니다. `doctor`는 gitlink·lock·원본 checkout·dirty 상태를 대조합니다.
+After the recursive clone in the root README, create a Python 3.11+ virtual environment under `RS-fMRI/` and install `requirements.txt`. `doctor` compares the gitlink, lock, actual upstream checkout and working-tree cleanliness.
 
-## 원본 환경
+## Upstream environment
 
-원본의 `env/env_adni.yml`, `env/env_clinica.yml`, R 패키지와 Apptainer/Slurm 구성을 따릅니다. 이 저장소의 requirements는 Clinica·MRIQC·fMRIPrep 실행 환경을 대신하지 않습니다. container·template 수신은 여러 GB가 될 수 있으며 설치 단계와 분리합니다.
+Follow upstream `env/env_adni.yml`, `env/env_clinica.yml`, R packages and Apptainer/Slurm setup. This repository's requirements do not replace the Clinica/MRIQC/fMRIPrep execution environments. Container/template downloads can total several GB and are separate from wrapper installation.
 
-`03_config/lab_config.example.yaml`의 이미지명은 기존 로컬 검사에서 사용한 MRIQC 24.0.2·fMRIPrep 25.2.7을 명시한 예시입니다. 원본 commit의 예시 24.0.0과 구분합니다. 실제 이미지 digest와 명령은 실행별 provenance에 보존해야 합니다.
+Image names in `03_config/lab_config.example.yaml` are examples based on MRIQC 24.0.2 and fMRIPrep 25.2.7 used in local checks. Distinguish them from the upstream commit's 24.0.0 example. Preserve actual image digests and commands in per-run provenance.
 
 ## Mac
 
-Custom Step과 설정 도구는 Mac에서 테스트합니다. 원본 s4/s6/s7 launcher는 Slurm/Apptainer용이며 Mac용으로 자동 변환하지 않습니다. 기존 `local_mac` 파일럿은 원본에서 추적되지 않는 별도 로컬 확장이므로 submodule에 자동 포함되지 않습니다. 7.A에 별도 volume Docker 실행·감사 profile, S10에 완료 pair 후처리·통합 QC를 추가했습니다. 기존 local_mac 전체와 S6/S7 queue는 통합되지 않았으며, 평면 결과에서 S10 pair 계약으로의 자동 adapter도 별도입니다. [통합 범위](xcpd_consolidation.md)를 확인합니다.
+Custom Steps and configuration tools are tested on Mac. Upstream s4/s6/s7 launchers target Slurm/Apptainer and are not automatically converted to Mac. The existing `local_mac` pilot is an untracked local extension, not part of the submodule. Step 7.A adds a separate Docker volume execution/audit profile, and S10 adds completed-pair postprocessing/integrated QC. The full local_mac implementation and S6/S7 queue are not consolidated; a flat-derivative-to-S10-pair adapter is also separate. See [consolidation scope](xcpd_consolidation.md).
 
-## 출력 위치
+## Output locations
 
-`prepare-config`는 저장소 밖에만 결과를 씁니다. s5.A는 현재 작업 폴더에 `data/`를 쓰므로 외부 `ADNI_DATA/qc/step5a/`에서 실행합니다. s4의 원본 Slurm template에는 하드코딩 경로·환경·메일 지시문이 있으므로 그대로 제출하지 말고 외부 연구실 template에서 실제 경로·계정·modality·알림 정책을 확인합니다.
+`prepare-config` writes only outside the repository. Because s5.A writes `data/` in its working directory, run it from external `ADNI_DATA/qc/step5a/`. The upstream s4 Slurm template contains hardcoded paths, environments and mail directives. Review actual paths, accounts, modality and notification policy in an external lab template before submission.
