@@ -14,8 +14,10 @@ statMINDlab의 ADNI fMRI 프로토콜을 **Git Submodule로 버전 고정**하�
 RS-fMRI/
 ├── 01_upstream/ADNI_fMRI_protocol/  # 원본 commit을 가리키는 submodule
 ├── 02_custom/
+│   ├── s3a_source_qc/            # 원본 QC·NFQ·삭제·식별 감사
 │   ├── s5c_validate_handoff/     # Step 5 TSV → Step 6/7 입력 연결
-│   └── s8a_motion_duration_qc/  # 실제 FD·TR로 잔여 시간 검증
+│   ├── s8a_motion_duration_qc/    # 실제 FD·TR로 잔여 시간 검증
+│   └── s9a_validate_clinical/    # 촬영일·진단 동률·인구통계 대조
 ├── 03_config/                     # 개인 데이터가 없는 설정 예시·버전 lock
 ├── 04_workflow/                   # 버전 검사·외부 설정 생성·명령 계획
 ├── 05_tests/                      # 합성 자료 및 원본 호환성 검사
@@ -45,17 +47,25 @@ python -m pytest -q
 | 1 | Account & Access | [원본 Step 1](01_upstream/ADNI_fMRI_protocol/s1_setup_account/README.md) | ADNI 이용 승인 |
 | 2 | Download | [원본 Step 2](01_upstream/ADNI_fMRI_protocol/s2_download/README.md) | 원본 UI에서 영상·메타데이터·임상표 다운로드, collection CSV 보존 |
 | 3 | Organize & Download QC | [원본 Step 3](01_upstream/ADNI_fMRI_protocol/s3_organize/README.md) | DICOM inventory와 다운로드 목록 대조 |
+| **3.A** | **원본 QC·NFQ 검증** | [Custom](02_custom/s3a_source_qc/README.md) | 원본 표의 ID·날짜·UID·품질·삭제·NFQ 감사, 후속 5.C에 연결 |
 | 4 | Clinica | [원본 Step 4](01_upstream/ADNI_fMRI_protocol/s4_clinica/README.md) | DICOM → BIDS, conversion_info 보존 |
 | 4.B | Philips SliceTiming | [원본 Step 4b](01_upstream/ADNI_fMRI_protocol/s4b_slice_timing/README.md) | 먼저 dry-run, 실제 영상 식별·slice axis 대응 검토 |
 | 5.A–B | Post-Clinica QC | [원본 Step 5](01_upstream/ADNI_fMRI_protocol/s5_post_clinica_qc/README.md) | mastersheet → final_heuristics.tsv |
-| **5.C** | **입력 연결 검증** | [Custom](02_custom/s5c_validate_handoff/README.md) | TSV 검증, 참가자·세션 CSV와 형식별 입력 생성; 추가 임상 선별 없음 |
+| **5.C** | **입력 연결 검증** | [Custom](02_custom/s5c_validate_handoff/README.md) | 3.A 근거와 선택 BOLD를 대조, 실패·충돌 차단 및 pending 표시 후 6/7 입력 생성 |
 | 6 | MRIQC | [원본 Step 6](01_upstream/ADNI_fMRI_protocol/s6_mriqc/README.md) | IQM·보고서 산출, Step-5 생존 세션으로 IQM 적합 범위 확인 |
 | 7 | fMRIPrep | [원본 Step 7](01_upstream/ADNI_fMRI_protocol/s7_fmriprep/README.md) | 5.C의 세션 CSV를 명시 전달, 영상·confounds·보고서 생성 |
 | 8 | Final QC | [원본 Step 8](01_upstream/ADNI_fMRI_protocol/s8_final_qc/README.md) | motion·Euler·MRIQC 및 포함·제외 사유 |
 | **8.A** | **motion 잔여시간 검사** | [Custom](02_custom/s8a_motion_duration_qc/README.md) | 실제 TR×남은 frame, FD 비율, 초기 시점 제외 민감도와 mask |
-| 9 | Clinical Merge | [원본 Step 9](01_upstream/ADNI_fMRI_protocol/s9_clinical_imaging_merge/README.md) | 연구 기준을 충족한 포함표만 임상 연결, 진단·날짜창 재검토 |
+| 9 | Clinical Merge | [원본 Step 9](01_upstream/ADNI_fMRI_protocol/s9_clinical_imaging_merge/README.md) | 원본 인지평가 연결·보고서 생성, 원본 출력 보존 |
+| **9.A** | **임상정보 검증** | [Custom](02_custom/s9a_validate_clinical/README.md) | 실제 촬영일·최근접 진단 전부·28일 창·Dementia/의심 원인·PTDEMOG/APOE 검증 |
 
-Step 1.A/1.B/3.A/7.A는 아직 확정된 처리 과정이 아니므로 생성하지 않았습니다. [Custom Step 추가 방법](06_docs/pipeline_guide.md)에 따라 필요한 시점에 추가합니다.
+Step 1.A/1.B/7.A는 아직 확정된 처리 과정이 아니므로 생성하지 않았습니다. [Custom Step 추가 방법](06_docs/pipeline_guide.md)에 따라 필요한 시점에 추가합니다.
+
+## 🔎 Research 규칙의 이식 범위
+
+[검증 규칙 대응표](06_docs/research_validation_rules.md)에 원본 QC·NFQ·임상 코드에서 가져온 규칙과 별도 실영상 검증이 필요한 항목을 구분했습니다. 기존 RDS·다운로드 ID 목록을 중심 입력으로 만들지 않으며, 원본이 선택한 영상과 외부 원자료를 독립적으로 대조합니다.
+
+3.A는 [실행 명령](02_custom/s3a_source_qc/README.md#execution)에 따라 실제 Study Files 경로를 명시합니다. 생성된 `step3a` artifact를 아래 5.C에 전달합니다. 파일명이나 Obsidian 경로를 자동 검색하지 않습니다.
 
 ## ⚙️ 설정과 연결
 
@@ -82,6 +92,7 @@ python 01_upstream/ADNI_fMRI_protocol/s5_post_clinica_qc/create_report/run_sessi
   --output-dir /ABSOLUTE/PATH/ADNI_DATA/qc/step5
 python 02_custom/s5c_validate_handoff/run.py \
   --input /ABSOLUTE/PATH/ADNI_DATA/qc/step5/final_heuristics.tsv \
+  --source-qc /ABSOLUTE/PATH/ADNI_DATA/qc/step3a \
   --output-dir /ABSOLUTE/PATH/ADNI_DATA/qc/step5c
 python 04_workflow/lab.py prepare-config \
   --lab-config 03_config/lab_config.local.yaml \
@@ -103,14 +114,29 @@ python 02_custom/s8a_motion_duration_qc/run.py \
   --output-dir /ABSOLUTE/PATH/ADNI_DATA/qc/motion-duration-run-001
 ```
 
-8.A는 QC 근거를 생성하며, 원본 포함표나 영상 시점을 자동 변경하지 않습니다. 8.A에서 실패·보류한 run은 최종 연구 포함표에서 명시적으로 처리한 뒤 Step 9에 전달해야 합니다.
+8.A는 QC 근거를 생성하며 원본 포함표나 영상 시점을 자동 변경하지 않습니다. Step 8의 `--valid-sessions`에는 5.C의 `valid_sessions.tsv`를 전달해 5.C에서 차단한 세션의 재진입을 방지합니다. 8.A·시각 QC 등의 실패·보류를 반영한 별도의 검토 완료 포함표를 Step 9/9.A에 전달합니다.
+
+Step 9.A의 임상 검증은 다음처럼 실행합니다. `--included`는 위 검토 완료 포함표이고, `--scan-links`는 원본 fMRI mastersheet 또는 같은 식별정보의 명시적 CSV입니다.
+
+```sh
+python 02_custom/s9a_validate_clinical/run.py \
+  --included /ABSOLUTE/PATH/ADNI_DATA/qc/final/included_reviewed_sessions.tsv \
+  --scan-links /ABSOLUTE/PATH/ADNI_DATA/qc/step5a/data/anchor_plus_dicom_nifti_struct.csv \
+  --dxsum /ABSOLUTE/PATH/ADNI_DATA/LONI_download/clindata/DXSUM.csv \
+  --ptdemog /ABSOLUTE/PATH/ADNI_DATA/LONI_download/clindata/PTDEMOG.csv \
+  --max-dx-days 28 --dx-direction nearest \
+  --output-dir /ABSOLUTE/PATH/ADNI_DATA/qc/step9a
+```
+
+APOE/ADSL/DM은 각각 `--apoe`, `--adsl`, `--dm`으로 선택 연결합니다. `clinical_validation.tsv`에는 입력 run 모두와 pass/hold 사유를 보존하고, 임상 조건을 통과한 run은 `clinically_validated_sessions.tsv`에 추가 저장합니다. 임상 pass만으로 분석 준비 완료를 선언하지 않습니다.
 
 ## ⚠️ 현재 적용 경계
 
 - 원본 지원은 ADNI GO/2/3입니다. ADNI4는 별도 확장 검증 대상입니다.
 - 원본 Step 6 launcher는 참가자 단위로 실행합니다. 5.C의 CSV 연결은 구분자·중복 참가자를 해결하며 **세션 제한을 추가하지 않습니다**. outlier 적합 전 group IQM을 `valid_sessions.tsv`와 대조·제한해야 합니다.
 - 원본 Step 8의 IQM 입력은 기본 CSV reader를 사용합니다. s6의 TSV를 바로 넘기지 말고 구분자를 확인한 CSV를 별도로 준비합니다. QC 결측은 연구 포함으로 해석하지 않습니다.
-- 원본 Step 9의 `DIAGNOSIS=3 → AD` 표기는 현행 DXSUM Dementia 정의와 구분해야 합니다. `build_imaging_input.py --max-dx-days`와 후속 `--max-days`는 각각 명시합니다. 아직 임상 mapping을 대체하는 Custom Step은 없습니다.
+- 원본 Step 9의 `DIAGNOSIS=3 → AD` 표기는 현행 DXSUM Dementia 정의와 구분해야 합니다. `build_imaging_input.py --max-dx-days`와 후속 `--max-days`는 각각 명시합니다. 이후 분석의 진단은 9.A의 원자료 검증 결과를 사용하며, 원본 Step 9 보고서의 AD 표기를 임상 AD/생물학적 AD 확정으로 해석하지 않습니다.
+- 5.C source QC gate는 선택 BOLD의 ID·날짜·UID에 적용됩니다. T1의 실제 참조 연결·영상 header/ST 축·coverage/시각 QC는 별도 검증 대상입니다. source QC가 없는 기존 형식 검증만의 사용도 가능하지만 source QC 완료로 표시하지 않습니다.
 - 초기 Mac 파일럿과 별도 XCP-D 코드는 이 submodule에 포함되지 않습니다. 기존 파일럿을 완성된 전체 코호트 adapter로 소개하지 않으며, 240초 등 다른 프로젝트 기준을 이 300초 검사에 섞지 않습니다.
 - [설치·Mac 제한](06_docs/installation.md), [자료 준비](06_docs/data_preparation.md), [검증 결과](06_docs/validation.md), [원본 업데이트](06_docs/update_guide.md)를 확인하세요.
 

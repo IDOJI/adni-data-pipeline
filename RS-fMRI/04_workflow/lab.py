@@ -157,13 +157,24 @@ def render_config(config_path, output_dir, handoff=None):
     if handoff:
         directory = external(handoff)
         provenance = json.loads((directory / 'handoff.json').read_text())
-        if provenance.get('status') != 'format_validated_no_additional_selection':
+        if provenance.get('status') not in {'format_validated_no_additional_selection', 'source_qc_validated_handoff'} or provenance.get('sessions', 0) < 1:
             raise ValueError('Invalid Step-5.C handoff')
-        for name in ('mriqc_subjects.csv', 'post_clinica.csv', 'valid_sessions.tsv'):
-            from hashlib import sha256
+        required = {'mriqc_subjects.csv', 'post_clinica.csv', 'mriqc_sessions.csv', 'valid_sessions.tsv'}
+        if provenance['status'] == 'source_qc_validated_handoff':
+            required.add('source_qc_audit.tsv')
+        if not required <= set(provenance.get('outputs_sha256', {})):
+            raise ValueError('Missing required handoff output hashes')
+        from hashlib import sha256
+        for name, expected in provenance['outputs_sha256'].items():
+            if Path(name).name != name:
+                raise ValueError('Unsafe handoff output name')
             file = directory / name
-            if not file.is_file() or sha256(file.read_bytes()).hexdigest() != provenance['outputs_sha256'][name]:
+            if not file.is_file() or sha256(file.read_bytes()).hexdigest() != expected:
                 raise ValueError('Handoff output is missing or changed: ' + name)
+        for path, expected in provenance.get('source_qc_inputs_sha256', {}).items():
+            file = Path(path)
+            if not file.is_file() or sha256(file.read_bytes()).hexdigest() != expected:
+                raise ValueError('Source QC artifact changed since handoff')
         template['qc']['heuristics_final_table'] = str(directory / 'mriqc_subjects.csv')
         template['paths']['fmriprep_heuristics_csv'] = str(directory / 'post_clinica.csv')
     out.mkdir(parents=True)

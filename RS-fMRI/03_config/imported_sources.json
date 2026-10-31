@@ -5,5 +5,26 @@
     "destination": "02_custom/s8a_motion_duration_qc/run.py",
     "copy": "byte-identical at initial import",
     "date": "2026-10-31"
+  },
+  "research_qc": {
+    "source": "Research final-selection research_qc module (2026-10-28)",
+    "source_sha256": "d81bb47745b783f9a6b8f3a39d5b9eed81a74b800f9a9fdae0a0f4fce8b0cdb0",
+    "destination": "02_custom/s3a_source_qc/qc_registry.py",
+    "adaptation": "Original decision/matching functions retained; vault paths, automatic discovery and legacy CLI removed",
+    "date": "2026-11-01"
+  },
+  "research_nfq": {
+    "source": "Research final-selection research_nfq module (2026-10-28)",
+    "source_sha256": "9de5a92d9b295e4786016cd50e552f1a879e223bc8d05bd87c6b2882f6334f24",
+    "destination": "02_custom/s3a_source_qc/nfq_quality.py",
+    "adaptation": "Original decision/matching functions retained; vault paths, automatic discovery and legacy CLI removed",
+    "date": "2026-11-01"
+  },
+  "research_clinical_rules": {
+    "source": "Research clinical validation rules (2026-10-30-preserve-all-v1)",
+    "source_sha256": "2b62570c96bb9211b45efdece0d3d72476ef0b7d8795837512807bde5d2b2dae",
+    "destination": "02_custom/s9a_validate_clinical/run.py",
+    "adaptation": "Selected clinical policies reimplemented for explicit CSV/run inputs; no RDS/snapshot discovery and no full numerical equivalence claim",
+    "date": "2026-11-01"
   }
 }

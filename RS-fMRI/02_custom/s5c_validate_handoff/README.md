@@ -37,3 +37,12 @@ root README의 `python 02_custom/s5c_validate_handoff/run.py --input ... --outpu
 ## Dependencies
 
 Python 3.11+ 표준 라이브러리. 이 단계 자체는 MRI 파일·RDS·개인 설정을 읽지 않습니다.
+
+
+## Step 3.A 근거의 적용
+
+`--source-qc /external/qc/step3a`로 artifact를 전달하면 입력/출력 hash와 `Image_ID + Subject_ID + Scan_Date`를 대조하고 UID가 제공된 경우에도 일치를 요구합니다. 실패·충돌·삭제·식별 미확인 세션을 후속 목록에서 제외하되 모든 판정을 `source_qc_audit.tsv`에 기록합니다. 이 단계의 T1 참조 영상 QC는 검증하지 않습니다.
+
+`pending`은 전처리 후보로 보존하면서 연구 품질 통과와 구분합니다. 연구실에서 사전 확인된 QC만 처리하려면 `--require-confirmed-qc`를 명시합니다. 전부 차단된 경우 감사 파일은 보존하지만 `no_surviving_sessions`로 기록하고 CLI는 종료 코드 2를 반환합니다. `prepare-config`도 이 결과를 거절합니다.
+
+3.A 없이 실행하면 기존 형식 검증 mode를 유지합니다. `source_qc_audit.tsv`, source artifact hash, 제외·pending 수가 실제 연결 여부를 판별하는 근거입니다. 임상 판정은 9.A에서 별도로 수행합니다.

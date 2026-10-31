@@ -3,7 +3,7 @@
 | 구성 | 초기 고정·기준 | 상태 |
 |---|---|---|
 | upstream | `e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3` | 기존 검토한 로컬 commit, 원격 최신 자동 채택 없음 |
-| wrapper | 0.1.0, 2026-10-31 | submodule·설정·형식 연결과 합성 테스트 |
+| wrapper | 0.2.0, 2026-11-01 | source QC·임상 검증·submodule·설정 연결과 합성 테스트 |
 | motion-duration | 기존 local_mac 검사 코드 | 초기 byte-identical import, source hash 별도 기록 |
 | 예시 MRIQC | 24.0.2 | 실제 설치·실행·digest 확인은 사용자 환경별 별도 |
 | 예시 fMRIPrep | 25.2.7 | 실제 설치·실행·digest 확인은 사용자 환경별 별도 |
