@@ -9,4 +9,4 @@
 | 예시 fMRIPrep | 25.2.7 | 실제 설치·실행·digest 확인은 사용자 환경별 별도 |
 | 전체 코호트 | 미실행 | 연구 포함·제외 판정 미완료 |
 
-원본 commit의 환경 예시와 wrapper 테스트 환경은 다릅니다. upstream lock과 `docs/validation.md`를 함께 확인합니다. 과거 별도 프로젝트의 fMRIPrep→XCP-D 240초 기준은 이 300초 검사의 설정이 아닙니다.
+원본 commit의 환경 예시와 wrapper 테스트 환경은 다릅니다. upstream lock과 `06_docs/validation.md`를 함께 확인합니다. 과거 별도 프로젝트의 fMRIPrep→XCP-D 240초 기준은 이 300초 검사의 설정이 아닙니다.

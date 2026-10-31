@@ -2,7 +2,7 @@
 
 ## 추가 위치
 
-원본 Step 이후 필요한 단계만 생성합니다. 예: s3 이후 `custom/s3a_*`, s5 내부 5a/5b 이후 `custom/s5c_*`, s7 이후 `custom/s7a_*`. root RS-fMRI README의 순서표도 같은 작업에서 수정합니다.
+원본 Step 이후 필요한 단계만 생성합니다. 예: s3 이후 `02_custom/s3a_*`, s5 내부 5a/5b 이후 `02_custom/s5c_*`, s7 이후 `02_custom/s7a_*`. root RS-fMRI README의 순서표도 같은 작업에서 수정합니다.
 
 ## 각 Custom Step의 필수 내용
 
@@ -14,7 +14,7 @@ README에 Purpose, Input, Processing, Output, Execution, Validation, Dependencie
 
 - 5.C: 원본 final_heuristics.tsv의 모든 세션을 검증하고 Step 6 쉼표 CSV와 Step 7 세션 CSV로 연결. 추가 임상 선별 없음.
 - 8.A: 기존 로컬 motion-duration QC의 코드 재사용. upstream 최종 표와 자동 결합하지 않으므로 실패·보류 run의 연구 포함 판정을 별도로 기록.
-- `workflow/lab.py plan`: 알려진 실행 진입점의 명령을 출력. 자동 단계 실행·스케줄 제출·오류 복구를 구현한 orchestration engine은 아님.
+- `04_workflow/lab.py plan`: 알려진 실행 진입점의 명령을 출력. 자동 단계 실행·스케줄 제출·오류 복구를 구현한 orchestration engine은 아님.
 
 ## 아직 해결하지 않은 원본 경계
 

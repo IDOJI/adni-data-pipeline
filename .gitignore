@@ -5,8 +5,8 @@ __pycache__/
 .venv*/
 .env
 .env.*
-config/*.local.yaml
-config/*.local.json
+RS-fMRI/03_config/*.local.yaml
+RS-fMRI/03_config/*.local.json
 data/
 downloads/
 clinical/

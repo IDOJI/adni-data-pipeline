@@ -13,12 +13,12 @@ adni-data-pipeline/
 ├── .gitmodules
 ├── LICENSE
 └── RS-fMRI/
-    ├── upstream/ADNI_fMRI_protocol/  # 원본 commit 고정
-    ├── custom/                      # 연구실 추가 단계
-    ├── config/                      # 설정 예시·버전 기록
-    ├── workflow/                    # 연결·설정·명령 계획
-    ├── tests/                       # 합성 자료 검증
-    └── docs/                        # 설치·업데이트·검증 안내
+    ├── 01_upstream/ADNI_fMRI_protocol/  # 원본 commit 고정
+    ├── 02_custom/                      # 연구실 추가 단계
+    ├── 03_config/                      # 설정 예시·버전 기록
+    ├── 04_workflow/                    # 연결·설정·명령 계획
+    ├── 05_tests/                       # 합성 자료 검증
+    └── 06_docs/                        # 설치·업데이트·검증 안내
 ```
 
 ## 🚀 시작
@@ -29,7 +29,7 @@ cd adni-data-pipeline/RS-fMRI
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
-python workflow/lab.py doctor
+python 04_workflow/lab.py doctor
 python -m pytest -q
 ```
 

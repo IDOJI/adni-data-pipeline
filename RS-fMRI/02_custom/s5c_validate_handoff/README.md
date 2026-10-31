@@ -28,7 +28,7 @@
 
 ## Execution
 
-root README의 `python custom/s5c_validate_handoff/run.py --input ... --output-dir ...` 사용 후 `prepare-config --handoff ...`로 새로운 외부 설정을 생성합니다. Step 7 명령에는 `--sessions-csv .../mriqc_sessions.csv`도 명시합니다.
+root README의 `python 02_custom/s5c_validate_handoff/run.py --input ... --output-dir ...` 사용 후 `prepare-config --handoff ...`로 새로운 외부 설정을 생성합니다. Step 7 명령에는 `--sessions-csv .../mriqc_sessions.csv`도 명시합니다.
 
 ## Validation
 

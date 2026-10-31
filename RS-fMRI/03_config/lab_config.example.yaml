@@ -1,4 +1,4 @@
-# 개인 경로를 넣은 사본은 config/lab_config.local.yaml 또는 저장소 밖에 저장.
+# 개인 경로를 넣은 사본은 03_config/lab_config.local.yaml 또는 저장소 밖에 저장.
 data_root: /ABSOLUTE/PATH/ADNI_DATA
 scratch_root: /ABSOLUTE/PATH/ADNI_SCRATCH
 containers_root: /ABSOLUTE/PATH/containers

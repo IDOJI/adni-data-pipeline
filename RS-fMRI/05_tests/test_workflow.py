@@ -9,7 +9,7 @@ import pytest
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-spec = importlib.util.spec_from_file_location('lab_workflow', ROOT / 'workflow/lab.py')
+spec = importlib.util.spec_from_file_location('lab_workflow', ROOT / '04_workflow/lab.py')
 lab = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(lab)
 
@@ -30,7 +30,7 @@ def test_real_gitlink_lock_and_original_checkout():
 
 
 def test_config_does_not_mutate_source_and_uses_external_outputs(tmp_path):
-    source = ROOT / 'upstream/ADNI_fMRI_protocol/config/config_adni.yaml'
+    source = ROOT / '01_upstream/ADNI_fMRI_protocol/config/config_adni.yaml'
     before = source.read_bytes()
     result = lab.render_config(configuration(tmp_path), tmp_path / 'new-config')
     cfg = yaml.safe_load(Path(result['config']).read_text())
@@ -46,7 +46,7 @@ def test_config_does_not_mutate_source_and_uses_external_outputs(tmp_path):
 
 def test_placeholder_and_repo_output_rejected(tmp_path):
     with pytest.raises(ValueError, match='placeholders'):
-        lab.render_config(ROOT / 'config/lab_config.example.yaml', tmp_path / 'out')
+        lab.render_config(ROOT / '03_config/lab_config.example.yaml', tmp_path / 'out')
     with pytest.raises(ValueError, match='outside'):
         lab.render_config(configuration(tmp_path), ROOT.parent / 'runtime')
 
@@ -62,7 +62,7 @@ def test_overrides_cannot_send_outputs_back_into_source(tmp_path):
 
 
 def test_handoff_config_and_actual_upstream_mriqc_dry_run(tmp_path):
-    custom_spec = importlib.util.spec_from_file_location('handoff_integration', ROOT / 'custom/s5c_validate_handoff/run.py')
+    custom_spec = importlib.util.spec_from_file_location('handoff_integration', ROOT / '02_custom/s5c_validate_handoff/run.py')
     custom = importlib.util.module_from_spec(custom_spec); custom_spec.loader.exec_module(custom)
     source = tmp_path / 'final.tsv'
     source.write_text('Subject_ID\tVISCODE\n999_S_9999\tbl\n999_S_9999\tm12\n')

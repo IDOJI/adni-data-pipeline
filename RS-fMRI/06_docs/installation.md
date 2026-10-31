@@ -8,7 +8,7 @@ root README의 recursive clone 후 `RS-fMRI/`에서 Python 3.11+ 가상환경을
 
 원본의 `env/env_adni.yml`, `env/env_clinica.yml`, R 패키지와 Apptainer/Slurm 구성을 따릅니다. 이 저장소의 requirements는 Clinica·MRIQC·fMRIPrep 실행 환경을 대신하지 않습니다. container·template 수신은 여러 GB가 될 수 있으며 설치 단계와 분리합니다.
 
-`config/lab_config.example.yaml`의 이미지명은 기존 로컬 검사에서 사용한 MRIQC 24.0.2·fMRIPrep 25.2.7을 명시한 예시입니다. 원본 commit의 예시 24.0.0과 구분합니다. 실제 이미지 digest와 명령은 실행별 provenance에 보존해야 합니다.
+`03_config/lab_config.example.yaml`의 이미지명은 기존 로컬 검사에서 사용한 MRIQC 24.0.2·fMRIPrep 25.2.7을 명시한 예시입니다. 원본 commit의 예시 24.0.0과 구분합니다. 실제 이미지 digest와 명령은 실행별 provenance에 보존해야 합니다.
 
 ## Mac
 

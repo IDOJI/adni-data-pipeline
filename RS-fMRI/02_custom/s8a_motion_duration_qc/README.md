@@ -20,7 +20,7 @@
 
 ## Execution
 
-root README의 `python custom/s8a_motion_duration_qc/run.py --bids-root ... --derivatives-root ... --output-dir ...` 사용. 출력은 입력 tree와 겹치지 않는 새 폴더여야 합니다.
+root README의 `python 02_custom/s8a_motion_duration_qc/run.py --bids-root ... --derivatives-root ... --output-dir ...` 사용. 출력은 입력 tree와 겹치지 않는 새 폴더여야 합니다.
 
 ## Validation
 
@@ -28,4 +28,4 @@ root README의 `python custom/s8a_motion_duration_qc/run.py --bids-root ... --de
 
 ## Dependencies
 
-Python 3.11+, NumPy, pandas, NiBabel. 초기 복사본의 hash는 `config/imported_sources.json`에 기록했습니다.
+Python 3.11+, NumPy, pandas, NiBabel. 초기 복사본의 hash는 `03_config/imported_sources.json`에 기록했습니다.
