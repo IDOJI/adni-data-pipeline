@@ -1,5 +1,7 @@
 # 🧬 ADNI Data Pipeline
 
+작업·수정 규칙: [Repository instructions.md](<Repository instructions.md>)
+
 ADNI 자료를 modality별로 처리하고 검증하는 연구 파이프라인입니다. 현재 구현은 **[RS-fMRI](RS-fMRI/README.md)**이며, SNP 데이터 파이프라인은 추후 별도 모듈로 추가합니다.
 
 | 영역 | 상태 | 안내 |

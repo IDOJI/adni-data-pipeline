@@ -1,5 +1,7 @@
 # 🧠 RS-fMRI Pipeline
 
+작업·수정 규칙: [Repository instructions.md](<Repository instructions.md>)
+
 statMINDlab의 ADNI fMRI 프로토콜을 **Git Submodule로 버전 고정**하고, 연구실의 추가 과정은 `02_custom/`에 관리합니다. 이 README가 원본 Step과 Custom Step의 전체 실행 순서를 안내합니다.
 
 - 원본: [statMINDlab/ADNI_fMRI_protocol](https://github.com/statMINDlab/ADNI_fMRI_protocol/tree/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3)
