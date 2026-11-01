@@ -85,3 +85,49 @@ Synthetic tests cover exact signal means, agreement with Nilearn, label preserva
 ## Dependencies and citations
 
 Python 3.11+, NumPy, NiBabel and SciPy; Nilearn supplies an independent test reference and remains separately installed from requirements. The checked-out Nilearn submodule is not inserted into the runtime import path. Source software and individual atlas terms/citations remain applicable; parent repository licensing does not replace them. See each source license, the atlas metadata and [source locking guide](../../06_docs/atlas_library.md).
+
+## Original acquisition frames and actual BIDS run evidence
+
+Before extraction, optionally build two independent, hash-bound artifacts. Run these after 9.B and after the chosen denoised derivative exists. They preserve the nearest/28-day and pending policies and do not change imaging QC.
+
+```sh
+python 02_custom/s11_atlas_bold/adapters.py frames \
+  --raw-bold /DATA/bids/sub-ADNI999S9999/ses-M000/func/sub-ADNI999S9999_ses-M000_task-rest_bold.nii.gz \
+  --raw-json /DATA/bids/sub-ADNI999S9999/ses-M000/func/sub-ADNI999S9999_ses-M000_task-rest_bold.json \
+  --bold /DATA/xcp_d/sub-ADNI999S9999/ses-M000/func/sub-ADNI999S9999_ses-M000_task-rest_space-MNI152NLin2009cAsym_desc-denoised_bold.nii.gz \
+  --bold-json /DATA/xcp_d/sub-ADNI999S9999/ses-M000/func/sub-ADNI999S9999_ses-M000_task-rest_space-MNI152NLin2009cAsym_desc-denoised_bold.json \
+  --outliers /DATA/xcp_d/sub-ADNI999S9999/ses-M000/func/sub-ADNI999S9999_ses-M000_task-rest_outliers.tsv \
+  --dummy-volumes 4 --output-dir /DATA/audit/run-001/acquisition-map
+```
+
+The frame adapter supports XCP-D **compressed denoising outputs**: raw frame count minus the explicit dummy count must equal the outlier-table length, and the number of `denoising=0` rows must equal the current BOLD length. Run entities, sidecar TR and the derivative's exact BIDS `Sources` reference to the outlier table must agree. Other temporal representations, including AFNI zero-filled censored frames, require a separate adapter and are rejected when counts disagree. The adapter does not remove additional frames. It writes `acquisition_frames.tsv` and an artifact binding it to the processed BOLD hash.
+
+```sh
+python 02_custom/s11_atlas_bold/adapters.py link-run \
+  --inclusion /DATA/qc/step9b --image-id 999999999 \
+  --raw-bold /DATA/bids/sub-ADNI999S9999/ses-M000/func/sub-ADNI999S9999_ses-M000_task-rest_bold.nii.gz \
+  --raw-json /DATA/bids/sub-ADNI999S9999/ses-M000/func/sub-ADNI999S9999_ses-M000_task-rest_bold.json \
+  --bold /DATA/xcp_d/sub-ADNI999S9999/ses-M000/func/sub-ADNI999S9999_ses-M000_task-rest_space-MNI152NLin2009cAsym_desc-denoised_bold.nii.gz \
+  --bold-json /DATA/xcp_d/sub-ADNI999S9999/ses-M000/func/sub-ADNI999S9999_ses-M000_task-rest_space-MNI152NLin2009cAsym_desc-denoised_bold.json \
+  --preprocessed-json /DATA/fmriprep/sub-ADNI999S9999/ses-M000/func/sub-ADNI999S9999_ses-M000_task-rest_space-MNI152NLin2009cAsym_desc-preproc_bold.json \
+  --output-dir /DATA/audit/run-001/bids-link
+```
+
+`link-run` verifies the raw JSON's SeriesInstanceUID, acquisition date and subject against the unique retained EPI row in 9.B. It checks raw/derivative run entities, TR and the exact declared derivative → preprocessed → raw BIDS Sources chain. The output preserves the original audit session and all inclusion evidence. Only a recognized metadata-audit session alias can be replaced by UID/date-backed actual BIDS entities; other conflicts fail. `pending` remains pending. Missing UID/date or ambiguous Sources are errors. This establishes a metadata and file-hash link, without asserting that transformation payloads or physical registration were independently verified.
+
+Pass `--frame-map /DATA/audit/run-001/acquisition-map --run-link /DATA/audit/run-001/bids-link` to `extract`, alongside `--inclusion` and `--image-id`. The extractor rejects maps for another payload/run or different 9.B evidence. With a frame map, `frames.tsv` adds `raw_frame_index_zero_based`, `raw_nominal_time_seconds` and `raw_interval_from_previous_seconds`. Gaps survive both existing censoring and any explicitly supplied current-input sample mask. The legacy `input_frame_time_seconds` column remains nominal time in the current derivative; it must not be interpreted as original acquisition time after temporal compression. Raw nominal time is frame index × TR; slice-timing reference offsets remain in the source JSON. No continuous sampling or downstream FC validity is inferred.
+
+## Investigating low coverage without changing QC
+
+```sh
+python 02_custom/s11_atlas_bold/diagnose_coverage.py \
+  --extraction /DATA/atlas-signals/run-001/Schaefer400 \
+  --mask /DATA/derivatives/BIDS_space-MNI152NLin2009cAsym_desc-brain_mask.nii.gz \
+  --boldref /DATA/derivatives/BIDS_space-MNI152NLin2009cAsym_boldref.nii.gz \
+  --t1w /DATA/derivatives/BIDS_space-MNI152NLin2009cAsym_desc-preproc_T1w.nii.gz \
+  --gm-probability /DATA/derivatives/BIDS_space-MNI152NLin2009cAsym_label-GM_probseg.nii.gz \
+  --anatomical-mask /DATA/derivatives/BIDS_space-MNI152NLin2009cAsym_desc-brain_mask.nii.gz \
+  --output-dir /DATA/audit/run-001/coverage-diagnostics
+```
+
+Replace `BIDS` with the actual matching subject/session entities; EPI and anatomical masks are separate files. Inputs must be finite 3-D images on the same explicit standard-space grid. The EPI mask must be the one used by extraction. `coverage_diagnostics.tsv` preserves each existing ROI QC outcome and compares included/excluded EPI-reference medians, GM probability, T1 intensity and anatomical-mask support. It does not expand masks, drop ROIs, introduce a new cutoff or establish a unique cause. Reference attenuation in excluded tissue supports joint dropout/mask review; distortion, atrophy and local registration can still contribute. Default coverage 0.5, minimum one voxel and `analysis_ready=false` remain unchanged.

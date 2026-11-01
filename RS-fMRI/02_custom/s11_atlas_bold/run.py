@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT.parent))
 from sources import verify
+from atlas_contracts import entities, tr_seconds, grid_equal
 from _shared import finish, new_output, read, sha, snapshot, unchanged, verify_bundle, write
 
 
@@ -87,8 +88,6 @@ def names_for(entry, metadata, ids):
     return {int(v): names.get(str(v)) or 'ROI_' + str(v) for v in ids}
 
 
-def entities(path):
-    return dict(re.findall(r'(?:^|_)(sub|ses|task|acq|run|echo|dir|rec|space)-([^_\.]+)', Path(path).name))
 
 
 def check_inclusion(directory, image_id, bold):
@@ -134,23 +133,8 @@ def time_mask(path, n):
     return np.flatnonzero(np.array([v in {'true', '1'} for v in values]))
 
 
-def tr_seconds(img, metadata):
-    value = metadata.get('RepetitionTime')
-    header = float(img.header.get_zooms()[3])
-    unit = img.header.get_xyzt_units()[1]
-    scale = {'sec': 1, 'msec': .001, 'usec': .000001}.get(unit)
-    header = header * scale if scale is not None else None
-    if value is None:
-        value = header
-    if value is None or not math.isfinite(float(value)) or float(value) <= 0:
-        raise ValueError('A valid TR in seconds is required from JSON or known NIfTI temporal units')
-    if header is not None and (not math.isfinite(header) or not np.isclose(header, float(value), rtol=1e-4, atol=1e-5)):
-        raise ValueError('JSON and NIfTI TR disagree')
-    return float(value)
 
 
-def grid_equal(a, b):
-    return a.shape[:3] == b.shape[:3] and np.allclose(a.affine, b.affine, rtol=0, atol=1e-5)
 
 
 def labels(img):
@@ -162,7 +146,8 @@ def labels(img):
 
 def process(bold, mask, atlas_id, space, input_kind, output_dir, catalog=None, bold_json=None,
             sample_mask=None, resample_labels=False, min_coverage=.5, min_voxels=1,
-            standardize='none', inclusion=None, image_id=None, max_workspace_mb=512):
+            standardize='none', inclusion=None, image_id=None, max_workspace_mb=512,
+            frame_map=None, run_link=None):
     if input_kind not in {'preprocessed', 'denoised'} or standardize not in {'none', 'zscore'}:
         raise ValueError('Specify supported input kind and standardization')
     if not math.isfinite(min_coverage) or not 0 <= min_coverage <= 1 or min_voxels < 1 or not math.isfinite(max_workspace_mb) or max_workspace_mb <= 0:
@@ -174,15 +159,29 @@ def process(bold, mask, atlas_id, space, input_kind, output_dir, catalog=None, b
     current = entities(bold)
     if current.get('space') and current['space'] != space:
         raise ValueError('BOLD filename space differs from declared space')
-    paths = files + [Path(bold), Path(mask)] + [Path(p) for p in (bold_json, sample_mask) if p]
+    paths = files + [ROOT / 'atlas_contracts.py', Path(bold), Path(mask)] + [Path(p) for p in (bold_json, sample_mask) if p]
     retained = None
-    if inclusion:
+    if run_link and (not inclusion or not image_id):
+        raise ValueError('Run link requires inclusion evidence and image ID')
+    if inclusion and not run_link:
         retained, evidence_files = check_inclusion(inclusion, image_id, bold)
         paths.extend(evidence_files)
-    elif image_id:
+    elif image_id and not run_link:
         raise ValueError('Image ID requires an inclusion artifact')
+    for directory, kind, filename in [(frame_map, 'acquisition_frame_mapping_v1', 'acquisition_frames.tsv'),
+                                      (run_link, 'bids_run_inclusion_link_v1', 'linked_run.tsv')]:
+        if directory:
+            verify_bundle(directory, kind)
+            paths.extend([Path(directory) / 'artifact.json', Path(directory) / filename])
+    if frame_map or run_link:
+        paths.append(ROOT / 'adapters.py')
+    if run_link:
+        paths.extend([Path(inclusion) / 'artifact.json', Path(inclusion) / 'inclusion_audit.tsv'])
     output = new_output(output_dir, paths)
     hashes = snapshot(paths)
+    if run_link:
+        from adapters import validated_run_link
+        retained = validated_run_link(run_link, inclusion, image_id, bold, hashes[str(Path(bold).resolve())])
     image = nb.load(bold, mmap=True, keep_file_open=True)
     brain = nb.load(mask)
     atlas = nb.load(atlas_path)
@@ -202,6 +201,10 @@ def process(bold, mask, atlas_id, space, input_kind, output_dir, catalog=None, b
     if spatial_reference and isinstance(spatial_reference, str) and spatial_reference.startswith('MNI') and spatial_reference != space:
         raise ValueError('JSON spatial reference differs from declared space')
     tr = tr_seconds(image, metadata)
+    acquisition = None
+    if frame_map:
+        from adapters import validated_frame_map
+        acquisition = validated_frame_map(frame_map, hashes[str(Path(bold).resolve())], image.shape[3], tr, bold)
     frames = time_mask(sample_mask, image.shape[3])
     if len(frames) < 2:
         raise ValueError('At least two retained input frames are required')
@@ -275,7 +278,18 @@ def process(bold, mask, atlas_id, space, input_kind, output_dir, catalog=None, b
     with (output / 'timeseries.tsv').open('w') as stream:
         stream.write('\t'.join('roi_' + str(i) for i in ids) + '\n')
         np.savetxt(stream, series, delimiter='\t', fmt='%.10g')
-    write(output / 'frames.tsv', [{'output_row': j, 'input_frame_index_zero_based': int(v), 'input_frame_time_seconds': float(v * tr)} for j, v in enumerate(frames)])
+    frame_rows = []
+    previous = None
+    for j, v in enumerate(frames):
+        row = {'output_row': j, 'input_frame_index_zero_based': int(v), 'input_frame_time_seconds': float(v * tr)}
+        if acquisition:
+            mapped = acquisition[int(v)]
+            raw = int(mapped['raw_frame_index_zero_based'])
+            row.update(raw_frame_index_zero_based=raw, raw_nominal_time_seconds=float(mapped['raw_nominal_time_seconds']),
+                       raw_interval_from_previous_seconds='' if previous is None else (raw - previous) * tr)
+            previous = raw
+        frame_rows.append(row)
+    write(output / 'frames.tsv', frame_rows)
     write(output / 'roi_coverage.tsv', coverage_rows)
     write(output / 'labels.tsv', [{'column': 'roi_' + str(i), 'label_id': int(i), 'name': names[int(i)]} for i in ids])
     return finish(output, 'atlas_bold_timeseries_v1', hashes, {
@@ -288,6 +302,10 @@ def process(bold, mask, atlas_id, space, input_kind, output_dir, catalog=None, b
         'standardization': standardize, 'resampled_atlas': resampled, 'interpolation': 'nearest' if resampled else 'none',
         'min_coverage': min_coverage, 'min_voxels': min_voxels, 'estimated_workspace_bytes': estimate,
         'maximum_loaded_bold_frames': 1, 'inclusion_status': retained['INCLUSION_STATUS'] if retained else 'not_checked',
+        'time_axis_status': 'original_acquisition_mapped' if acquisition else 'input_relative_only',
+        'run_link_status': 'uid_date_raw_bids_sources_verified' if run_link else 'direct_inclusion' if inclusion else 'not_checked',
+        'adapter_sha256': sha(ROOT / 'adapters.py') if frame_map or run_link else None,
+        'contracts_sha256': sha(ROOT / 'atlas_contracts.py'),
         'spatial_registration_verified': False, 'implementation_sha256': sha(__file__),
         'scope': 'Volumetric label means and QC only; no atlas warping, denoising, FC, or final research-readiness claim.'})
 
@@ -298,7 +316,7 @@ def main():
     l = sub.add_parser('list'); l.add_argument('--space'); l.add_argument('--source'); l.add_argument('--catalog', type=Path, default=ROOT / 'catalog.json')
     x = sub.add_parser('extract')
     for flag in ('bold', 'mask', 'atlas', 'space', 'input-kind', 'output-dir'): x.add_argument('--' + flag, required=True)
-    for flag in ('catalog', 'bold-json', 'sample-mask', 'inclusion', 'image-id'): x.add_argument('--' + flag)
+    for flag in ('catalog', 'bold-json', 'sample-mask', 'inclusion', 'image-id', 'frame-map', 'run-link'): x.add_argument('--' + flag)
     x.add_argument('--resample-labels', action='store_true'); x.add_argument('--min-coverage', type=float, default=.5)
     x.add_argument('--min-voxels', type=int, default=1); x.add_argument('--max-workspace-mb', type=float, default=512)
     x.add_argument('--standardize', choices=['none', 'zscore'], default='none')
@@ -313,7 +331,7 @@ def main():
             return
         result = process(a.bold, a.mask, a.atlas, a.space, a.input_kind, a.output_dir, a.catalog, a.bold_json,
                          a.sample_mask, a.resample_labels, a.min_coverage, a.min_voxels, a.standardize,
-                         a.inclusion, a.image_id, a.max_workspace_mb)
+                         a.inclusion, a.image_id, a.max_workspace_mb, a.frame_map, a.run_link)
         print(json.dumps(result['summary'], indent=2))
         if result['summary']['status'] == 'failed_qc': p.exit(2, 'Extraction artifacts written; ROI/source QC failed\n')
     except (ValueError, KeyError, FileNotFoundError) as exc:

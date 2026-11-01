@@ -205,3 +205,9 @@ Use the upstream [CITATION.cff](https://github.com/statMINDlab/ADNI_fMRI_protoco
 ## Live automation
 
 See the [live-service handoff guide](06_docs/live_service_handoff.md) for switching existing preprocessing/XCP-D controllers to this repository while preserving running containers, historical configuration IDs, completed results, caches and the shared compute limit.
+
+### Step 11 adapters and coverage investigation
+
+Execution order: **9.B metadata inclusion → actual raw BIDS/derivative run link → original acquisition frame map → Step 11 extraction → descriptive coverage diagnosis**. See the [Step 11 adapter commands](02_custom/s11_atlas_bold/README.md#original-acquisition-frames-and-actual-bids-run-evidence). Supply the hash-bound `--run-link` with the original 9.B artifact and image ID; `eligible`/`pending` remain separate. Supply `--frame-map` to preserve original frame numbers and time gaps in `frames.tsv`. Never reapply a pre-censor mask to a shortened XCP-D image. The adapter's nominal raw time does not include slice-timing offsets.
+
+Low-coverage investigation compares the unchanged EPI mask with BOLD reference, T1, GM probability and anatomical mask. It writes evidence for review and retains the original QC failures. Coverage 0.5, minimum one voxel, nearest/28-day clinical matching and pending preservation are unchanged; the adapters do not authorize final cohort inclusion or relax study-specific duration criteria.
