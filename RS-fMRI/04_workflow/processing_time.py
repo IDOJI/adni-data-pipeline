@@ -17,6 +17,11 @@ import tempfile
 import time
 import warnings
 
+WORKFLOW = Path(__file__).resolve().parent
+if str(WORKFLOW) not in sys.path:
+    sys.path.insert(0, str(WORKFLOW))
+from duration_display import FORMAT_VERSION, format_duration
+
 STAGES = ('mriqc', 'fmriprep', 'xcpd')
 LIVE = {'running', 'prepared'}
 REPOSITORY = Path(__file__).resolve().parents[2]
@@ -70,6 +75,7 @@ def timing(record):
 
 def add_timing(record):
     record['timing'] = timing(record)
+    record['timing']['elapsed_display'] = format_duration(record['timing']['elapsed_seconds'])
     return record
 
 
@@ -221,6 +227,15 @@ def summarize(rows):
             'scope': 'Observed attempts only; not proof that all cohort runs or QC decisions are complete.'}
 
 
+DISPLAY_METRICS = ('mriqc_seconds', 'fmriprep_seconds', 'xcpd_seconds',
+                   'preprocessing_seconds', 'postprocessing_seconds', 'stage_seconds_sum',
+                   'known_stage_seconds_sum', 'observed_wall_seconds', 'active_interval_union_seconds')
+
+
+def display_summary(values):
+    return {key: format_duration(values.get(key)) for key in DISPLAY_METRICS}
+
+
 def validate_output(path):
     path = Path(path).expanduser().resolve()
     if path == Path('/') or path == REPOSITORY or REPOSITORY in path.parents or path in REPOSITORY.parents:
@@ -302,7 +317,10 @@ def collect(root, output=None, archives=()):
         summary = {'schema_version': 1, 'updated_at': at, 'runtime_root': str(root),
                    **summarize(rows), 'cases': len(cases), 'source_records_seen': len(records),
                    'unseen_attempts': sum(not x['seen_this_scan'] for x in rows), 'diagnostics': problems,
-                   'definition': 'Wall-clock seconds. Overall observed wall time includes runner validation and waiting; active union uses timed execution intervals. Durations include including failed/retried attempts. Stage sums count parallel jobs separately; observed wall spans waiting/gaps; union removes overlap. Missing times are never filled with zero.'}
+                   'definition': 'Wall-clock seconds. Overall observed wall time includes runner validation and waiting; active union uses timed execution intervals. Durations include failed/retried attempts. Stage sums count parallel jobs separately; observed wall spans waiting/gaps; union removes overlap. Missing times are never filled with zero.'}
+        summary['measurement_scope'] = 'receipt_intervals_and_observed_wall_span'
+        summary['display_format'] = FORMAT_VERSION
+        summary['display'] = display_summary(summary)
         atomic_json(output / 'ledger.json', {'schema_version': 1, 'updated_at': at, 'attempts': ledger})
         atomic_json(output / 'summary.json', summary)
         atomic_json(output / 'cases.json', {'updated_at': at, 'cases': cases})
@@ -316,6 +334,19 @@ def collect(root, output=None, archives=()):
               'known_stage_seconds_sum', 'stage_time_hms', 'known_stage_time_hms', 'observed_wall_hms', 'wall_time_complete_for_observed_attempts',
               'attempts', 'timed_attempts', 'untimed_attempts', 'running_attempts', 'unsuccessful_terminal_attempts',
               'observed_stages', 'terminal_stages', 'successful_stages', 'all_three_stages_observed'])
+        # Keep existing numeric TSVs intact. Human displays are separate files.
+        attempt_displays = [{**{k: row.get(k) for k in ('subject', 'session', 'pair_id', 'run',
+                             'stage', 'attempt_id', 'status', 'duration_source', 'timing_issue')},
+                             'elapsed_display': format_duration(row['elapsed_seconds']),
+                             'measurement_scope': 'receipt_interval_not_pause_adjusted'} for row in rows]
+        case_displays = [{'subject': row['subject'], 'pair_id': row['pair_id'],
+                          **display_summary(row),
+                          'measurement_scope': 'receipt_intervals_and_observed_wall_span'} for row in cases]
+        table(output / 'attempts.display.tsv', attempt_displays,
+              ['subject', 'session', 'pair_id', 'run', 'stage', 'attempt_id', 'status',
+               'elapsed_display', 'duration_source', 'timing_issue', 'measurement_scope'])
+        table(output / 'cases.display.tsv', case_displays,
+              ['subject', 'pair_id', *DISPLAY_METRICS, 'measurement_scope'])
         return summary
 
 

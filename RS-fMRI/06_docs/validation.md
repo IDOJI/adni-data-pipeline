@@ -90,3 +90,9 @@ Local migration verification: **335 passed, 17 subtests passed** in the extensio
 ## Processing-time sidecars, 2026-11-06
 
 Local verification: **351 passed, 17 subtests passed**. Sixteen timing tests cover elapsed-time arithmetic, parallel interval unions, timezone conversion, missing/negative timestamps, retries and failure costs, stable prepared/running attempt identity, archive alias deduplication, exact input/published pair linkage, conflicting duplicates, source-receipt preservation and the CLI. The five processing command/cache builder functions remain unchanged. Timing is an operational report; it does not change QC or establish scientific inclusion. See [Step 7.D](../02_custom/s7d_processing_timing/README.md).
+
+## Two timing contracts and shared presentation, 2026-11-07
+
+Local verification: **385 passed, 17 subtests passed**. Timing-specific synthetic checks: **50 passed**, including the imported observer tests and cross-contract checks. Fake clocks/containers verify the difference between receipt wall intervals and pause/sleep-adjusted Docker execution windows, failure/retry cost, raw numeric precision, explicit display units, S12 ownership and ambiguous-pair non-publication. Source AST checks preserve five receipt numeric functions, eight observer numeric/event functions and the extracted formatter logic.
+
+A separate checkout was used. Live-tool execution was blocked during local tests; no imaging calculation, operational reconciliation or service installation/start was performed. These checks do not establish real event delivery or host sleep tracking. Original working files and uncommitted work are outside the integration checkout. See [Step 7.D](../02_custom/s7d_processing_timing/README.md) and the [Docker observer guide](processing_timing.md).

@@ -106,8 +106,13 @@ See the [stage-specific host instructions](../../06_docs/platform_execution.md#s
 ## Processing-time records
 
 ```sh
-: "${ADNI_RUNTIME_ROOT:?Set the existing external pipeline runtime directory}"
-python 02_custom/s7d_processing_timing/run.py --root "$ADNI_RUNTIME_ROOT"
+export XCPD_CONFIG="/ABSOLUTE/PATH/xcpd.local.json"
+python 02_custom/s10_xcpd_integrated_qc/pipeline.py \
+  --config "$XCPD_CONFIG" pilot
 ```
 
-Completed and failed attempts retain start/end times and a `timing` object; sidecar reports aggregate MRIQC, fMRIPrep, XCP-D and the overall observed elapsed time. Existing legacy receipts can be collected without replacing a running worker. See [Step 7.D](../s7d_processing_timing/README.md) for outputs, automatic collection, archive/retry handling and missing-time limits.
+This is future real XCP-D execution on the published-pair inputs described above. With the timing-enabled runner, the measured container interval is saved before output validation and refreshed after final completion/failure. The `execution.json` contains `timing.elapsed_seconds`; a finished container with validation pending does not become a completed pipeline. First use [Step 7.D's source-only check](../s7d_processing_timing/README.md#1-check-automatic-recording-without-running-the-pipeline) to detect a legacy copy lacking these hooks.
+
+For JSON `root=R10`, execution records are `<source_pair>/s10/<config_id>/runs/<run_key>/attempt-NNN/execution.json`, normally under `R10/results/`. Reports go to `R10/timing/{attempts.tsv,cases.tsv,summary.json,ledger.json}` (also `cases.json`). Combined preprocessing/postprocessing totals require the corresponding preprocessing receipts under the same shared root. No timing service is required for new completion hooks. See [Step 7.D](../s7d_processing_timing/README.md) for complete paths, total-time definitions and optional legacy collection.
+
+The timing object also exposes `timing.elapsed_display` with explicit hour/minute/second units; numeric `timing.elapsed_seconds` is preserved. Human TSV sidecars are separate from numeric files. See [the measurement contracts](../s7d_processing_timing/README.md#5-separate-docker-execution-observer-and-display-formats).

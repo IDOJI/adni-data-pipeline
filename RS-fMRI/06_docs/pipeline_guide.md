@@ -37,3 +37,5 @@ The [macOS/Linux guide](platform_execution.md) documents every upstream/custom p
 ## Processing-time records
 
 [Step 7.D](../02_custom/s7d_processing_timing/README.md) runs alongside 7.B and S10. Keep timing reports outside source/verified pair payloads, count retries explicitly, and distinguish stage-time sums from the elapsed pipeline wall span. An independent collector can record legacy completions without changing active deployment hashes.
+
+The [independent Docker observer](processing_timing.md) is a separate entry point. It shares only the display helper with Step 7.D, preserves raw numeric CSVs, and does not change the receipt/wall-span definition. S12 pair timing files require exporter ownership and an unambiguous single published pair.
