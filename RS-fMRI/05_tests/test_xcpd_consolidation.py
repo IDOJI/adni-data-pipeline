@@ -40,7 +40,7 @@ def test_integrated_runtime_guard_precedes_output_creation(tmp_path, bad):
 def test_unreviewed_upstream_checkout_cannot_be_substituted(tmp_path):
     path, cfg = config(tmp_path)
     cfg['repo'] = str(tmp_path / 'other-protocol'); p.save(path, cfg)
-    with pytest.raises(ValueError, match='integrated protocol'):
+    with pytest.raises(ValueError, match='do not substitute an unreviewed checkout'):
         p.Pipeline(path)
     assert not (tmp_path / 'runtime').exists()
 
