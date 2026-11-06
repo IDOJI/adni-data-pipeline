@@ -52,6 +52,6 @@ Duplicate copied receipts count once. Conflicting copies are flagged and exclude
 
 ## Scope and validation
 
-This step supports the repository's 7.B/S10 pair workflow and public imaging launcher. Original Slurm/Apptainer jobs or the separate 7.A profile need equivalent execution receipts before they can be included; their runtime is not inferred from output files. Timing does not alter scientific settings, cache signatures, QC thresholds or research inclusion. Preserve active legacy runners until the existing idle-handoff procedure permits replacement.
+This step supports the repository's 7.B/S10 pair workflow and public imaging launcher. Original Slurm/Apptainer jobs or the separate 7.A profile need equivalent execution receipts before they can be included; their runtime is not inferred from output files. Timing does not alter scientific settings, cache-signature rules, QC thresholds or research inclusion. A modified runner has a new source hash and still requires the reviewed cache/deployment handoff. Preserve active legacy runners until the existing idle-handoff procedure permits replacement.
 
 Synthetic tests cover parallel intervals, timezone conversion, missing timestamps, retries, start/resume identity, archive aliases, read-only source preservation, exact pair linkage, conflicting duplicates and CLI output. Actual timings are operational observations, separate from imaging/scientific validation.
