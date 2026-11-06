@@ -5,7 +5,6 @@
 ```sh
 git clone --branch main https://github.com/IDOJI/adni-data-pipeline.git "$HOME/adni-platform-source"
 cd "$HOME/adni-platform-source/RS-fMRI"
-git submodule update --init 01_upstream/ADNI_fMRI_protocol
 python3 -m venv "$HOME/.venvs/adni-platform"
 source "$HOME/.venvs/adni-platform/bin/activate"
 python -m pip install -r 07_reproducibility/requirements.lock.txt
@@ -15,7 +14,7 @@ export PUBLIC_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/adni-public.XXXXXX")/run"
 python 07_reproducibility/public.py fetch --root "$PUBLIC_ROOT"
 ```
 
-From a new source checkout, initialize only the core upstream submodule, create a wrapper environment and check the pin. Keep private inputs/work/results outside the repository; the included CC0 sample is the explicit public-data exception.
+From a new source checkout, create a wrapper environment and inspect the included source/provenance; no core submodule initialization is needed. Keep private inputs/work/results outside the repository; the included CC0 sample is the explicit public-data exception.
 
 `fetch` copies and hash-checks the real MRI files included in Git without accessing OpenNeuro. The pinned core requirements support the example tools; the additional upstream requirements supply DICOM parsing and Plotly reporting for 5.A/5.B/9. Those upstream extras are not version-locked by the core example file. For the full development suite, install `requirements.txt` and run the repository tests as documented in [installation](installation.md). Use the [complete example](../07_reproducibility/README.md) for the separate synthetic reference, expected results and all ten synthetic stages.
 
@@ -92,13 +91,13 @@ mkdir -p "$ADNI_DATA_ROOT" "$ADNI_WORK_ROOT"
 
 Place work/cache directories on a local Linux filesystem, with an external archive mounted at a separately verified path such as `/mnt/<volume>/...`. Container paths such as `/data`, `/out` and `/work` remain the same; their host-side bind sources change. Do not copy Mac `/Volumes/...` values into a Linux configuration. Docker containers supply the imaging binaries; host Python packages alone do not install the complete imaging environment.
 
-A Linux notebook does not provide Slurm simply because it runs Linux. Use the Docker route for a local workstation, or the pinned upstream Slurm/Apptainer route only on an actual configured cluster. No Linux service unit, mounted-volume adapter or live five-subject queue is installed by this documentation.
+A Linux notebook does not provide Slurm simply because it runs Linux. Use the Docker route for a local workstation, or the integrated protocol’s Slurm/Apptainer route only on an actual configured cluster. No Linux service unit, mounted-volume adapter or live five-subject queue is installed by this documentation.
 
 ## S1
 
 **Manual action — no terminal command:** Obtain ADNI approval and accept the required access/usage terms in the ADNI portal.
 
-**Account and access.** The same ADNI access/usage requirements apply on either OS. Complete the upstream access steps personally; no local container or synthetic test supplies ADNI authorization. See the pinned upstream link in the [execution table](../README.md#-complete-execution-order).
+**Account and access.** The same ADNI access/usage requirements apply on either OS. Complete the upstream access steps personally; no local container or synthetic test supplies ADNI authorization. See the local protocol links in the [execution table](../README.md#-complete-execution-order).
 
 ## S2
 
@@ -164,7 +163,7 @@ bash "$ADNI_UPSTREAM/s4_clinica/create_slurm_script_per_sub.sh" \
 
 ### How it works and host requirements
 
-**Clinica conversion.** The pinned upstream per-subject generator/submission route targets a configured Slurm environment. macOS needs an explicitly prepared Clinica/dcm2niix environment or a reviewed Linux conversion host; running a Slurm template in Terminal does not create a Mac launcher. Native Linux needs the converter dependencies too; a notebook still has no scheduler by default. Review the external conversion job's paths/environment/notification settings before submission.
+**Clinica conversion.** The integrated protocol’s per-subject generator/submission route targets a configured Slurm environment. macOS needs an explicitly prepared Clinica/dcm2niix environment or a reviewed Linux conversion host; running a Slurm template in Terminal does not create a Mac launcher. Native Linux needs the converter dependencies too; a notebook still has no scheduler by default. Review the external conversion job's paths/environment/notification settings before submission.
 
 Keep the converter version and conversion records when comparing hosts. Already converted NIfTI inputs need verified identity/metadata and the intended EPI–T1 pair; do not reconvert solely because the host OS changed. The public example preserves its source NIfTI bytes and adds only its documented execution layout.
 
@@ -611,6 +610,6 @@ Start with the [synthetic reference](../07_reproducibility/README.md#a-offline-e
 - [Docker Engine on Ubuntu](https://docs.docker.com/engine/install/ubuntu/).
 - [Docker WSL2 integration](https://docs.docker.com/desktop/features/wsl/) and [Linux-filesystem bind-mount guidance](https://docs.docker.com/desktop/features/wsl/best-practices/).
 - [fMRIPrep 25.2.7 usage](https://fmriprep.org/en/25.2.7/usage.html) and [XCP-D 26.2.0 usage](https://xcp-d.readthedocs.io/en/26.2.0/usage.html).
-- Repository evidence: `run.py`/`publish_pairs.py` in 7.B, `queue_service.py`, S10 `pipeline.py`/`offload_completed.py`, the pinned upstream stage scripts, and `.github/workflows/tests.yml`.
+- Repository evidence: `run.py`/`publish_pairs.py` in 7.B, `queue_service.py`, S10 `pipeline.py`/`offload_completed.py`, the integrated protocol stage scripts, and `.github/workflows/tests.yml`.
 
 These links and implementation boundaries were reviewed on 2026-11-06. Source/CI checks establish software contracts and synthetic behavior. This documentation does not establish a new full Linux/Mac imaging baseline or port the missing operational adapters.

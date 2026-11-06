@@ -1,0 +1,1409 @@
+{
+  "repository": "https://github.com/statMINDlab/ADNI_fMRI_protocol.git",
+  "baseline_commit": "e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3",
+  "commit_count": 153,
+  "preservation": "Original commit/parent/author/date/subject index; full original Git history preserved separately in the local migration bundle, not merged as data-bearing ancestors.",
+  "commits": [
+    {
+      "commit": "e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3",
+      "parents": [
+        "e473dad145b91420648d226419daf28d7b365f7d"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-08-21T10:48:04-04:00",
+      "subject": "add per site mriqc viz"
+    },
+    {
+      "commit": "e473dad145b91420648d226419daf28d7b365f7d",
+      "parents": [
+        "87c36606e0964c0d050ba8c7cca8b25a1045c8d9",
+        "da55b327a39adb9035f64289a7d9b19126f82f83"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-07-21T09:42:38+02:00",
+      "subject": "Merge pull request #22 from statMINDlab/feat/s9-panel-bc-layout"
+    },
+    {
+      "commit": "da55b327a39adb9035f64289a7d9b19126f82f83",
+      "parents": [
+        "08448b742a1d6ff71e50e1905c4123c9076cdf24"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-07-21T09:37:28+02:00",
+      "subject": "Increase font sizes across the figures; clarify panel B axis label"
+    },
+    {
+      "commit": "08448b742a1d6ff71e50e1905c4123c9076cdf24",
+      "parents": [
+        "87c36606e0964c0d050ba8c7cca8b25a1045c8d9"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-07-21T09:32:14+02:00",
+      "subject": "Widen/shorten panel B and transpose panel C in the combined figure"
+    },
+    {
+      "commit": "87c36606e0964c0d050ba8c7cca8b25a1045c8d9",
+      "parents": [
+        "09af9968208c0ff72078136c49458fad207f41fd",
+        "ec89f24281f1e26f72657cee0c41562763ddca1d"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-07-20T21:39:53+02:00",
+      "subject": "Merge pull request #21 from statMINDlab/feat/s9-regenerate-updated"
+    },
+    {
+      "commit": "ec89f24281f1e26f72657cee0c41562763ddca1d",
+      "parents": [
+        "09af9968208c0ff72078136c49458fad207f41fd"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-07-20T21:37:03+02:00",
+      "subject": "Regenerate Step-9 clinical/imaging merge for the updated inclusion set"
+    },
+    {
+      "commit": "09af9968208c0ff72078136c49458fad207f41fd",
+      "parents": [
+        "af24e344205770c2fa4cedd56be2b9807fc0336e",
+        "4d977db42ac90697651de738b8a631ee6aef7478"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-07-20T21:12:06+02:00",
+      "subject": "Merge pull request #20 from statMINDlab/docs/readme-improvements"
+    },
+    {
+      "commit": "4d977db42ac90697651de738b8a631ee6aef7478",
+      "parents": [
+        "dbfe2210093394bc3701fcdefc7ffcfae498691c"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-07-20T21:04:47+02:00",
+      "subject": "Improve top-level docs: requirements, step summaries, troubleshooting"
+    },
+    {
+      "commit": "af24e344205770c2fa4cedd56be2b9807fc0336e",
+      "parents": [
+        "dbfe2210093394bc3701fcdefc7ffcfae498691c",
+        "80cfb13b5434fdbfb9c90f93419276edec7ceefe"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-07-20T21:11:46+02:00",
+      "subject": "Merge pull request #19 from statMINDlab/fix/s8-sequential-final-qc"
+    },
+    {
+      "commit": "80cfb13b5434fdbfb9c90f93419276edec7ceefe",
+      "parents": [
+        "dbfe2210093394bc3701fcdefc7ffcfae498691c"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-07-20T20:58:49+02:00",
+      "subject": "Sequentially consistent Final QC + recompiled MRIQC reconciliation"
+    },
+    {
+      "commit": "dbfe2210093394bc3701fcdefc7ffcfae498691c",
+      "parents": [
+        "b86a8bebe5df2f5ea217686113d15c105965b4e2",
+        "5387f61baa34ae372731eb2b16fbf6591c420e14"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-07-20T20:27:10+02:00",
+      "subject": "Merge pull request #18 from statMINDlab/fix/sample-size-sequential-cascade"
+    },
+    {
+      "commit": "5387f61baa34ae372731eb2b16fbf6591c420e14",
+      "parents": [
+        "b86a8bebe5df2f5ea217686113d15c105965b4e2"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-07-20T20:25:15+02:00",
+      "subject": "Enforce sequential (monotonic) cascade in the sample-size collector"
+    },
+    {
+      "commit": "b86a8bebe5df2f5ea217686113d15c105965b4e2",
+      "parents": [
+        "93ba49fcfc0ed806bfd710073c38db79d2373e39"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-07-19T17:31:11+02:00",
+      "subject": "rm csv"
+    },
+    {
+      "commit": "93ba49fcfc0ed806bfd710073c38db79d2373e39",
+      "parents": [
+        "6740cf492d8509f6b1e8852cd04266045cb4b250",
+        "e58b310ee4d8bc3e8907de875e353b6b97ca74aa"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-07-19T17:00:23+02:00",
+      "subject": "Merge pull request #17 from statMINDlab/docs/s9-clinical-imaging-merge"
+    },
+    {
+      "commit": "e58b310ee4d8bc3e8907de875e353b6b97ca74aa",
+      "parents": [
+        "6740cf492d8509f6b1e8852cd04266045cb4b250"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-07-19T16:59:15+02:00",
+      "subject": "Add s9 README and document Step 9 in the main README"
+    },
+    {
+      "commit": "6740cf492d8509f6b1e8852cd04266045cb4b250",
+      "parents": [
+        "25dc4d06a36ca5204699630c81992158c0595a5f",
+        "8561ba6f80183bd29cc9930f0917b57502db3754"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-07-19T16:51:00+02:00",
+      "subject": "Merge pull request #16 from statMINDlab/feat/s6-outlier-config-driven"
+    },
+    {
+      "commit": "8561ba6f80183bd29cc9930f0917b57502db3754",
+      "parents": [
+        "c7412a0d3c080d1620315fa73d26f94ad6eddca7"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-07-19T16:50:20+02:00",
+      "subject": "add s9 dir and scripts"
+    },
+    {
+      "commit": "25dc4d06a36ca5204699630c81992158c0595a5f",
+      "parents": [
+        "7b38fcfeed800dc0f8bd3e4002f9222f529f7c15",
+        "c7412a0d3c080d1620315fa73d26f94ad6eddca7"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-07-18T10:38:29+02:00",
+      "subject": "Merge pull request #15 from statMINDlab/feat/s6-outlier-config-driven"
+    },
+    {
+      "commit": "c7412a0d3c080d1620315fa73d26f94ad6eddca7",
+      "parents": [
+        "7b38fcfeed800dc0f8bd3e4002f9222f529f7c15"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-07-18T10:30:11+02:00",
+      "subject": "Document + parameterize the MRIQC outlier pipeline; untrack .DS_Store"
+    },
+    {
+      "commit": "7b38fcfeed800dc0f8bd3e4002f9222f529f7c15",
+      "parents": [
+        "6bf7fe4e9ea268777bacf8e39cb0abbfbef03305",
+        "18689ab349647a77e165ed1f58d12af2c540e24c"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-07-18T10:00:45+02:00",
+      "subject": "Merge pull request #14 from statMINDlab/feat/fmriprep-session-filter"
+    },
+    {
+      "commit": "18689ab349647a77e165ed1f58d12af2c540e24c",
+      "parents": [
+        "328e49137d280707f212c8d38e3dd621a16642c1"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-07-18T10:00:02+02:00",
+      "subject": "update outlier R script"
+    },
+    {
+      "commit": "6bf7fe4e9ea268777bacf8e39cb0abbfbef03305",
+      "parents": [
+        "070386a62710cfac7b12952a9c4b2cd819fc9c10",
+        "328e49137d280707f212c8d38e3dd621a16642c1"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-07-15T14:49:39+02:00",
+      "subject": "Merge pull request #13 from statMINDlab/feat/fmriprep-session-filter"
+    },
+    {
+      "commit": "328e49137d280707f212c8d38e3dd621a16642c1",
+      "parents": [
+        "070386a62710cfac7b12952a9c4b2cd819fc9c10"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-07-15T14:43:58+02:00",
+      "subject": "Add --sessions-csv to fMRIPrep driver for session-level re-runs"
+    },
+    {
+      "commit": "070386a62710cfac7b12952a9c4b2cd819fc9c10",
+      "parents": [
+        "71e079fb7078728128d9c706bdfb87dd2a52295d",
+        "611709f53041b3a419901906fcde497239864dba"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-07-15T12:49:51+02:00",
+      "subject": "Merge pull request #12 from statMINDlab/feat/session-filter"
+    },
+    {
+      "commit": "611709f53041b3a419901906fcde497239864dba",
+      "parents": [
+        "71e079fb7078728128d9c706bdfb87dd2a52295d"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-07-15T12:48:45+02:00",
+      "subject": "Add --sessions-csv to target specific subject+session pairs"
+    },
+    {
+      "commit": "71e079fb7078728128d9c706bdfb87dd2a52295d",
+      "parents": [
+        "083ac91e95a0a54bf772841ddf55533311112dd5"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-07-15T12:10:01+02:00",
+      "subject": "Update README.md"
+    },
+    {
+      "commit": "083ac91e95a0a54bf772841ddf55533311112dd5",
+      "parents": [
+        "364a85be46542552cff35a70ce2ffa5c1ba196b0",
+        "66a5b04a3067b77788922b2e08437a30020f7535"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-07-15T12:08:46+02:00",
+      "subject": "Merge pull request #11 from statMINDlab/feat/cli-subject-lists"
+    },
+    {
+      "commit": "66a5b04a3067b77788922b2e08437a30020f7535",
+      "parents": [
+        "58fe841cab2aaafc1c6e9845cac6bf684d2570d4"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-07-15T11:55:25+02:00",
+      "subject": "Add CLI subject-list overrides to slice-timing and fMRIPrep steps"
+    },
+    {
+      "commit": "364a85be46542552cff35a70ce2ffa5c1ba196b0",
+      "parents": [
+        "58fe841cab2aaafc1c6e9845cac6bf684d2570d4",
+        "54bcafc368a1427323ab1fb6ea41ef5ecaedda46"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-07-15T11:42:23+02:00",
+      "subject": "Merge pull request #10 from statMINDlab/ci/shellcheck-severity"
+    },
+    {
+      "commit": "54bcafc368a1427323ab1fb6ea41ef5ecaedda46",
+      "parents": [
+        "58fe841cab2aaafc1c6e9845cac6bf684d2570d4"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-07-10T13:53:20+02:00",
+      "subject": "ci: only fail shellcheck on warning+ findings"
+    },
+    {
+      "commit": "58fe841cab2aaafc1c6e9845cac6bf684d2570d4",
+      "parents": [
+        "72b94dc349595e3c78aa2c4d91aed8616f34ed6d",
+        "4b9d2adcbfcf8c1887bb8780ab63cae914589ca0"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-07-10T13:46:21+02:00",
+      "subject": "Merge pull request #9 from statMINDlab/feat/sample-size-table"
+    },
+    {
+      "commit": "4b9d2adcbfcf8c1887bb8780ab63cae914589ca0",
+      "parents": [
+        "72b94dc349595e3c78aa2c4d91aed8616f34ed6d"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-07-10T13:42:40+02:00",
+      "subject": "Add pipeline sample-size table (collector + renderer)"
+    },
+    {
+      "commit": "72b94dc349595e3c78aa2c4d91aed8616f34ed6d",
+      "parents": [
+        "604805ab41d87be7dfce08ed78f25f734a1f2388",
+        "e14edf23f02446ddc82283266ebbd524879e8d4f"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-07-06T12:09:09+02:00",
+      "subject": "Merge pull request #8 from statMINDlab/feat/philips-slice-timing"
+    },
+    {
+      "commit": "e14edf23f02446ddc82283266ebbd524879e8d4f",
+      "parents": [
+        "5e4674b66ee4a99322b4d87e5af16703e5ac5183",
+        "f01cf312ee8c5829a7261de568e7a02aa9e9bde4"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-07-06T12:07:38+02:00",
+      "subject": "Merge pull request #6 from statMINDlab/main"
+    },
+    {
+      "commit": "604805ab41d87be7dfce08ed78f25f734a1f2388",
+      "parents": [
+        "f01cf312ee8c5829a7261de568e7a02aa9e9bde4",
+        "4d486d8f0d85708c8f7a99babd80fc9d99a373a0"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-07-06T12:08:23+02:00",
+      "subject": "Merge pull request #7 from statMINDlab/fix/docs-tests-and-untrack-derived-data"
+    },
+    {
+      "commit": "4d486d8f0d85708c8f7a99babd80fc9d99a373a0",
+      "parents": [
+        "94c2c2984b430c446267ed50ecae1d5761638e89",
+        "5e4674b66ee4a99322b4d87e5af16703e5ac5183"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-07-06T12:01:52+02:00",
+      "subject": "Merge pull request #5 from statMINDlab/feat/philips-slice-timing"
+    },
+    {
+      "commit": "5e4674b66ee4a99322b4d87e5af16703e5ac5183",
+      "parents": [
+        "94c2c2984b430c446267ed50ecae1d5761638e89"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-07-06T11:58:54+02:00",
+      "subject": "Add Step 4b: insert SliceTiming into Philips resting-state sidecars"
+    },
+    {
+      "commit": "f01cf312ee8c5829a7261de568e7a02aa9e9bde4",
+      "parents": [
+        "6c814d0e7cfffc25cb0709126d69dde3e55d0dda",
+        "94c2c2984b430c446267ed50ecae1d5761638e89"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-07-06T12:01:14+02:00",
+      "subject": "Merge pull request #4 from statMINDlab/fix/docs-tests-and-untrack-derived-data"
+    },
+    {
+      "commit": "94c2c2984b430c446267ed50ecae1d5761638e89",
+      "parents": [
+        "6c814d0e7cfffc25cb0709126d69dde3e55d0dda"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-07-06T11:16:23+02:00",
+      "subject": "Fix failing tests, reconcile docs, and untrack ADNI-derived data"
+    },
+    {
+      "commit": "6c814d0e7cfffc25cb0709126d69dde3e55d0dda",
+      "parents": [
+        "f03f293eb1d86bdcdd663e7b829e97918d6b15a5"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-07-01T12:19:56+02:00",
+      "subject": "remove makefile, update instructions"
+    },
+    {
+      "commit": "f03f293eb1d86bdcdd663e7b829e97918d6b15a5",
+      "parents": [
+        "fbfd7e3d101709687b8246660f965710df34bfd3"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-06-25T13:27:01+02:00",
+      "subject": "Update README.md"
+    },
+    {
+      "commit": "fbfd7e3d101709687b8246660f965710df34bfd3",
+      "parents": [
+        "cc0a680d185095e0f78c4cfdcc7959e5c3d819b7"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-06-25T13:24:11+02:00",
+      "subject": "update s3_organize"
+    },
+    {
+      "commit": "cc0a680d185095e0f78c4cfdcc7959e5c3d819b7",
+      "parents": [
+        "694740d614ad114fe15bb87e73a5d9d38c9d74b8"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-06-15T12:12:54+02:00",
+      "subject": "Update README.md"
+    },
+    {
+      "commit": "694740d614ad114fe15bb87e73a5d9d38c9d74b8",
+      "parents": [
+        "95b7963d679e6ffd42d9bdbb5918defe337383ae",
+        "41ac3f4745c62e820746407f92deec57cf94dfad"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-03-10T03:54:13-04:00",
+      "subject": "Merge pull request #1 from mandymejia/dev-config-from-yaml"
+    },
+    {
+      "commit": "41ac3f4745c62e820746407f92deec57cf94dfad",
+      "parents": [
+        "603993c2e03e0e3308996bfdfd4f94720a4d14e3",
+        "6a5bd5baf46642c72c74a85c1dcd46cd211a5e4e"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-03-10T03:49:49-04:00",
+      "subject": "Merge pull request #2 from mandymejia/andrea-dev"
+    },
+    {
+      "commit": "95b7963d679e6ffd42d9bdbb5918defe337383ae",
+      "parents": [
+        "f04b3016f3fde3682396f8fde837dda097050af2",
+        "6a5bd5baf46642c72c74a85c1dcd46cd211a5e4e"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2026-03-10T03:52:09-04:00",
+      "subject": "Merge pull request #3 from mandymejia/andrea-dev"
+    },
+    {
+      "commit": "6a5bd5baf46642c72c74a85c1dcd46cd211a5e4e",
+      "parents": [
+        "180aebf2b1957e948a8fdf8947e02d510f01a09d"
+      ],
+      "author": "aiavenak",
+      "authored_at": "2026-02-02T19:25:42-05:00",
+      "subject": "restored config.yaml file"
+    },
+    {
+      "commit": "180aebf2b1957e948a8fdf8947e02d510f01a09d",
+      "parents": [
+        "c2a888e99cb394fcf8d3e86cf12946ac638740f9"
+      ],
+      "author": "aiavenak",
+      "authored_at": "2026-02-02T18:59:29-05:00",
+      "subject": "added an env set-up script that defines base variables. This way, the config_adni an be simplified with fewer hard-coded paths. Up to now, most or all scripts should work with the --config option, or with user specified parameters such as --path2source, etc"
+    },
+    {
+      "commit": "c2a888e99cb394fcf8d3e86cf12946ac638740f9",
+      "parents": [
+        "c842b4ec20a8cd1bf0768875b330759860d753dd"
+      ],
+      "author": "aiavenak",
+      "authored_at": "2026-01-20T14:20:54-05:00",
+      "subject": "added a var expansion funciton to config_tools"
+    },
+    {
+      "commit": "c842b4ec20a8cd1bf0768875b330759860d753dd",
+      "parents": [
+        "3dbfe65a6b051064a988dce900add139ba03d7e3"
+      ],
+      "author": "aiavenak",
+      "authored_at": "2026-01-19T17:57:26-05:00",
+      "subject": "new conversion_info merger script added,got other scripts to work with --config option or with paths provided as args"
+    },
+    {
+      "commit": "3dbfe65a6b051064a988dce900add139ba03d7e3",
+      "parents": [
+        "35c74a2728b5f6e220d13d264ada7670b8a4d87a"
+      ],
+      "author": "aiavenak",
+      "authored_at": "2026-01-19T16:04:52-05:00",
+      "subject": "stop tracking user's config, instead track sample file. Added script to create subject list"
+    },
+    {
+      "commit": "35c74a2728b5f6e220d13d264ada7670b8a4d87a",
+      "parents": [
+        "4234d00dc69745df6b16c9d74dd9d3dd56d2d0ab"
+      ],
+      "author": "aiavenak",
+      "authored_at": "2026-01-13T10:23:49-05:00",
+      "subject": "untracked changes"
+    },
+    {
+      "commit": "4234d00dc69745df6b16c9d74dd9d3dd56d2d0ab",
+      "parents": [
+        "e7af1d08095b8d4023eebe54245b09f607f35c2d"
+      ],
+      "author": "aiavenak",
+      "authored_at": "2026-01-12T21:11:15-05:00",
+      "subject": "made scripts a bit more flexible to use with various options"
+    },
+    {
+      "commit": "e7af1d08095b8d4023eebe54245b09f607f35c2d",
+      "parents": [
+        "41f03620b829fa13c0b2a16b9715ed7f14fd99ae",
+        "603993c2e03e0e3308996bfdfd4f94720a4d14e3"
+      ],
+      "author": "aiavenak",
+      "authored_at": "2026-01-12T19:49:36-05:00",
+      "subject": "resolving conflicts"
+    },
+    {
+      "commit": "603993c2e03e0e3308996bfdfd4f94720a4d14e3",
+      "parents": [
+        "9b5dca4deebeae68950b11f527da1b7f7479ad6e"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2026-01-12T20:56:27+01:00",
+      "subject": "fix lint"
+    },
+    {
+      "commit": "9b5dca4deebeae68950b11f527da1b7f7479ad6e",
+      "parents": [
+        "68a7483aeae1c97a8c3dc83416b936aa910315dd"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2026-01-12T20:53:39+01:00",
+      "subject": "fix tests"
+    },
+    {
+      "commit": "68a7483aeae1c97a8c3dc83416b936aa910315dd",
+      "parents": [
+        "8c8c2e3ccb19b568715e64449a9debe89c56cf26"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-27T12:30:36+01:00",
+      "subject": "small fixes to config"
+    },
+    {
+      "commit": "8c8c2e3ccb19b568715e64449a9debe89c56cf26",
+      "parents": [
+        "eb02f4342200413951b65246f7a59424df65b2f8"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-27T11:17:29+01:00",
+      "subject": "Make IPython dependency optional in plots module"
+    },
+    {
+      "commit": "eb02f4342200413951b65246f7a59424df65b2f8",
+      "parents": [
+        "0e5b368e16e964c2e82ca12d9d1a12c08119d867",
+        "7f1cb0252b2d2b9c71ee0cc807e4fcb6509b796b"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-27T11:11:12+01:00",
+      "subject": "Merge branch 'origin/dev-config-from-yaml' into dev-config-from-yaml"
+    },
+    {
+      "commit": "7f1cb0252b2d2b9c71ee0cc807e4fcb6509b796b",
+      "parents": [
+        "918902317f9339384a3dc32bd79af00acc355970"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2025-11-27T10:59:19+01:00",
+      "subject": "Update README.md with mermaid"
+    },
+    {
+      "commit": "0e5b368e16e964c2e82ca12d9d1a12c08119d867",
+      "parents": [
+        "918902317f9339384a3dc32bd79af00acc355970"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-27T11:10:04+01:00",
+      "subject": "fix failing tests"
+    },
+    {
+      "commit": "918902317f9339384a3dc32bd79af00acc355970",
+      "parents": [
+        "5c960d9dc8e497f40279075931821a3fd7f0407c"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-27T10:45:58+01:00",
+      "subject": "update mermaid chart"
+    },
+    {
+      "commit": "5c960d9dc8e497f40279075931821a3fd7f0407c",
+      "parents": [
+        "5f95b694b7f710d4beebdff8a86fa705367a4547"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-27T00:44:07+01:00",
+      "subject": "fix: install missing dependencies"
+    },
+    {
+      "commit": "5f95b694b7f710d4beebdff8a86fa705367a4547",
+      "parents": [
+        "2a2d6e362c90772b492c12802aa0dae099d9f757"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-27T00:38:52+01:00",
+      "subject": "Add requirements.txt"
+    },
+    {
+      "commit": "2a2d6e362c90772b492c12802aa0dae099d9f757",
+      "parents": [
+        "d2a3d04ab476efdab43e6c7e16e6099f9801bd37"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-27T00:34:54+01:00",
+      "subject": "Silence Ruff B905 in run_session_heuristics table formatter"
+    },
+    {
+      "commit": "d2a3d04ab476efdab43e6c7e16e6099f9801bd37",
+      "parents": [
+        "5e5bc610c13f99c914872c9672e3e53ae6fdb320"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-27T00:28:02+01:00",
+      "subject": "Fix Mermaid config edge syntax in README diagram"
+    },
+    {
+      "commit": "5e5bc610c13f99c914872c9672e3e53ae6fdb320",
+      "parents": [
+        "d88518dfd1a1be618a4ddd311521f8c009fbe4b2"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-27T00:26:32+01:00",
+      "subject": "Add Mermaid pipeline overview diagram to root README"
+    },
+    {
+      "commit": "d88518dfd1a1be618a4ddd311521f8c009fbe4b2",
+      "parents": [
+        "fd586c72992c6ad77bb7691fb643b3d322c2c7fe"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-27T00:12:50+01:00",
+      "subject": "Update Step 8 README for final QC scripts"
+    },
+    {
+      "commit": "fd586c72992c6ad77bb7691fb643b3d322c2c7fe",
+      "parents": [
+        "376cbab8be9ce4ed2919c0d5afbac784117e4ccf"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-27T00:11:55+01:00",
+      "subject": "Add run_session_heuristics smoke test and make script directly runnable"
+    },
+    {
+      "commit": "376cbab8be9ce4ed2919c0d5afbac784117e4ccf",
+      "parents": [
+        "3c73c79eff4f5a9d091b25f35d3b90cd3a75ed90"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-27T00:07:59+01:00",
+      "subject": "Wire Step 5 heuristics script into MRIQC/fMRIPrep and config"
+    },
+    {
+      "commit": "3c73c79eff4f5a9d091b25f35d3b90cd3a75ed90",
+      "parents": [
+        "b9a28d08933377679829b293703c7817dc2b6d6c"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-26T21:11:22+01:00",
+      "subject": "fix fmriprep test"
+    },
+    {
+      "commit": "b9a28d08933377679829b293703c7817dc2b6d6c",
+      "parents": [
+        "43e7bb733e179decc640b1b73699fb31a41d471b"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-26T20:38:42+01:00",
+      "subject": "add new fmriprep error script, update main fig, fix lint err"
+    },
+    {
+      "commit": "43e7bb733e179decc640b1b73699fb31a41d471b",
+      "parents": [
+        "093abf512a16068720a97d197113a11b97a6daa3"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-26T20:08:12+01:00",
+      "subject": "update fig, rm old env.yaml"
+    },
+    {
+      "commit": "093abf512a16068720a97d197113a11b97a6daa3",
+      "parents": [
+        "5c135f37082dc377c3d4b4a8b69b9993337c1675"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-26T16:57:30+01:00",
+      "subject": "update post clinica file merge"
+    },
+    {
+      "commit": "5c135f37082dc377c3d4b4a8b69b9993337c1675",
+      "parents": [
+        "c32ce5a6b5b168105bf7aef6d928be6dfa87546b"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-26T16:44:34+01:00",
+      "subject": "update IQM script"
+    },
+    {
+      "commit": "c32ce5a6b5b168105bf7aef6d928be6dfa87546b",
+      "parents": [
+        "898b401d08de4b9a9fe9c725b48022a4ca8309ed"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-26T09:35:38-05:00",
+      "subject": "add s8 scripts"
+    },
+    {
+      "commit": "898b401d08de4b9a9fe9c725b48022a4ca8309ed",
+      "parents": [
+        "32b80816fa2022b8c092e9af0c38ed283aa67459"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-25T07:36:47-05:00",
+      "subject": "temp clinica qc file"
+    },
+    {
+      "commit": "32b80816fa2022b8c092e9af0c38ed283aa67459",
+      "parents": [
+        "a5b8521eeeaf709d3a26fd2195500555ce5aadd4"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-25T13:04:47+01:00",
+      "subject": "Fix shellcheck warnings in Clinica/MRIQC/fMRIPrep scripts"
+    },
+    {
+      "commit": "a5b8521eeeaf709d3a26fd2195500555ce5aadd4",
+      "parents": [
+        "90bbfeccaa5dd048820c77ddea28e7400666aff1"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-25T10:54:44+01:00",
+      "subject": "Fix duplicate AnchorTable import for Ruff"
+    },
+    {
+      "commit": "90bbfeccaa5dd048820c77ddea28e7400666aff1",
+      "parents": [
+        "c4af0f37fd891c044273bd94a2e544740a6e9891"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-25T10:52:07+01:00",
+      "subject": "Relax Ruff config and exclude notebooks from lint"
+    },
+    {
+      "commit": "c4af0f37fd891c044273bd94a2e544740a6e9891",
+      "parents": [
+        "e5f3ec70ce922699720b47b64944a3b9ee82ef6d"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2025-11-25T10:41:20+01:00",
+      "subject": "Remove entries from adni_subs.txt"
+    },
+    {
+      "commit": "e5f3ec70ce922699720b47b64944a3b9ee82ef6d",
+      "parents": [
+        "5e8ac42b9ca27d85f31e2b302411ac6c14222a4b"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-25T10:39:57+01:00",
+      "subject": "Document dry-runs and dev workflow"
+    },
+    {
+      "commit": "5e8ac42b9ca27d85f31e2b302411ac6c14222a4b",
+      "parents": [
+        "64d7d3b0f4c42df9e59b868075e0662e211d40db"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-25T10:35:25+01:00",
+      "subject": "Add CI, linting, dry-run support, and script tests"
+    },
+    {
+      "commit": "64d7d3b0f4c42df9e59b868075e0662e211d40db",
+      "parents": [
+        "8b8d2b62a6485566c08b2e2a8d323637194bd43b"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-25T10:04:29+01:00",
+      "subject": "Add tests for utils.config_tools and MRIQC scripts"
+    },
+    {
+      "commit": "8b8d2b62a6485566c08b2e2a8d323637194bd43b",
+      "parents": [
+        "e91bf0e3c33834c21c7dc9cb28f8ffa61a2ad843"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-25T10:04:17+01:00",
+      "subject": "Document config-driven workflow across step READMEs"
+    },
+    {
+      "commit": "e91bf0e3c33834c21c7dc9cb28f8ffa61a2ad843",
+      "parents": [
+        "9808f621112b6b884a1c1cc0554c6a12af1c0d53"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-25T10:03:19+01:00",
+      "subject": "Add Conda environments and update WARP guidance"
+    },
+    {
+      "commit": "9808f621112b6b884a1c1cc0554c6a12af1c0d53",
+      "parents": [
+        "54c8f62f0227e24de9e45742542ff838d9dbf8f7"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-25T09:22:01+01:00",
+      "subject": "Add tests for MRIQC Slurm scripts and fix odir bug"
+    },
+    {
+      "commit": "54c8f62f0227e24de9e45742542ff838d9dbf8f7",
+      "parents": [
+        "01f26d9748c7a5997ea0e4690bdfca42b4c7b427"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-25T09:10:14+01:00",
+      "subject": "Make fMRIPrep orchestration and error tooling config-driven"
+    },
+    {
+      "commit": "01f26d9748c7a5997ea0e4690bdfca42b4c7b427",
+      "parents": [
+        "412423042344d546d951368198fbf636fe6f503f"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-25T09:10:01+01:00",
+      "subject": "Make MRIQC Slurm scripts config-driven"
+    },
+    {
+      "commit": "412423042344d546d951368198fbf636fe6f503f",
+      "parents": [
+        "97947e707b0a143819f57e98948d0e19c4fc653c"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-25T09:09:47+01:00",
+      "subject": "Make organize, Clinica, and post-Clinica QC read paths from config"
+    },
+    {
+      "commit": "97947e707b0a143819f57e98948d0e19c4fc653c",
+      "parents": [
+        "f04b3016f3fde3682396f8fde837dda097050af2"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-25T09:09:27+01:00",
+      "subject": "Add WARP rules and YAML config helper"
+    },
+    {
+      "commit": "41f03620b829fa13c0b2a16b9715ed7f14fd99ae",
+      "parents": [
+        "a94d7def28ea6db4b6224daf3817862e4be7c32d"
+      ],
+      "author": "aiavenak",
+      "authored_at": "2026-01-12T19:42:18-05:00",
+      "subject": "trying to merge with yaml version"
+    },
+    {
+      "commit": "a94d7def28ea6db4b6224daf3817862e4be7c32d",
+      "parents": [
+        "e2ec72417621a105d1a25f04df6f1b4860ec1514"
+      ],
+      "author": "aiavenak",
+      "authored_at": "2026-01-12T16:10:19-05:00",
+      "subject": "untracked changes"
+    },
+    {
+      "commit": "e2ec72417621a105d1a25f04df6f1b4860ec1514",
+      "parents": [
+        "b506a0e808b2be0649309962c61ad15ee9fcd140"
+      ],
+      "author": "aiavenak",
+      "authored_at": "2026-01-12T16:07:36-05:00",
+      "subject": "modifacations made to get code to work for me"
+    },
+    {
+      "commit": "b506a0e808b2be0649309962c61ad15ee9fcd140",
+      "parents": [
+        "f04b3016f3fde3682396f8fde837dda097050af2"
+      ],
+      "author": "aiavenak",
+      "authored_at": "2026-01-02T19:35:53-05:00",
+      "subject": "updates to step 3: mostly to make comparison between metadata csv and inventory csv easier"
+    },
+    {
+      "commit": "f04b3016f3fde3682396f8fde837dda097050af2",
+      "parents": [
+        "33fe121446f1ebbe6d81f0cdc1726e18f5f1417b"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-22T04:29:54+01:00",
+      "subject": "update outlier code"
+    },
+    {
+      "commit": "33fe121446f1ebbe6d81f0cdc1726e18f5f1417b",
+      "parents": [
+        "b22667205d396bfa2742215b20e87510ec6f4862"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-14T19:10:40+01:00",
+      "subject": "update yaml"
+    },
+    {
+      "commit": "b22667205d396bfa2742215b20e87510ec6f4862",
+      "parents": [
+        "3c3af52236d77f18c291b4a8163ded6ca0c2a80c"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-14T01:04:18+01:00",
+      "subject": "add lots of .md files"
+    },
+    {
+      "commit": "3c3af52236d77f18c291b4a8163ded6ca0c2a80c",
+      "parents": [
+        "69948c744751289f50c5e5b9b3de0fcbb3d6f97f"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-13T23:13:41+01:00",
+      "subject": "edit clinica merge script"
+    },
+    {
+      "commit": "69948c744751289f50c5e5b9b3de0fcbb3d6f97f",
+      "parents": [
+        "73847259db8807516ed991eca222da4ae90c5a10"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-13T23:02:35+01:00",
+      "subject": "update scripts"
+    },
+    {
+      "commit": "73847259db8807516ed991eca222da4ae90c5a10",
+      "parents": [
+        "0eef87885243e097cfd9e15690b2f433d43e434f"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-12T00:12:47+01:00",
+      "subject": "clean up"
+    },
+    {
+      "commit": "0eef87885243e097cfd9e15690b2f433d43e434f",
+      "parents": [
+        "0f8fa969b91765868150e1eaaf449fe6aed6ed56"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-11T23:59:45+01:00",
+      "subject": "add outlier R script"
+    },
+    {
+      "commit": "0f8fa969b91765868150e1eaaf449fe6aed6ed56",
+      "parents": [
+        "ddd3c84c6897afba6cde63084b5b3f22c9806da7"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-11T17:54:13-05:00",
+      "subject": "add s6 group script"
+    },
+    {
+      "commit": "ddd3c84c6897afba6cde63084b5b3f22c9806da7",
+      "parents": [
+        "fca8f24cb50a2e130c3cb20dcd57d6d75e63cef3"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-11T17:47:15-05:00",
+      "subject": "Add s7 scripts"
+    },
+    {
+      "commit": "fca8f24cb50a2e130c3cb20dcd57d6d75e63cef3",
+      "parents": [
+        "74d970f1c1bf2b57c2643e70bf21aefc10a41a36"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-11T23:40:51+01:00",
+      "subject": "add s5 and s6 files"
+    },
+    {
+      "commit": "74d970f1c1bf2b57c2643e70bf21aefc10a41a36",
+      "parents": [
+        "376672396a81c462255bdbd7442253066b33f89b"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2025-11-11T22:02:33+01:00",
+      "subject": "Update README.md"
+    },
+    {
+      "commit": "376672396a81c462255bdbd7442253066b33f89b",
+      "parents": [
+        "2abe2c9431f571ac68e88d6cb9c75b4d93bd8150"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-10T22:59:36+01:00",
+      "subject": "add slurm scripts"
+    },
+    {
+      "commit": "2abe2c9431f571ac68e88d6cb9c75b4d93bd8150",
+      "parents": [
+        "24dd609d1846ac1d1a8a3de61cdca73686a56da9"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2025-11-10T21:01:26+01:00",
+      "subject": "Update README to include Step 8 link"
+    },
+    {
+      "commit": "24dd609d1846ac1d1a8a3de61cdca73686a56da9",
+      "parents": [
+        "1d900a4187dd8f7ae1b6b49026b32efebf568d0a"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2025-11-10T21:01:02+01:00",
+      "subject": "Update README to link to Step 7"
+    },
+    {
+      "commit": "1d900a4187dd8f7ae1b6b49026b32efebf568d0a",
+      "parents": [
+        "d456239a022e51ca6902efaa6a1c5451c8ba89d8"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2025-11-10T21:00:39+01:00",
+      "subject": "Update README to link to Step 6"
+    },
+    {
+      "commit": "d456239a022e51ca6902efaa6a1c5451c8ba89d8",
+      "parents": [
+        "0312d30dd5d7aa24a73b4e020af016c548d3c852"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2025-11-10T21:00:08+01:00",
+      "subject": "Update README with link to step 5"
+    },
+    {
+      "commit": "0312d30dd5d7aa24a73b4e020af016c548d3c852",
+      "parents": [
+        "eca3d8ab7419dc1c11e8dc07322dd4cfa2446746"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2025-11-10T20:59:16+01:00",
+      "subject": "Link to Step 4 added in README"
+    },
+    {
+      "commit": "eca3d8ab7419dc1c11e8dc07322dd4cfa2446746",
+      "parents": [
+        "05ded6835f70b214ec0a6a2eaf55ddaad098d108"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2025-11-10T20:58:22+01:00",
+      "subject": "Link to Step 3 in README"
+    },
+    {
+      "commit": "05ded6835f70b214ec0a6a2eaf55ddaad098d108",
+      "parents": [
+        "c9ea1f789242d83ff1bda9f9b1634f5bb76fb5f5"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2025-11-10T20:57:32+01:00",
+      "subject": "Add link to Step 2 in README.md"
+    },
+    {
+      "commit": "c9ea1f789242d83ff1bda9f9b1634f5bb76fb5f5",
+      "parents": [
+        "b2833a47b5a928bc9b699b1ec75a320071de9b1d"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2025-11-10T20:56:05+01:00",
+      "subject": "Add image for ADNI protocol overview in README"
+    },
+    {
+      "commit": "b2833a47b5a928bc9b699b1ec75a320071de9b1d",
+      "parents": [
+        "09a04a6b2a895b36c7378b32a38afca6f971e64c"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-10T20:54:39+01:00",
+      "subject": "add overview pic"
+    },
+    {
+      "commit": "09a04a6b2a895b36c7378b32a38afca6f971e64c",
+      "parents": [
+        "9ea9ce6e797eba1889df3c153b9de2ed8fa2dc21"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2025-11-10T20:53:46+01:00",
+      "subject": "Update README.md"
+    },
+    {
+      "commit": "9ea9ce6e797eba1889df3c153b9de2ed8fa2dc21",
+      "parents": [
+        "b7b16e5b49436a5a325bc589f9af30cb57221a61"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2025-11-10T20:39:55+01:00",
+      "subject": "Update README with final QC steps"
+    },
+    {
+      "commit": "b7b16e5b49436a5a325bc589f9af30cb57221a61",
+      "parents": [
+        "9c3041d1eb68485c7d7681592e38452184db554d"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2025-11-10T20:39:01+01:00",
+      "subject": "Update README to include MRIQC link"
+    },
+    {
+      "commit": "9c3041d1eb68485c7d7681592e38452184db554d",
+      "parents": [
+        "4787c29c74125883f75d8eb37978540c6fd9c9d0"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2025-11-10T20:38:44+01:00",
+      "subject": "Revise README for fMRIPrep details"
+    },
+    {
+      "commit": "4787c29c74125883f75d8eb37978540c6fd9c9d0",
+      "parents": [
+        "2782f9f16904e4535f9cd59a1d55908bf3166ba8"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2025-11-10T20:37:25+01:00",
+      "subject": "Update README with MRIQC script instructions"
+    },
+    {
+      "commit": "2782f9f16904e4535f9cd59a1d55908bf3166ba8",
+      "parents": [
+        "664140882a231a5f962836ffcd8b903dd2d7bc16"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2025-11-10T20:36:44+01:00",
+      "subject": "Revise README for Post-Clinica QC steps"
+    },
+    {
+      "commit": "664140882a231a5f962836ffcd8b903dd2d7bc16",
+      "parents": [
+        "816f4dd8c2f90ba223eba0efa72c86fea6f4438a"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2025-11-10T20:35:33+01:00",
+      "subject": "Format README sections for consistency and clarity"
+    },
+    {
+      "commit": "816f4dd8c2f90ba223eba0efa72c86fea6f4438a",
+      "parents": [
+        "6d6674099a8dd63cbb389732d56edc761b164cdd"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-10T20:33:08+01:00",
+      "subject": "add step4 screenshot"
+    },
+    {
+      "commit": "6d6674099a8dd63cbb389732d56edc761b164cdd",
+      "parents": [
+        "e4df723f7386ea388213605a05706bfb634906f1"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-10T20:28:52+01:00",
+      "subject": "add step3 screenshots"
+    },
+    {
+      "commit": "e4df723f7386ea388213605a05706bfb634906f1",
+      "parents": [
+        "e9f8d7118417f80eea3103362e03c5fc5ce853ad"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2025-11-10T20:26:26+01:00",
+      "subject": "Revise README section formatting and numbering"
+    },
+    {
+      "commit": "e9f8d7118417f80eea3103362e03c5fc5ce853ad",
+      "parents": [
+        "45cd442cfde5063a72812c3460ca3cc19a0581c0"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2025-11-10T20:13:37+01:00",
+      "subject": "Update step reference in README.md"
+    },
+    {
+      "commit": "45cd442cfde5063a72812c3460ca3cc19a0581c0",
+      "parents": [
+        "9e0824fac4740f54cadf13a43e355efe44809ed4"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2025-11-10T20:10:51+01:00",
+      "subject": "Update image paths in README.md"
+    },
+    {
+      "commit": "9e0824fac4740f54cadf13a43e355efe44809ed4",
+      "parents": [
+        "e400bbba431b1b4aa9ecd4898cbabf949181aec1",
+        "0ebbdf579c9d5dc66e78faf43a615d796dfb4eff"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-10T20:09:03+01:00",
+      "subject": "Merge branch 'main' of github.com:saigerutherford/AD_biomarkers"
+    },
+    {
+      "commit": "0ebbdf579c9d5dc66e78faf43a615d796dfb4eff",
+      "parents": [
+        "2485bea89f005fc2a4bbca082d9901ff4ad4d330"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2025-11-10T20:07:57+01:00",
+      "subject": "Update README.md"
+    },
+    {
+      "commit": "e400bbba431b1b4aa9ecd4898cbabf949181aec1",
+      "parents": [
+        "2485bea89f005fc2a4bbca082d9901ff4ad4d330"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-10T20:08:50+01:00",
+      "subject": "organize"
+    },
+    {
+      "commit": "2485bea89f005fc2a4bbca082d9901ff4ad4d330",
+      "parents": [
+        "49cb4c8e0a95ce7cd0b6cc52f1ec9cc8e7ef4390"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-10T20:05:30+01:00",
+      "subject": "add more step2 pics"
+    },
+    {
+      "commit": "49cb4c8e0a95ce7cd0b6cc52f1ec9cc8e7ef4390",
+      "parents": [
+        "03f16a2ea1979364204f51e8a1cdb846aa925453"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2025-11-10T20:05:14+01:00",
+      "subject": "Update README with additional download instructions"
+    },
+    {
+      "commit": "03f16a2ea1979364204f51e8a1cdb846aa925453",
+      "parents": [
+        "41cf3634fe6f5a22ea19d005922e46d88f2edebe"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-10T19:54:03+01:00",
+      "subject": "add more step2 pics"
+    },
+    {
+      "commit": "41cf3634fe6f5a22ea19d005922e46d88f2edebe",
+      "parents": [
+        "909b93255deabbf85a7166bae0dc924e6b633a70"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2025-11-10T19:53:45+01:00",
+      "subject": "Update README.md"
+    },
+    {
+      "commit": "909b93255deabbf85a7166bae0dc924e6b633a70",
+      "parents": [
+        "7cbb5b13880bf9961d5866026598bd99f21da74d"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-10T19:41:25+01:00",
+      "subject": "add more step2 pics"
+    },
+    {
+      "commit": "7cbb5b13880bf9961d5866026598bd99f21da74d",
+      "parents": [
+        "20cfa731051788dec23b5eca25ac14ef9ba705f5"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2025-11-10T19:40:55+01:00",
+      "subject": "Enhance README with filtering instructions"
+    },
+    {
+      "commit": "20cfa731051788dec23b5eca25ac14ef9ba705f5",
+      "parents": [
+        "4eba4d30b236dc1133e71fa835cae89d38acef66"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2025-11-10T19:33:28+01:00",
+      "subject": "Revise README for Step 2 image collection process"
+    },
+    {
+      "commit": "4eba4d30b236dc1133e71fa835cae89d38acef66",
+      "parents": [
+        "8de1a44e9e85230d8296a984581d74410cd6e721",
+        "bcccaab6f6b9b17bc586a59bf090563fc7f5cc87"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-10T19:30:22+01:00",
+      "subject": "Merge branch 'main' of github.com:saigerutherford/AD_biomarkers"
+    },
+    {
+      "commit": "bcccaab6f6b9b17bc586a59bf090563fc7f5cc87",
+      "parents": [
+        "540099f04c9a5a36f636ce4ffa24021f12993113"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2025-11-10T19:15:03+01:00",
+      "subject": "Revise README for ADNI data access instructions"
+    },
+    {
+      "commit": "8de1a44e9e85230d8296a984581d74410cd6e721",
+      "parents": [
+        "540099f04c9a5a36f636ce4ffa24021f12993113"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-10T19:29:22+01:00",
+      "subject": "step 2 pics"
+    },
+    {
+      "commit": "540099f04c9a5a36f636ce4ffa24021f12993113",
+      "parents": [
+        "f22ec13a6a74bed522ba0b327903bfaf296c77c3"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-10T19:12:54+01:00",
+      "subject": "add screenshots"
+    },
+    {
+      "commit": "f22ec13a6a74bed522ba0b327903bfaf296c77c3",
+      "parents": [
+        "1cbb07f55e2931d992950d9f226967bee21a7558"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-10T15:35:05+01:00",
+      "subject": "update structure"
+    },
+    {
+      "commit": "1cbb07f55e2931d992950d9f226967bee21a7558",
+      "parents": [
+        "7a4915c4c6bc765543916f397234e78d4e615884"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2025-11-10T15:31:10+01:00",
+      "subject": "Revise README for Step 4: Running Clinica"
+    },
+    {
+      "commit": "7a4915c4c6bc765543916f397234e78d4e615884",
+      "parents": [
+        "71a455ef10c0068a27c56b8c831995def39ec0d4"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2025-11-10T15:24:07+01:00",
+      "subject": "Add script to create DICOM directory CSV"
+    },
+    {
+      "commit": "71a455ef10c0068a27c56b8c831995def39ec0d4",
+      "parents": [
+        "62116bd693bc13d640cda8f6c0772ab15c6a05d3"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2025-11-10T15:21:58+01:00",
+      "subject": "Revise README for Step 3"
+    },
+    {
+      "commit": "62116bd693bc13d640cda8f6c0772ab15c6a05d3",
+      "parents": [
+        "028eb5840e8bcfe4336cf9474a58e63c6bd7825e"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2025-11-10T15:03:55+01:00",
+      "subject": "Revise README for data download and processing steps"
+    },
+    {
+      "commit": "028eb5840e8bcfe4336cf9474a58e63c6bd7825e",
+      "parents": [
+        "f3a5396394fbd76397873fc34ddde552830f1753"
+      ],
+      "author": "saigerutherford",
+      "authored_at": "2025-11-10T09:00:35-05:00",
+      "subject": "update dir tree"
+    },
+    {
+      "commit": "f3a5396394fbd76397873fc34ddde552830f1753",
+      "parents": [
+        "b1088e7898237f027d94fef7c4099947c94a2912"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2025-10-22T21:41:06+02:00",
+      "subject": "Revise README for improved clarity on data processes"
+    },
+    {
+      "commit": "b1088e7898237f027d94fef7c4099947c94a2912",
+      "parents": [
+        "dbd10b47cd7808918af7dda2e78e13ea67b55ae5"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2025-09-22T14:37:10+02:00",
+      "subject": "Update README.md"
+    },
+    {
+      "commit": "dbd10b47cd7808918af7dda2e78e13ea67b55ae5",
+      "parents": [
+        "b230902a595664499d370ac258592360f5108cf4"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2025-09-16T14:23:07+02:00",
+      "subject": "Update README.md"
+    },
+    {
+      "commit": "b230902a595664499d370ac258592360f5108cf4",
+      "parents": [
+        "06912edf8dcc6f3001ed51d6c299fac1da7c9936"
+      ],
+      "author": "Saige Rutherford",
+      "authored_at": "2025-09-16T14:22:08+02:00",
+      "subject": "Update README.md"
+    },
+    {
+      "commit": "06912edf8dcc6f3001ed51d6c299fac1da7c9936",
+      "parents": [],
+      "author": "Saige Rutherford",
+      "authored_at": "2025-06-15T12:23:29+02:00",
+      "subject": "Initial commit"
+    }
+  ]
+}

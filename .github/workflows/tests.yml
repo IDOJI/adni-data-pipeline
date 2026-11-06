@@ -18,12 +18,13 @@ jobs:
         with:
           submodules: false
           persist-credentials: false
-      - run: git submodule update --init 01_upstream/ADNI_fMRI_protocol
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
           cache-dependency-path: RS-fMRI/requirements.txt
-      - run: python -m pip install -r requirements.txt
+      - run: python -m pip install -r requirements.txt -r 01_upstream/ADNI_fMRI_protocol/s5_post_clinica_qc/requirements.txt
       - run: python 04_workflow/lab.py doctor
       - run: python -m pytest -q
+      - name: Test original utilities with synthetic inputs
+        run: python -m pytest -q 01_upstream/ADNI_fMRI_protocol/utils/tests --deselect=01_upstream/ADNI_fMRI_protocol/utils/tests/test_make_sample_size_table.py::test_repo_manifest_renders

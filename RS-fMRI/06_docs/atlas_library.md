@@ -11,7 +11,7 @@ The optional Step 11 library pins Neuroparc, CBIG, Nilearn and the TemplateFlow 
 
 ## Reproducible setup
 
-Initialize the core ADNI submodule for ordinary tests. Install optional atlas sources explicitly with `sources.py install`; this uses pinned commits and sparse patterns from `sources.lock.json`, never `--remote`. TemplateFlow installs only the two reviewed nested template datasets. Run `fetch-templateflow` separately to materialize the pinned NIfTI data. Git-annex/LFS pointers are not valid extraction inputs.
+The core ADNI protocol is included for ordinary tests. Install optional atlas sources explicitly with `sources.py install`; this uses pinned commits and sparse patterns from `sources.lock.json`, never `--remote`. TemplateFlow installs only the two reviewed nested template datasets. Run `fetch-templateflow` separately to materialize the pinned NIfTI data. Git-annex/LFS pointers are not valid extraction inputs.
 
 Review a source update by changing its pin on a test branch, inspecting licenses, metadata, observed labels and expected labels, rebuilding the catalog to a new path, and rerunning synthetic and actual-atlas tests. Catalog generation never proves scientific registration. Do not replace MNI152NLin6Asym with MNI152NLin2009cAsym based on shape/affine similarity.
 

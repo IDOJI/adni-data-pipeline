@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Mac Docker entrypoint for the pinned statMIND ADNI protocol.
+"""Mac Docker entrypoint for the integrated statMIND-derived ADNI protocol.
 
 The upstream Python QC modules are used directly. The local adapter supplies
 an existing-BIDS intake and Docker transport, without changing upstream files.
@@ -24,6 +24,9 @@ import yaml
 
 VERSION = "1.0.0"
 REPO = Path(__file__).resolve().parents[2] / "01_upstream/ADNI_fMRI_protocol"
+if str(REPO.parents[1] / "04_workflow") not in sys.path:
+    sys.path.insert(0, str(REPO.parents[1] / "04_workflow"))
+from protocol_source import inspect_protocol
 
 
 def now():
@@ -198,7 +201,7 @@ def intake(cfg):
     dump(target / "intake_provenance.json", {"time": now(), "anchor_sha256": sha(anchor),
          "source_parser": str(Path(parser.__file__).relative_to(REPO)), "source_parser_sha256": sha(parser.__file__),
          "source_heuristics_sha256": sha(heuristic.__file__), "DICOM_processing": "not_applicable_existing_BIDS",
-         "upstream_commit": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=REPO, text=True).strip()})
+         "protocol_source": inspect_protocol(REPO.parents[1]), "upstream_commit": inspect_protocol(REPO.parents[1])["upstream_commit"]})
     print(json.dumps(decisions, indent=2))
 
 
@@ -299,7 +302,7 @@ def run_stage(cfg, stage, case, profile):
         record = {"started_at": now(), "stage": stage, "case": case, "profile": profile,
                   "strict_upstream_eligible": bool(eligible.iloc[0]), "status": "running", "runner_version": VERSION,
                   "runner_sha256": sha(__file__), "config": cfg, "image": im, "command": argv,
-                  "input_before": inputs, "upstream_commit": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=REPO, text=True).strip()}
+                  "input_before": inputs, "protocol_source": inspect_protocol(REPO.parents[1]), "upstream_commit": inspect_protocol(REPO.parents[1])["upstream_commit"]}
         dump(folder / "run.json", record)
         print(f"Running {stage}: {folder}", flush=True)
         with (folder / "console.log").open("w") as log:

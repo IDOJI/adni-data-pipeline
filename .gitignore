@@ -62,3 +62,13 @@ RS-fMRI/02_custom/**/config.json
 # Explicit user-approved CC0 public MRI sample; retain all other imaging exclusions.
 !/RS-fMRI/07_reproducibility/public_data/ds000030-1.0.0/sub-10159/anat/sub-10159_T1w.nii.gz
 !/RS-fMRI/07_reproducibility/public_data/ds000030-1.0.0/sub-10159/func/sub-10159_task-rest_bold.nii.gz
+
+# Original result/assets may remain in an initialized live clone, never as imported source.
+/RS-fMRI/01_upstream/ADNI_fMRI_protocol/.claude/
+/RS-fMRI/01_upstream/ADNI_fMRI_protocol/.github/
+/RS-fMRI/01_upstream/ADNI_fMRI_protocol/WARP.md
+/RS-fMRI/01_upstream/ADNI_fMRI_protocol/**/*.png
+/RS-fMRI/01_upstream/ADNI_fMRI_protocol/**/*.svg
+/RS-fMRI/01_upstream/ADNI_fMRI_protocol/**/*.html
+/RS-fMRI/01_upstream/ADNI_fMRI_protocol/**/*.ipynb
+/RS-fMRI/01_upstream/ADNI_fMRI_protocol/s4_clinica/adni_subs.txt

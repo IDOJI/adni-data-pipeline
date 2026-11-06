@@ -27,7 +27,7 @@ Full MRIQC/fMRIPrep calculation requires a separate explicit execution request a
 
 ## Purpose and workflow position
 
-This optional adapter follows BIDS conversion and an explicit external EPI–T1 proposal, before Step 7.B execution or an explicitly authorized continuation. It does not replace upstream selection, require a historical Research Selection Table in the main workflow, or change the pinned submodule. Queue admission requires a separately installed external continuation registry.
+This optional adapter follows BIDS conversion and an explicit external EPI–T1 proposal, before Step 7.B execution or an explicitly authorized continuation. It does not replace upstream selection, require a historical Research Selection Table in the main workflow, or change the integrated protocol selection rules. Queue admission requires a separately installed external continuation registry.
 
 ## Inputs
 

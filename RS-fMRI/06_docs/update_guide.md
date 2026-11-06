@@ -1,42 +1,39 @@
-# Updating upstream
+# Updating repository-owned protocol sources
 
-For normal updates, run `git pull --ff-only` followed by `git submodule update --init RS-fMRI/01_upstream/ADNI_fMRI_protocol` from the repository root. These restore the recorded upstream commit. Do not add `--remote` to routine installation commands.
+```sh
+git pull --ff-only
+cd RS-fMRI
+python 04_workflow/lab.py doctor
+python -m pytest -q
+```
+
+Use this normal update sequence after source integration, from a clean checkout or after explicitly preserving local changes. The core protocol is ordinary source in this repository; no ADNI protocol submodule update is needed. SNP and optional atlas sources keep separate reviewed gitlinks.
+
+## Migration from an initialized protocol submodule
+
+```sh
+git status --short --ignore-submodules
+git fetch --no-recurse-submodules origin main
+git log -1 --oneline origin/main
+```
+
+These commands inspect and fetch without replacing working files or updating submodules. Do not deinitialize, delete or overwrite a source tree used by active jobs. Preserve uncommitted changes and original Git history first. Review local changes separately from the published migration.
+
+The validated migration converts parent Git entries to ordinary files and keeps compatible source bytes and paths. Legacy Git metadata and deployment-bound local overlays remain while old workers finish; they are not a new published deployment. A fresh clone is the simplest separate validation installation. See the [live-installation contract](source_integration.md#existing-live-installations).
+
+## Review a protocol change
+
+```sh
+git switch -c feature/protocol-change
+git diff -- RS-fMRI/01_upstream/ADNI_fMRI_protocol
+```
+
+Edit ordinary source files and review/stage/commit them in this repository. Doctor rejects uncommitted protocol content but accepts the reviewed parent version, reporting its differences from the original import. Run meaningful compatibility and scientific validation appropriate to the change. Do not replace original import hashes to hide edits; provenance records the current parent revision/content separately.
+
+For a later original-repository update, fetch it in a separate checkout, compare source changes, and port reviewed changes onto a test branch while preserving local improvements and attribution. Installation does not automatically follow the original remote branch.
 
 ## One-time migration from the initial unnumbered layout
 
-If an existing clone still uses `RS-fMRI/upstream/ADNI_fMRI_protocol`, run the following sequence from the repository root **before updating**. Use `deinit` without `--force` so modified submodules are not forcibly removed. If it refuses, preserve upstream changes first.
+The historical `RS-fMRI/upstream/ADNI_fMRI_protocol` path predates integration. Preserve its changes and Git history before using a current checkout or reviewed migration. Do not run the former deinit/update recipe against an active runtime.
 
-```sh
-git submodule deinit -- RS-fMRI/upstream/ADNI_fMRI_protocol
-git pull --ff-only
-git submodule update --init RS-fMRI/01_upstream/ADNI_fMRI_protocol
-cd RS-fMRI
-python 04_workflow/lab.py doctor
-```
-
-The unnumbered path in this section is a one-time input for cleaning up an older clone. The new path is `RS-fMRI/01_upstream/ADNI_fMRI_protocol`; the submodule identifier and pinned upstream commit remain unchanged. Skip deinit for new or already migrated clones.
-
-To evaluate an upstream update, start a separate branch from a clean repository root.
-
-```sh
-git switch -c test/upstream-update
-git submodule update --remote --checkout RS-fMRI/01_upstream/ADNI_fMRI_protocol
-git diff --submodule=log -- RS-fMRI/01_upstream/ADNI_fMRI_protocol
-```
-
-Review the new source commit and input/output changes, then update the commit and review date in `RS-fMRI/03_config/upstream.lock.json` and stage the gitlink. A lock change alone does not establish validation.
-
-```sh
-git add RS-fMRI/01_upstream/ADNI_fMRI_protocol RS-fMRI/03_config/upstream.lock.json
-cd RS-fMRI
-python -m pytest -q
-python 04_workflow/lab.py doctor
-```
-
-Alongside synthetic compatibility tests, compare conversion, QC, preprocessing and clinical-linkage results on lab validation data in a separate external run. If successful, record actual tools, image digests, changes and validation scope in `03_config/versions.md`, then adopt through PR review.
-
-If validation fails, return to the existing main branch and run `git submodule update --init RS-fMRI/01_upstream/ADNI_fMRI_protocol` to restore the pinned version. Preserve experimental branches/user changes first; do not use forced checkout or reset.
-
-Reference: [official Git submodule documentation](https://git-scm.com/docs/git-submodule).
-
-Optional atlas pins follow the [separate atlas review process](atlas_library.md). Routine core updates do not materialize every atlas dataset.
+Optional atlas pins follow the [atlas review process](atlas_library.md).

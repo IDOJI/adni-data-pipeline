@@ -14,6 +14,10 @@ import sys
 
 import yaml
 
+WORKFLOW = Path(__file__).resolve().parent
+if str(WORKFLOW) not in sys.path:
+    sys.path.insert(0, str(WORKFLOW))
+
 ROOT = Path(__file__).resolve().parents[1]
 UPSTREAM = ROOT / '01_upstream/ADNI_fMRI_protocol'
 LOCK = ROOT / '03_config/upstream.lock.json'
@@ -24,29 +28,14 @@ def git(*args, cwd=ROOT):
 
 
 def doctor():
-    lock = json.loads(LOCK.read_text())
-    if not (UPSTREAM / '.git').is_file():
-        raise ValueError('Initialize the genuine submodule: git submodule update --init --recursive')
-    if git('rev-parse', 'HEAD', cwd=UPSTREAM) != lock['commit']:
-        raise ValueError('Submodule HEAD differs from 03_config/upstream.lock.json')
-    index = git('ls-files', '--stage', '--', lock['path']).split()
-    if len(index) < 2 or index[:2] != ['160000', lock['commit']]:
-        raise ValueError('Parent gitlink differs from the locked upstream commit')
-    if git('status', '--porcelain', '--untracked-files=all', cwd=UPSTREAM):
-        raise ValueError('Upstream contains local edits or untracked files')
-    url = git('config', '-f', str(ROOT.parent / '.gitmodules'), 'submodule.upstream/ADNI_fMRI_protocol.url')
-    if url != lock['repository']:
-        raise ValueError('Unexpected upstream URL in .gitmodules')
-    module_path = git('config', '-f', str(ROOT.parent / '.gitmodules'), 'submodule.upstream/ADNI_fMRI_protocol.path')
-    if module_path != UPSTREAM.relative_to(ROOT.parent).as_posix():
-        raise ValueError('Submodule path in .gitmodules differs from the numbered layout')
+    from protocol_source import inspect_protocol
+    result = inspect_protocol(ROOT)
     for step in ['s1_setup_account', 's2_download', 's3_organize', 's4_clinica',
                  's4b_slice_timing', 's5_post_clinica_qc', 's6_mriqc', 's7_fmriprep',
                  's8_final_qc', 's9_clinical_imaging_merge']:
         if not (UPSTREAM / step / 'README.md').is_file():
-            raise ValueError('Missing upstream step: ' + step)
-    return {'upstream_commit': lock['commit'], 'upstream_clean': True,
-            'scientific_validation': 'not_established_by_source_checks'}
+            raise ValueError('Missing integrated protocol step: ' + step)
+    return result
 
 
 def is_inside(path, parent):

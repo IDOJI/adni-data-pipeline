@@ -4,7 +4,7 @@ Use the [copy-and-paste examples](../07_reproducibility/README.md) for a pinned 
 
 ## Wrapper and Custom Steps
 
-After cloning and selectively initializing the core ADNI submodule as shown in the root README, create a Python 3.11+ virtual environment under `RS-fMRI/` and install `requirements.txt`. `doctor` compares the gitlink, lock, actual upstream checkout and working-tree cleanliness.
+After a normal clone as shown in the root README, create a Python 3.11+ virtual environment under `RS-fMRI/` and install `requirements.txt`. `doctor` checks ordinary tracked source bytes/modes, origin/history and GPL attribution. See the [integration guide](source_integration.md).
 
 ## Upstream environment
 
@@ -16,7 +16,7 @@ Image names in `03_config/lab_config.example.yaml` are examples based on MRIQC 2
 
 Use the [stage-by-stage host guide](platform_execution.md) before moving to a different computer. It provides separate Docker Desktop/Engine setup, common commands and a support matrix. Core Python tools and Linux-container calculations are distinct from Mac-specific service, copy and volume-management adapters.
 
-Custom Steps and configuration tools are tested on Mac. Upstream s4/s6/s7 launchers target Slurm/Apptainer and are not automatically converted to Mac. The existing `local_mac` pilot is an untracked local extension, not part of the submodule. Step 7.A adds a separate Docker volume execution/audit profile, and S10 adds completed-pair postprocessing/integrated QC. The full local_mac implementation and S6/S7 queue are not consolidated; a flat-derivative-to-S10-pair adapter is also separate. See [consolidation scope](xcpd_consolidation.md).
+Custom Steps and configuration tools are tested on Mac. Upstream s4/s6/s7 launchers target Slurm/Apptainer and are not automatically converted to Mac. The existing `local_mac` pilot is an untracked local extension, not part of the original protocol import. Step 7.A adds a separate Docker volume execution/audit profile, and S10 adds completed-pair postprocessing/integrated QC. The full local_mac implementation and S6/S7 queue are not consolidated; a flat-derivative-to-S10-pair adapter is also separate. See [consolidation scope](xcpd_consolidation.md).
 
 ## Output locations
 

@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 REPO = ROOT.parent
 
 
-def test_numbered_directories_and_submodule_declaration_agree():
+def test_numbered_directories_and_integrated_source_declaration_agree():
     names = ('upstream', 'custom', 'config', 'workflow', 'tests', 'docs')
     for number, name in enumerate(names, 1):
         assert (ROOT / f'{number:02}_{name}').is_dir()
@@ -20,11 +20,13 @@ def test_numbered_directories_and_submodule_declaration_agree():
     lock = json.loads((ROOT / '03_config/upstream.lock.json').read_text())
     module = configparser.ConfigParser()
     module.read(REPO / '.gitmodules')
-    declared = module['submodule "upstream/ADNI_fMRI_protocol"']['path']
-    assert declared == 'RS-fMRI/' + lock['path']
-    assert (REPO / declared / '.git').is_file()
-    # The submodule identifier remains stable for existing users' git config.
-    assert module['submodule "upstream/ADNI_fMRI_protocol"']['url'] == lock['repository']
+    assert 'submodule "upstream/ADNI_fMRI_protocol"' not in module
+    assert lock['distribution'] == 'integrated-source'
+    entries = subprocess.check_output(['git', '-C', str(REPO), 'ls-files', '--stage', '--',
+                                      'RS-fMRI/' + lock['path']], text=True).splitlines()
+    assert len(entries) > 1
+    assert all(not entry.startswith('160000 ') for entry in entries)
+    assert len(module.sections()) == 5  # SNP and the four optional atlas sources remain submodules.
 
 
 def test_document_links_resolve_and_imported_code_hash_is_preserved():
@@ -35,8 +37,6 @@ def test_document_links_resolve_and_imported_code_hash_is_preserved():
             if '://' in target or target.startswith('#'):
                 continue
             resolved = (path.parent / target.strip('<>').split('#')[0]).resolve()
-            upstream = (ROOT / '01_upstream/ADNI_fMRI_protocol').resolve()
-            assert not resolved.is_relative_to(upstream), ('GitHub cannot follow a relative link into a submodule', path, target)
             assert resolved.exists(), (path, target)
     imported = json.loads((ROOT / '03_config/imported_sources.json').read_text())['motion_duration_qc']
     assert hashlib.sha256((ROOT / imported['destination']).read_bytes()).hexdigest() == imported['sha256']
@@ -54,22 +54,19 @@ def test_ci_pytest_and_private_configuration_paths_are_current():
     job = ci['jobs']['synthetic-validation']
     assert job['defaults']['run']['working-directory'] == 'RS-fMRI'
     assert 'python 04_workflow/lab.py doctor' in [step.get('run') for step in job['steps']]
+    assert not any('submodule update' in step.get('run', '') for step in job['steps'])
     for suffix in ('yaml', 'json'):
         path = f'RS-fMRI/03_config/lab_config.local.{suffix}'
         result = subprocess.run(['git', '-C', str(REPO), 'check-ignore', '--no-index', path], capture_output=True, text=True)
         assert result.returncode == 0, path
 
 
-def test_upstream_document_links_use_pinned_github_blob_urls():
+def test_protocol_document_links_resolve_to_owned_sources():
     lock = json.loads((ROOT / '03_config/upstream.lock.json').read_text())
-    prefix = lock['repository'].removesuffix('.git') + '/blob/' + lock['commit'] + '/'
     text = (ROOT / 'README.md').read_text()
     links = re.findall(r'\[([^]]+)\]\(([^)]+)\)', text)
-    original_steps = [(label, url) for label, url in links if label.startswith('Upstream Step ')]
+    original_steps = [(label, url) for label, url in links if label.startswith('Protocol Step ')]
     assert len(original_steps) == 10
     for label, url in original_steps + [(label, url) for label, url in links if label == 'CITATION.cff']:
-        assert url.startswith(prefix), (label, url)
-        relative = url.removeprefix(prefix)
-        assert not relative.startswith('/') and '..' not in Path(relative).parts
-        subprocess.run(['git', '-C', str(ROOT / lock['path']), 'cat-file', '-e',
-                        lock['commit'] + ':' + relative], check=True, capture_output=True)
+        assert url.startswith(lock['path'] + '/'), (label, url)
+        assert (ROOT / url).is_file()

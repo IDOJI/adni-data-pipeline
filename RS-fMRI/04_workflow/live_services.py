@@ -13,6 +13,7 @@ import subprocess
 import time
 
 import compute_slots
+from protocol_source import inspect_protocol
 
 LAB = Path(__file__).resolve().parents[1]
 
@@ -37,14 +38,10 @@ def verify_deployment(path, config_path):
         raise ValueError('Historical scientific configuration changed')
     cfg = load(config_path)
     pinned = LAB / '01_upstream/ADNI_fMRI_protocol'
-    lock = load(LAB / '03_config/upstream.lock.json')
-    if subprocess.check_output(['git', '-C', str(pinned), 'rev-parse', 'HEAD'], text=True).strip() != lock['commit']:
-        raise ValueError('Pinned upstream checkout differs')
-    if subprocess.check_output(['git', '-C', str(pinned), 'status', '--porcelain'], text=True).strip():
-        raise ValueError('Pinned upstream checkout has modifications')
+    inspect_protocol(LAB)
     for stem in ('summarize_motion_from_confounds','extract_euler_from_freesurfer','finalize_inclusion'):
         if sha(Path(cfg['repo'])/'s8_final_qc'/(stem+'.py'))!=sha(pinned/'s8_final_qc'/(stem+'.py')):
-            raise ValueError('Historical S8 semantics differ from the pinned upstream')
+            raise ValueError('Historical S8 semantics differ from the integrated protocol')
     for name, digest in {**dep['legacy_sources_sha256'],**dep.get('integrated_sources_sha256',{})}.items():
         if sha(name) != digest:
             raise ValueError('Legacy completion source changed: ' + name)

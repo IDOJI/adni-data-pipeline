@@ -148,7 +148,7 @@ def fingerprint():
     packages = {name: version(name) for name in ('numpy', 'pandas', 'nibabel', 'scipy', 'PyYAML')}
     try: commit = subprocess.check_output(['git', '-C', str(ROOT), 'rev-parse', 'HEAD'], text=True).strip()
     except subprocess.CalledProcessError: commit = None
-    code = {str(p.relative_to(ROOT)): sha(p) for p in sorted(ROOT.rglob('*.py')) if '.venv' not in p.parts and '01_upstream' not in p.parts and '__pycache__' not in p.parts}
+    code = {str(p.relative_to(ROOT)): sha(p) for p in sorted(ROOT.rglob('*.py')) if '.venv' not in p.parts and '__pycache__' not in p.parts}
     return dict(python=sys.version, platform=platform.platform(), machine=platform.machine(), packages=packages, git_commit=commit, code_sha256=code, upstream=json.loads((ROOT / '03_config/upstream.lock.json').read_text()), scope='Environment/code evidence, not a claim of numerical equivalence')
 
 
