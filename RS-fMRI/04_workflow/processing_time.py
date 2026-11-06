@@ -52,13 +52,15 @@ def timing(record):
     terminal = record.get('status') not in LIVE
     for source, a, b in candidates:
         start, end = timestamp(record.get(a)), timestamp(record.get(b))
-        if start is not None and end is not None and terminal:
+        execution_end_observed = source in {'docker_state', 'runner_execution', 'runner_observation'}
+        if start is not None and end is not None and (terminal or execution_end_observed):
             result.update(started_at=start.isoformat(), finished_at=end.isoformat(), duration_source=source)
             seconds = (end - start).total_seconds()
             if seconds < 0:
                 result['timing_issue'] = 'negative_interval'
             else:
                 result['elapsed_seconds'] = seconds
+                if not terminal: result['timing_issue'] = 'runner_completion_pending'
             return result
     start = timestamp(record.get('container_started_at')) or timestamp(record.get('execution_started_at')) or timestamp(record.get('started_at'))
     result['started_at'] = start.isoformat() if start else None
@@ -198,14 +200,15 @@ def summarize(rows):
     terminal = {r['stage'] for r in valid}
     success = {r['stage'] for r in valid if r['execution_success']}
     known_sum = sum(r['elapsed_seconds'] for r in valid)
-    stage_sum = known_sum if rows and len(valid) == len(rows) else None
+    observed_complete = bool(rows) and len(valid) == len(rows) and not any(r['status'] in LIVE for r in rows)
+    stage_sum = known_sum if observed_complete else None
     return {**totals, 'preprocessing_seconds': totals['mriqc_seconds'] + totals['fmriprep_seconds'] if totals['mriqc_seconds'] is not None and totals['fmriprep_seconds'] is not None else None,
             'postprocessing_seconds': totals['xcpd_seconds'], 'stage_seconds_sum': stage_sum,
             'stage_hours_sum': stage_sum / 3600 if stage_sum is not None else None,
             'known_stage_seconds_sum': known_sum,
             'stage_time_hms': hms(stage_sum), 'known_stage_time_hms': hms(known_sum),
             'observed_wall_hms': hms((end - start).total_seconds()) if start and end and end >= start else None,
-            'wall_time_complete_for_observed_attempts': bool(rows) and len(valid) == len(rows),
+            'wall_time_complete_for_observed_attempts': observed_complete,
             'first_started_at': start.isoformat() if start else None,
             'latest_finished_at': end.isoformat() if end else None,
             'observed_wall_seconds': (end - start).total_seconds() if start and end and end >= start else None,

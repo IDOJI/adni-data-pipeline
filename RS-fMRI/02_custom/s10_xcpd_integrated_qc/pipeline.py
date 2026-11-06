@@ -732,6 +732,9 @@ class Pipeline:
             record['container_finished_at'] = state.get('FinishedAt')
         except Exception as exc:
             record['timing_observation_error'] = str(exc)
+        add_timing(record)
+        save(attempt / 'execution.json', record)
+        refresh_safely(self.root)
         with (attempt / 'container.log').open('w') as f:
             subprocess.run(['docker', 'logs', name], stdout=f, stderr=subprocess.STDOUT)
         unchanged = all(sha(p) == expected for p, expected in row.get('input_files', {}).items())

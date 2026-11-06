@@ -99,3 +99,12 @@ def test_retry_pair_link_requires_exact_input_hashes(tmp_path):
     data=json.loads(one.read_text());data['input_before']={'/synthetic/sub-999_T1w.nii.gz':'b'*64};save(one,data)
     t.collect(root);rows=json.loads((root/'timing/cases.json').read_text())['cases'];assert len(rows)==2
     assert t.hms(90061)=='25:01:01' and t.hms(None) is None
+
+def test_finished_container_time_survives_pending_output_validation(tmp_path):
+    root=tmp_path/'runtime';post(root,status='running',finished_at=None,container_started_at='2026-01-01T00:20:00Z',container_finished_at='2026-01-01T00:30:00Z')
+    out=t.collect(root)
+    assert out['known_stage_seconds_sum']==600 and out['timed_attempts']==1
+    assert out['running_attempts']==1 and out['stage_seconds_sum'] is None
+    assert out['wall_time_complete_for_observed_attempts'] is False
+    rows=json.loads((root/'timing/ledger.json').read_text())['attempts']
+    assert next(iter(rows.values()))['timing_issue']=='runner_completion_pending'
