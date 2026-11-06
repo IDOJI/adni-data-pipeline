@@ -1,5 +1,22 @@
 # Step 5.C — Handoff from upstream Step 5 to Steps 6/7
 
+## Execution
+
+```sh
+python 02_custom/s5c_validate_handoff/run.py \
+  --input /ABSOLUTE/PATH/ADNI_DATA/qc/step5/final_heuristics.tsv \
+  --source-qc /ABSOLUTE/PATH/ADNI_DATA/qc/step3a \
+  --output-dir /ABSOLUTE/PATH/ADNI_DATA/qc/step5c
+```
+
+Run from `RS-fMRI/` in the installed Python environment. Replace every `/ABSOLUTE/PATH`, `/ABS/PATH` or `/external` example with actual external paths. Use a new output directory when the tool requires one; subject IDs and pair keys in examples are placeholders.
+
+**What this does:** Validates the sessions already retained by Step 5, checks the supplied 3.A evidence, and writes the CSV/TSV inputs expected by Steps 6 and 7.
+
+**Results:** `mriqc_subjects.csv`, `post_clinica.csv`, `mriqc_sessions.csv`, `valid_sessions.tsv` and `handoff.json`; blocked/pending cases remain audited.
+
+After checking the handoff, generate a new external configuration with `lab.py prepare-config --handoff /ABSOLUTE/PATH/ADNI_DATA/qc/step5c`. Pass its `mriqc_sessions.csv` to upstream Step 7 with `--sessions-csv`. Omitting `--source-qc` selects the separately documented format-only mode.
+
 ## Purpose
 
 Upstream writes Step 5 results as TSV, while the Step 6 launcher reads comma-delimited CSV. This step validates and passes on **sessions already retained upstream**. It does not use a historical Research Selection Table or perform new clinical selection.
@@ -25,10 +42,6 @@ Validate the entire input first and reject duplicate normalized sessions, invali
 | `handoff.json` | Input/output hashes, scope and unresolved research inclusion status |
 
 **The upstream MRIQC launcher does not pass a session filter.** Other BIDS sessions for a participant may be processed. Check the population used to fit group IQMs separately; this conversion alone does not restrict sessions.
-
-## Execution
-
-Use `python 02_custom/s5c_validate_handoff/run.py --input ... --output-dir ...` from the root README, then generate a new external configuration with `prepare-config --handoff ...`. Also provide `--sessions-csv .../mriqc_sessions.csv` in the Step 7 command.
 
 ## Validation
 

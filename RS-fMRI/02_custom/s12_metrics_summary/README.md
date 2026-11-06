@@ -1,5 +1,42 @@
 # Per-run scalar metrics and report browser
 
+## Integrated execution
+
+```sh
+python 04_workflow/lab.py export-results \
+  --archive-root /ABS/PATH/archive \
+  --status /ABS/PATH/runtime/metrics-status.json
+```
+
+Run from `RS-fMRI/` in the installed Python environment. Replace every `/ABSOLUTE/PATH`, `/ABS/PATH` or `/external` example with actual external paths. Use a new output directory when the tool requires one; subject IDs and pair keys in examples are placeholders.
+
+**What this does:** Reads already calculated values from verified archives and exports one scalar row per pair/run plus links to native HTML reports.
+
+**Results:** Each pair/run receives `results/metrics.csv`, `metrics.tsv`, a units/source dictionary, `export_manifest.json` and `index.html`.
+
+The integrated entry point checks the pinned source environment and rejects archive/status paths inside the source repository. This is the one-shot export; optional Step 11 is not required.
+
+### Optional persistent scan
+
+```sh
+python 04_workflow/lab.py export-results \
+  --archive-root /ABS/PATH/archive \
+  --status /ABS/PATH/runtime/metrics-status.json --watch
+```
+
+`--watch` repeatedly scans for newly verified archives. It does not launch MRIQC, fMRIPrep or XCP-D. Keep private per-machine service arguments and logs outside the repository.
+
+### Print the export plan
+
+```sh
+python 04_workflow/lab.py plan \
+  --config /ABS/PATH/generated/upstream.yaml \
+  --archive-root /ABS/PATH/archive \
+  --metrics-status /ABS/PATH/runtime/metrics-status.json
+```
+
+This only prints the Step-12 command; it does not export or start a watcher. An installed local service can invoke the direct step entry point documented below.
+
 ## Purpose
 
 Collect previously calculated structural/functional scalar values into a one-row dataset per image pair/run, and provide a browser entry point for the existing native reports.
@@ -18,18 +55,6 @@ Each pair receives `results/index.html` with relative links to the native MRIQC,
 - Time series and FC matrices remain in their original files and are not flattened into this scalar summary.
 
 `metrics_dictionary.csv` maps every column to its source file and available unit; `export_manifest.json` records source/output hashes, code identity, run IDs and row/column counts. Nonfinite/missing numeric values remain NA. Export success does not establish scientific inclusion, segmentation validity or visual-QC approval; existing coverage warnings remain visible.
-
-## Integrated execution
-
-Run from `RS-fMRI/`. The integrated entry point checks the pinned source environment and rejects archive/status paths inside the source repository:
-
-```sh
-python 04_workflow/lab.py export-results --archive-root /ABS/PATH/archive --status /ABS/PATH/runtime/metrics-status.json
-python 04_workflow/lab.py export-results --archive-root /ABS/PATH/archive --status /ABS/PATH/runtime/metrics-status.json --watch
-python 04_workflow/lab.py plan --config /ABS/PATH/generated/upstream.yaml --archive-root /ABS/PATH/archive --metrics-status /ABS/PATH/runtime/metrics-status.json
-```
-
-The last command prints an explicit Step-12 plan and does not export or start a watcher. This reporting branch is S10 technical validation → verified archive/local cleanup → S12; optional Step 11 is not required. Private per-machine service arguments, real participant outputs and logs stay outside the repository. An installed local service can continue to invoke the repository-owned step directly.
 
 ## Direct step execution
 

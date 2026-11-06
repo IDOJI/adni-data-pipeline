@@ -1,5 +1,25 @@
 # Step 3.A — Source QC and NFQ evidence validation
 
+## Execution
+
+```sh
+python 02_custom/s3a_source_qc/run.py \
+  --mriqc-table /ABSOLUTE/PATH/ADNI_DATA/LONI_download/clindata/MRIQC.csv \
+  --adni3-qc /ABSOLUTE/PATH/ADNI_DATA/LONI_download/clindata/MAYO_ADNI3.csv \
+  --go2-qc /ABSOLUTE/PATH/ADNI_DATA/LONI_download/clindata/MAYO_GO2.csv \
+  --deleted-scans /ABSOLUTE/PATH/ADNI_DATA/LONI_download/clindata/DELMRSCANS.csv \
+  --nfq GO2_3=/ABSOLUTE/PATH/ADNI_DATA/LONI_download/clindata/NFQ.csv \
+  --output-dir /ABSOLUTE/PATH/ADNI_DATA/qc/step3a
+```
+
+Run from `RS-fMRI/` in the installed Python environment. Replace every `/ABSOLUTE/PATH`, `/ABS/PATH` or `/external` example with actual external paths. Use a new output directory when the tool requires one; subject IDs and pair keys in examples are placeholders.
+
+**What this does:** Audits source image identity, ADNI quality/NFQ records and deletion evidence before downstream handoff.
+
+**Results:** `image_qc.tsv`, source-row evidence and a hash-bound `artifact.json` in the selected output directory.
+
+Run from `RS-fMRI/` and replace placeholders with actual external file paths.
+
 ## Purpose
 
 This independent check after upstream Step 3 adapts source-quality and identity checks from the Research selection workflow. It reads explicitly supplied ADNI Study Files without requiring a historical Selection Table/RDS. Here, `MRIQC` means the ADNI Study Files scan inventory, not IQM output from the MRIQC software.
@@ -22,20 +42,6 @@ MRIQC requires `image_id`, `ParticipantID`, `StudyDate`, `SeriesType`, `SeriesIn
 ## Output
 
 Outputs include `image_qc.tsv`, source-specific QC registries, raw NFQ row audits and `artifact.json` with input/output/code hashes. Write results only to a new external directory. Original images, tables and the submodule remain unchanged.
-
-## Execution
-
-Run from `RS-fMRI/` and replace placeholders with actual external file paths.
-
-```sh
-python 02_custom/s3a_source_qc/run.py \
-  --mriqc-table /ABSOLUTE/PATH/ADNI_DATA/LONI_download/clindata/MRIQC.csv \
-  --adni3-qc /ABSOLUTE/PATH/ADNI_DATA/LONI_download/clindata/MAYO_ADNI3.csv \
-  --go2-qc /ABSOLUTE/PATH/ADNI_DATA/LONI_download/clindata/MAYO_GO2.csv \
-  --deleted-scans /ABSOLUTE/PATH/ADNI_DATA/LONI_download/clindata/DELMRSCANS.csv \
-  --nfq GO2_3=/ABSOLUTE/PATH/ADNI_DATA/LONI_download/clindata/NFQ.csv \
-  --output-dir /ABSOLUTE/PATH/ADNI_DATA/qc/step3a
-```
 
 ## Validation
 

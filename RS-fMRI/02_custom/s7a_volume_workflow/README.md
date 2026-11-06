@@ -1,5 +1,32 @@
 # Step 7.A — Docker volume workflow (aCompCor profile)
 
+## Execution
+
+```sh
+python 02_custom/s7a_volume_workflow/pipeline.py --config /ABSOLUTE/PATH/volume.local.json dry-run --stage fmriprep --subject 999S9999
+```
+
+Run from `RS-fMRI/` in the installed Python environment. Replace every `/ABSOLUTE/PATH`, `/ABS/PATH` or `/external` example with actual external paths. Use a new output directory when the tool requires one; subject IDs and pair keys in examples are placeholders.
+
+**What this does:** First prints the Docker command for the separate volume/aCompCor profile. The explicitly selected `run` commands below perform the imaging calculations.
+
+**Results:** External volume-profile derivatives and attempt evidence; `verify` checks the recorded stage output. Keep this profile separate from 7.B/S10.
+
+Run from `RS-fMRI/` with an actual external configuration. Container downloads and processing occur only when the corresponding commands below are explicitly executed.
+
+For metadata finalization of a previously successful XCP-D run, use `finalize-xcpd --stage xcpd` with the same configuration/subject. It checks success, unchanged inputs and execution identity while preserving the original run record. Do not relocate active containers or invent cache identities to bypass checks.
+
+### Execute the selected profile
+
+```sh
+python 02_custom/s7a_volume_workflow/pipeline.py --config /ABSOLUTE/PATH/volume.local.json run --stage fmriprep --subject 999S9999
+python 02_custom/s7a_volume_workflow/pipeline.py --config /ABSOLUTE/PATH/volume.local.json verify --stage fmriprep --subject 999S9999
+python 02_custom/s7a_volume_workflow/pipeline.py --config /ABSOLUTE/PATH/volume.local.json run --stage xcpd --subject 999S9999
+python 02_custom/s7a_volume_workflow/audit_outputs.py --data-root /ABSOLUTE/PATH/ADNI_DATA/volume --subject 999S9999 --session 20200101 --output /ABSOLUTE/PATH/ADNI_DATA/volume-qc/audit.json
+```
+
+These are real processing/verification commands. Run the fMRIPrep calculation to completion before verifying it or launching XCP-D; use the same reviewed configuration and subject. The final audit writes its report to the explicit external path.
+
 ## Purpose
 
 This consolidates fMRIPrep → XCP-D volume execution, audit, image QC and guarded metadata repair from the former local `adni-rsfmri-pipeline`. It preserves different scientific settings from S10's newer 36P/LINC workflow. Do not run it alongside upstream Step 7 against the same output/cache.
@@ -26,20 +53,6 @@ Requires actual BIDS T1w/rest BOLD data with original metadata, a separate FreeS
 ## Output
 
 Derivatives/work/logs under external `paths`, plus independent QC JSON/PNG files. Distinguish execution completion, technical checks and visual/scientific decisions. Detailed historical results for the two actual visits and private configuration remain only in the local archive.
-
-## Execution
-
-Run from `RS-fMRI/` with an actual external configuration. Container downloads and processing occur only when the corresponding commands below are explicitly executed.
-
-```sh
-python 02_custom/s7a_volume_workflow/pipeline.py --config /ABSOLUTE/PATH/volume.local.json dry-run --stage fmriprep --subject 999S9999
-python 02_custom/s7a_volume_workflow/pipeline.py --config /ABSOLUTE/PATH/volume.local.json run --stage fmriprep --subject 999S9999
-python 02_custom/s7a_volume_workflow/pipeline.py --config /ABSOLUTE/PATH/volume.local.json verify --stage fmriprep --subject 999S9999
-python 02_custom/s7a_volume_workflow/pipeline.py --config /ABSOLUTE/PATH/volume.local.json run --stage xcpd --subject 999S9999
-python 02_custom/s7a_volume_workflow/audit_outputs.py --data-root /ABSOLUTE/PATH/ADNI_DATA/volume --subject 999S9999 --session 20200101 --output /ABSOLUTE/PATH/ADNI_DATA/volume-qc/audit.json
-```
-
-For metadata finalization of a previously successful XCP-D run, use `finalize-xcpd --stage xcpd` with the same configuration/subject. It checks success, unchanged inputs and execution identity while preserving the original run record. Do not relocate active containers or invent cache identities to bypass checks.
 
 ## Validation
 

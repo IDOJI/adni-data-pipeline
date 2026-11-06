@@ -1,5 +1,27 @@
 # Step 9.A — Clinical linkage validation
 
+## Execution
+
+```sh
+python 02_custom/s9a_validate_clinical/run.py \
+  --included /ABSOLUTE/PATH/ADNI_DATA/qc/final/included_reviewed_sessions.tsv \
+  --scan-links /ABSOLUTE/PATH/ADNI_DATA/qc/step5a/data/anchor_plus_dicom_nifti_struct.csv \
+  --dxsum /ABSOLUTE/PATH/ADNI_DATA/LONI_download/clindata/DXSUM.csv \
+  --ptdemog /ABSOLUTE/PATH/ADNI_DATA/LONI_download/clindata/PTDEMOG.csv \
+  --max-dx-days 28 --dx-direction nearest \
+  --output-dir /ABSOLUTE/PATH/ADNI_DATA/qc/step9a
+```
+
+Run from `RS-fMRI/` in the installed Python environment. Replace every `/ABSOLUTE/PATH`, `/ABS/PATH` or `/external` example with actual external paths. Use a new output directory when the tool requires one; subject IDs and pair keys in examples are placeholders.
+
+**What this does:** Links reviewed imaging runs to source clinical rows using actual scan dates and nearest diagnoses within 28 days, retaining ties and demographic evidence.
+
+**Results:** `clinical_validation.tsv`, clinical-pass rows, source-row audits and a hash-bound artifact in the selected output directory.
+
+When APOE/ADSL/DM is not supplied, retain the corresponding unvalidated status. Do not force a single scan date, latest visit, AD-only cohort or complete-case cohort.
+
+Regenerate v1 results instead of editing their manifest. Pass the new v2 artifact to [9.B](../s9b_validate_inclusion/README.md) to combine source QC, clinical conditions and confirmed ST absence. Default nearest/28-day matching is unchanged.
+
 ## Purpose
 
 Apply Research's actual-date, diagnostic-tie and raw-evidence preservation rules after the upstream workflow. Preserve Step 8 inclusion rows at run level; do not directly adopt upstream Step 9's label/timing assumptions as analysis diagnoses.
@@ -29,22 +51,6 @@ Apply Research's actual-date, diagnostic-tie and raw-evidence preservation rules
 `clinical_validation.tsv`: every input run with pass/hold and reasons. `clinically_validated_sessions.tsv`: the subset passing clinical linkage conditions. `clinical_source_rows.tsv`: all linked raw rows and additional participant-level sex evidence with source row numbers and JSON. `clinical_source_eligibility.tsv`: reasons for ignoring TEAM, QC-error rows or invalid dates/diagnoses. `sex_derivation.tsv`: raw values, phase scope, filling method and source rows. `artifact.json`: input/output/code hashes, policy and kind `clinical_validation_v2`.
 
 Keep `ANALYSIS_READY=False` for every result. **A clinical pass does not establish MRI quality, physical-file validity or visual-QC approval.** Use this subset together with upstream and Custom QC decisions when forming research inclusion tables.
-
-## Execution
-
-```sh
-python 02_custom/s9a_validate_clinical/run.py \
-  --included /ABSOLUTE/PATH/ADNI_DATA/qc/final/included_reviewed_sessions.tsv \
-  --scan-links /ABSOLUTE/PATH/ADNI_DATA/qc/step5a/data/anchor_plus_dicom_nifti_struct.csv \
-  --dxsum /ABSOLUTE/PATH/ADNI_DATA/LONI_download/clindata/DXSUM.csv \
-  --ptdemog /ABSOLUTE/PATH/ADNI_DATA/LONI_download/clindata/PTDEMOG.csv \
-  --max-dx-days 28 --dx-direction nearest \
-  --output-dir /ABSOLUTE/PATH/ADNI_DATA/qc/step9a
-```
-
-When APOE/ADSL/DM is not supplied, retain the corresponding unvalidated status. Do not force a single scan date, latest visit, AD-only cohort or complete-case cohort.
-
-Regenerate v1 results instead of editing their manifest. Pass the new v2 artifact to [9.B](../s9b_validate_inclusion/README.md) to combine source QC, clinical conditions and confirmed ST absence. Default nearest/28-day matching is unchanged.
 
 ## Validation
 
