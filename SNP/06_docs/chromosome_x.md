@@ -1,11 +1,10 @@
-# Optional X-chromosome workflow
+# Chromosome X
 
-X processing is separate from autosomal QC. The command planner currently emits autosomal commands only. Use the pinned upstream [X chromosome instructions](https://github.com/VUMC-VMAC/GWAS_QC/blob/5bbabfb54c2fffb86f39810386652daa124ce683/README.md#x-chromosome-gwas-qc) in the validated container, with its `-h` interfaces and the same pinned script bind.
+Use the pinned upstream [X-chromosome scripts](https://github.com/VUMC-VMAC/GWAS_QC/blob/5bbabfb54c2fffb86f39810386652daa124ce683/README.md#x-chromosome-gwas-qc) separately from autosomes. The local command planner and BIM/FRQ helper cover autosomes only.
 
-1. Run `gwas_qc_preimputation_chrX.sh` separately for each batch. Upstream drops samples without reported sex, performs the relevant sample and sex checks, and applies X-specific variant filters: differential missingness p <10⁻⁷ and female-only HWE p <10⁻⁶. Retain its reference checks and GRCh38 preparation.
-2. Remove autosomal heterozygosity failures from the X upload set. Inspect PAR/non-PAR handling, male ploidy, chromosome naming and sample mapping against the actual server requirements. Confirm that the pinned code and reference resources implement the intended GRCh38 X/PAR conventions; this has not been validated here.
-3. Submit X separately to TOPMed r3 and preserve the same provenance as for autosomes. Do not reuse autosomal job records as evidence that X was imputed. Record the actual X job environment separately.
-4. After autosomal final QC, run `gwas_qc_postimputation_chrX.sh`. Supply the typed X genotype stem, complete sex mapping, SNP-name resources, ancestry keep lists and the corresponding final autosomal PLINK prefixes. The script supports ordered comma-separated subset inputs; preserve correspondence between labels, keep lists and autosomal prefixes.
-5. Review X missingness, typed-call restoration, female-only HWE, MAF and heterozygous haploid calls. Reconcile samples with the autosomal final sets, then audit X duplicates and allele compatibility before integration. The local `harmonize.py` intentionally accepts autosomes only.
+1. Run `gwas_qc_preimputation_chrX.sh` per batch. It removes samples with unknown sex and excludes variants for differential missingness (p ≤10⁻⁷) and female-only HWE (p <10⁻⁶). Check PAR/non-PAR handling, male ploidy and GRCh38 references.
+2. Remove autosomal heterozygosity failures before uploading X to TOPMed r3. Save a separate X job record and report.
+3. After final autosomal QC, run `gwas_qc_postimputation_chrX.sh` with typed X genotypes, sex metadata, SNP-name resources, ancestry keep lists and final autosomal prefixes. Keep comma-separated labels and paths in the same order.
+4. Review typed-call restoration, HWE, MAF and heterozygous haploid calls. Reconcile the sample sets, then check duplicates and allele compatibility before merging X batches.
 
-The upstream X help/README contains overloaded or inconsistent descriptions of `-c`; inspect the actual `getopts` implementation before execution. Autosomal source tests and synthetic merge tests do not validate X handling. Keep X disabled in a cohort analysis until its ploidy, PAR, reference and sample handoffs have passed separate tests.
+Check the script's actual `getopts` interface for `-c`; its README descriptions are inconsistent. X ploidy, PAR and sample handoffs still need separate validation.

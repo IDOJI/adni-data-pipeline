@@ -1,18 +1,12 @@
-# Multi-array integration and final QC
+# Array merging
 
-Follow the upstream [Multi-set Merges](https://github.com/VUMC-VMAC/GWAS_QC/blob/5bbabfb54c2fffb86f39810386652daa124ce683/README.md#multi-set-merges) procedure after each batch has completed post-QC part 2. Work within reviewed ancestry groups. The commands below are templates to execute in the validated genomics environment; replace every path and preserve logs.
+Work within each reviewed ancestry group after post-QC part 2 and the [TOPMed record check](installation.md#record-topmed-jobs). The commands below are templates for the genomics environment. The upstream reference is [Multi-set Merges](https://github.com/VUMC-VMAC/GWAS_QC/blob/5bbabfb54c2fffb86f39810386652daa124ce683/README.md#multi-set-merges).
 
-## 1. Check imputation provenance
+## 1. Resolve duplicate participants
 
-Run `04_workflow/snp.py check-jobs` with every configured autosomal batch record, then compare the records with the actual server reports. The check rejects missing batches, repeated batch IDs, non-r3 jobs, non-GRCh38 results, missing software versions and differing server/engine/phasing versions. It checks records, not remote jobs or report contents.
+Identify repeated participants across arrays using the sample mapping, including participants with different IDs. Calculate concordance at allele-aligned, jointly nonmissing shared loci; save the number compared and number discordant.
 
-## 2. Resolve repeated participants
-
-Use an external sample mapping to identify cross-array duplicates, including different IDs belonging to the same participant. For every pair, calculate concordance from allele-aligned, jointly nonmissing hard calls at shared loci. Retain the number compared and number discordant; do not count missing/missing as agreement. A concordance threshold is meaningful only with adequate shared coverage.
-
-For pairs with concordance >0.99, normally retain the sample from the chip with more variants in its final pre-imputation dataset. Document exceptions and ties. Hold discordant or insufficiently compared pairs for identity review; do not automatically keep the larger chip. Preserve a reviewed FID/IID keep list per batch. Duplicate resolution is intentionally a scientific review step, not an automatic inference from filenames.
-
-Apply the reviewed keep lists before calculating frequencies. For each batch, normalize its BIM/FRQ output together:
+For concordance >0.99, normally retain the sample from the chip with more variants in the final pre-imputation dataset. Review discordant pairs, insufficient overlap, ties and exceptions. Apply a reviewed FID/IID keep list to each batch before calculating frequencies:
 
 ```sh
 plink --bfile /ABSOLUTE/PATH/postqc/human610_EUR \
@@ -20,17 +14,17 @@ plink --bfile /ABSOLUTE/PATH/postqc/human610_EUR \
   --make-bed --freq --out /ABSOLUTE/PATH/audit-inputs/human610_EUR
 ```
 
-Repeat for every batch. This writes a matched output BIM/FRQ pair and uses the retained samples for allele frequencies. Do not combine a frequency file from one sample set with a BIM from another run.
+Repeat for every batch. Use the resulting matched BIM/FRQ pair for the next step.
 
-## 3. Verify reference alleles and audit frequencies
+## 2. Check variant compatibility
 
-Validate GRCh38 coordinates and biological REF/ALT against the exact FASTA/reference resources used to prepare the uploads. Retain the variant ID mapping through the upstream rsID conversion. Check reference conflicts separately from PLINK's A1/A2 coding. A matching rsID alone does not establish matching coordinates or alleles. Do not silently flip strands to force a merge.
+Verify GRCh38 coordinates and biological REF/ALT against the preparation references, preserving the mapping through rsID conversion. Then run the [BIM/FRQ helper](../02_custom/README.md) to select shared variants with matching coordinates and alleles and MAF difference ≤0.10.
 
-Run [harmonize.py](../02_custom/README.md) on the matched BIM/FRQ prefixes. This selects an intersection across all supplied batches, a deliberately conservative policy that can remove batch-specific variants. It is not the upstream alternative procedure for small batches. If too few loci survive, investigate array, ancestry and reference differences before choosing and documenting another policy.
+The helper selects an intersection across batches and rejects allele swaps. Investigate substantial variant loss before proceeding; a different merge policy requires a documented decision.
 
-## 4. Merge compatible sets
+## 3. Merge with PLINK
 
-Extract the reviewed variant intersection from each batch:
+Extract the selected variants from each batch:
 
 ```sh
 plink --bfile /ABSOLUTE/PATH/audit-inputs/human610_EUR \
@@ -39,7 +33,7 @@ plink --bfile /ABSOLUTE/PATH/audit-inputs/human610_EUR \
   --out /ABSOLUTE/PATH/merge-inputs/human610_EUR
 ```
 
-Repeat for all batches. Write `other-batches.txt` outside the repository with one remaining BED/BIM/FAM prefix per line, excluding the base batch:
+List the other batches in `other-batches.txt`, one PLINK prefix per line, excluding the base batch:
 
 ```text
 /ABSOLUTE/PATH/merge-inputs/omniexpress_EUR
@@ -53,11 +47,11 @@ plink --bfile /ABSOLUTE/PATH/merge-inputs/human610_EUR \
   --keep-allele-order --make-bed --out /ABSOLUTE/PATH/merged/adni_EUR
 ```
 
-If PLINK produces `.missnp`, inspect the conflicts and remove the reviewed conflicting loci from **every** batch before retrying with a new output prefix. Record the exclusion list. Check that sample counts equal the sum of deduplicated batch counts and that the resulting variant set matches the reviewed intersection.
+If PLINK reports `.missnp` conflicts, review and exclude the affected loci from every batch before retrying. Check merged sample counts against the deduplicated inputs and variant counts against the selected intersection.
 
-## 5. Reassess relatedness and PCs
+## 4. Final QC
 
-Upstream's standard multi-set procedure checks merged relatedness at PI_HAT >0.25, then calculates PCs and reviews outliers. Calculate the relatedness evidence in the validated environment:
+Calculate relatedness and review pairs with PI_HAT >0.25:
 
 ```sh
 plink --bfile /ABSOLUTE/PATH/merged/adni_EUR \
@@ -65,12 +59,11 @@ plink --bfile /ABSOLUTE/PATH/merged/adni_EUR \
   --out /ABSOLUTE/PATH/final-qc/adni_EUR_relatedness
 ```
 
-Review pairs, choose exclusions with documented reasons, and write a final keep list. Apply it to a new output prefix. Use upstream `calc_plot_PCs.sh` or `calc_plot_PCs_snprelate.sh` on the resulting data. Pass `-n` to suppress default inclusion generation: the upstream plotting defaults must not silently impose a White-only sample selection.
+Apply reviewed sample exclusions to a new output prefix, then calculate PCs. Inside the container's pinned script directory:
 
 ```sh
-# Run from the pinned scripts directory inside the validated container.
 bash calc_plot_PCs_snprelate.sh \
   -i /input/final/adni_EUR_reviewed -n
 ```
 
-Inspect ancestry PCs and color plots by array/batch as well as reviewed ancestry labels. Remove reviewed outliers and recalculate PCs until the final keep set and PC file agree. Preserve counts, decisions, residual relatedness, batch plots and reference/provenance reports with the final data. Record HWE and MAF behavior after any sample exclusions; re-filter if required by the chosen analysis protocol.
+`-n` suppresses the upstream default inclusion file. Inspect PCs by ancestry and array, remove reviewed outliers, and recalculate until PCs match the final sample set. Retain exclusions, filtering counts, reference checks and batch plots with the final data; reassess HWE and MAF after exclusions as required by the analysis protocol.

@@ -1,16 +1,13 @@
-# Source and runtime versions
+# Versions
 
-| Component | Recorded state |
+| Component | Version or record |
 |---|---|
-| GWAS_QC | Commit `5bbabfb54c2fffb86f39810386652daa124ce683`, dated July 20, 2026 |
-| Source review | November 1, 2026; [hash lock](upstream.lock.json) |
-| Historical paper code | Exact commit unconfirmed |
-| Historical TOPMed panel | Release unconfirmed; do not label it R2 as an established fact |
-| Project imputation panel | TOPMed r3; GRCh38 |
-| Documented service software | Eagle v2.4.1; Minimac4 v4.1.6, per official documentation checked November 1, 2026 |
-| Actual service software | Must be recorded from each completed job; no jobs executed here |
-| Upstream container | README names `CNT_genomic_processing_v3.19.simg`; image and digest not supplied |
-| PLINK, R, BCFtools/HTSlib, EIGENSOFT, SNPWeights | Runtime versions must be captured from the validated environment |
-| Local helper runtime | Python 3.10+; standard library only |
+| GWAS_QC | [5bbabfb54c2fffb86f39810386652daa124ce683](https://github.com/VUMC-VMAC/GWAS_QC/tree/5bbabfb54c2fffb86f39810386652daa124ce683); [file hashes](upstream.lock.json) |
+| Project panel/build | TOPMed r3; GRCh38 |
+| Service documentation | Eagle v2.4.1; Minimac4 v4.1.6, checked November 1, 2026 |
+| Upstream container | `CNT_genomic_processing_v3.19.simg`; image and checksum must be supplied |
+| Local helpers | Python 3.10+; standard library |
 
-The parent gitlink pins source installation. `doctor` checks that gitlink, the clean checkout, `.gitmodules` and locked file hashes; it does not certify external binaries, container contents or scientific criteria. The lock is not a complete runtime environment lock.
+Service versions above come from the [TOPMed documentation](https://statgen.github.io/tis-v2-docs/imputation/getting-started/). Record actual server, phasing and imputation versions from each completed job, plus the container checksum and installed QC-tool versions.
+
+Install the recorded gitlink with `git submodule update --init --recursive`. For an upstream update, review the changes and update the gitlink, hash lock and compatibility checks together.
