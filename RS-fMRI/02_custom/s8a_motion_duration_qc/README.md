@@ -1,5 +1,20 @@
 # Step 8.A — Retained duration after motion censoring
 
+## Execution
+
+```sh
+python 02_custom/s8a_motion_duration_qc/run.py \
+  --bids-root /ABSOLUTE/PATH/ADNI_DATA/rawdata \
+  --derivatives-root /ABSOLUTE/PATH/ADNI_DATA/derivatives/fmriprep \
+  --output-dir /ABSOLUTE/PATH/ADNI_DATA/qc/motion-duration-run-001
+```
+
+Run from `RS-fMRI/` in the installed Python environment. Replace every `/ABSOLUTE/PATH`, `/ABS/PATH` or `/external` example with actual external paths. Use a new output directory when the tool requires one; subject IDs and pair keys in examples are placeholders.
+
+**What this does:** Reads original BIDS TR/frame counts and fMRIPrep confounds, then computes retained duration and the separate non-steady-state sensitivity.
+
+**Results:** `paper_motion_summary.tsv`, original-frame masks and `paper_motion_provenance.json` in a new external directory. Images are not edited.
+
 ## Purpose
 
 This independent Custom Step imports the existing local `paper_motion_qc.py`. It checks retained time after motion exclusion, which upstream s8 does not calculate, and separately evaluates the 30%/300-second criteria from [Rutherford et al. v3](https://arxiv.org/pdf/2602.03278v3).
@@ -17,10 +32,6 @@ Compare actual NIfTI frame counts, time units and TR with JSON/confounds. Calcul
 ## Output
 
 `paper_motion_summary.tsv`, per-run masks with original frame indices, and `paper_motion_provenance.json` containing input hashes, thresholds and results. Image frames are not deleted. Outputs are not automatically merged into upstream inclusion tables and do not replace MRIQC, Euler, coverage or visual QC.
-
-## Execution
-
-Use `python 02_custom/s8a_motion_duration_qc/run.py --bids-root ... --derivatives-root ... --output-dir ...` from the root README. Output must be a new directory disjoint from the input trees.
 
 ## Validation
 

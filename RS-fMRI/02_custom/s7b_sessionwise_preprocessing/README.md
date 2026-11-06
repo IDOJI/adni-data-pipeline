@@ -1,5 +1,38 @@
 # Step 7.B — Sessionwise MRIQC/fMRIPrep service adapter
 
+## Execution
+
+```sh
+python 02_custom/s7b_sessionwise_preprocessing/run.py \
+  --config /ABSOLUTE/PATH/private.yaml dry-run \
+  --stage fmriprep --subject ADNI999S9999
+```
+
+Run from `RS-fMRI/` in the installed Python environment. Replace every `/ABSOLUTE/PATH`, `/ABS/PATH` or `/external` example with actual external paths. Use a new output directory when the tool requires one; subject IDs and pair keys in examples are placeholders.
+
+**What this does:** First inspects the configured single-case fMRIPrep command. The explicit `run` form below launches the selected case with the sessionwise surface-enabled profile.
+
+**Results:** External work, derivatives and attempt logs for that case. Publishing completed pairs and operating a live queue are separate actions.
+
+### Run one prepared case
+
+```sh
+python 02_custom/s7b_sessionwise_preprocessing/run.py \
+  --config /ABSOLUTE/PATH/private.yaml run \
+  --stage fmriprep --subject ADNI999S9999
+```
+
+The `run` command launches real imaging. Use the guarded 5.D entry point when the case was prepared through a binding receipt. An existing live queue chooses this adapter only for new subjects; previously started subjects finish through their recorded runner to preserve cache identity.
+
+### Existing macOS queue deployment
+
+```sh
+python 04_workflow/queue_service.py \
+  --root /ABSOLUTE/PATH/runtime --deployment /ABSOLUTE/PATH/deployment.json
+```
+
+Start this persistent controller only for a verified deployment without another controller owner. It uses Mac-specific integration and is not a Linux service recipe. See the [live-service handoff guide](../../06_docs/live_service_handoff.md).
+
 ## Purpose
 
 Continue the existing explicit-pair SB preprocessing service with integrated source code. This preserves the original sessionwise FreeSurfer, surface/CIFTI and image settings; it is separate from the surface-disabled 7.A volume profile.
@@ -17,17 +50,6 @@ External private YAML: runtime, source_bids, source_manifest, source_phase_evide
 ## Output
 
 Existing external bids/derivatives/work/logs and published pair directories. Original run records, failed attempts and caches remain in place. Completed outputs are reused rather than rerun.
-
-## Execution
-
-Run from `RS-fMRI/` with an external configuration. The live queue chooses this adapter only for new subjects; previously started subjects finish through their recorded legacy runner to preserve cache identity.
-
-```sh
-python 02_custom/s7b_sessionwise_preprocessing/run.py --config /ABSOLUTE/PATH/private.yaml dry-run --stage fmriprep --subject ADNI999S9999
-python 04_workflow/queue_service.py --root /ABSOLUTE/PATH/runtime --deployment /ABSOLUTE/PATH/deployment.json
-```
-
-Do not start another controller on a managed runtime. See the [live-service handoff guide](../../06_docs/live_service_handoff.md).
 
 ## Validation
 

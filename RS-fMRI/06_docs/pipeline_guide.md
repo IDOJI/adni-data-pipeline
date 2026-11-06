@@ -6,7 +6,7 @@ Create only the additional steps needed after an upstream stage: for example, `0
 
 ## Required content for each Custom Step
 
-Include Purpose, Input, Processing, Output, Execution, Validation and Dependencies in its README. Maintain code, scientific criteria and synthetic tests together. Write results to an external directory disjoint from the input trees.
+Start the README with an Execution (or Integrated execution) section containing a complete terminal command block. Explain its action, required working directory, replaceable input paths and expected result location immediately below. Follow with Purpose, Input, Processing, Output, Validation and Dependencies. Label previews, real computation, manual review and optional persistent services explicitly; keep existing section anchors stable. Maintain code, scientific criteria and synthetic tests together. Write results to an external directory disjoint from the input trees.
 
 Independent reporting steps create new outputs only. Steps that alter participants, sessions, images or inclusion tables must check the next upstream stage's actual input options and add adapters and contract tests. Do not assume `prepare-config` resolves every script's hardcoded settings.
 

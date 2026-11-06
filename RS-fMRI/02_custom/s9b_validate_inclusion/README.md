@@ -1,5 +1,24 @@
 # Step 9.B — Final inclusion validation
 
+## Execution
+
+```sh
+python 02_custom/s9b_validate_inclusion/run.py \
+  --source-qc /ABSOLUTE/PATH/ADNI_DATA/qc/step3a \
+  --clinical /ABSOLUTE/PATH/ADNI_DATA/qc/step9a \
+  --confirmed-st-absence /ABSOLUTE/PATH/ADNI_DATA/qc/confirmed-st-absence.csv \
+  --conversion-failures /ABSOLUTE/PATH/ADNI_DATA/qc/confirmed-conversion-failures.csv \
+  --output-dir /ABSOLUTE/PATH/ADNI_DATA/qc/step9b
+```
+
+Run from `RS-fMRI/` in the installed Python environment. Replace every `/ABSOLUTE/PATH`, `/ABS/PATH` or `/external` example with actual external paths. Use a new output directory when the tool requires one; subject IDs and pair keys in examples are placeholders.
+
+**What this does:** Combines 3.A, corrected 9.A and reviewed ST/conversion exclusion evidence while preserving pending and held states.
+
+**Results:** `inclusion_audit.tsv`, retained/pending/held/excluded tables and `artifact.json`. Metadata eligibility does not establish final analysis readiness.
+
+Run from `RS-fMRI/`; write only to a new external output directory.
+
 ## Purpose
 
 Combine 3.A source quality, corrected 9.A clinical conditions and explicitly confirmed ST absence for each image/run. Fix **nearest diagnoses within 28 days and source-QC pending preservation**. A clinical pass cannot reintroduce a known problem image. No Selection Table/RDS becomes a required input.
@@ -42,19 +61,6 @@ Conversion exclusions require `IMAGE_ID,PTID,MRI_STUDY_DATE,MODALITY,SELECTION_A
 | `artifact.json` | Input/output/code hashes, policy and counts |
 
 `INCLUDED_BY_METADATA_POLICY` denotes retention under this step's scope. Keep `ANALYSIS_READY=False` for every result. This step does not establish physical BIDS/DICOM/JSON correspondence, T1 pairing, headers, coverage, motion or visual QC. When imaging-QC columns are absent, explicitly record that a reviewed input remains a precondition.
-
-## Execution
-
-Run from `RS-fMRI/`; write only to a new external output directory.
-
-```sh
-python 02_custom/s9b_validate_inclusion/run.py \
-  --source-qc /ABSOLUTE/PATH/ADNI_DATA/qc/step3a \
-  --clinical /ABSOLUTE/PATH/ADNI_DATA/qc/step9a \
-  --confirmed-st-absence /ABSOLUTE/PATH/ADNI_DATA/qc/confirmed-st-absence.csv \
-  --conversion-failures /ABSOLUTE/PATH/ADNI_DATA/qc/confirmed-conversion-failures.csv \
-  --output-dir /ABSOLUTE/PATH/ADNI_DATA/qc/step9b
-```
 
 ## Validation
 

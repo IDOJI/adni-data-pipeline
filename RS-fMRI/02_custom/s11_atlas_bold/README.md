@@ -1,5 +1,37 @@
 # Step 11 — Atlas-based BOLD signal extraction
 
+## Execution
+
+```sh
+python 02_custom/s11_atlas_bold/sources.py install
+python 02_custom/s11_atlas_bold/sources.py fetch-templateflow
+python 02_custom/s11_atlas_bold/sources.py status
+python 02_custom/s11_atlas_bold/run.py list --space MNI152NLin6Asym
+```
+
+Run from `RS-fMRI/` in the installed Python environment. Replace every `/ABSOLUTE/PATH`, `/ABS/PATH` or `/external` example with actual external paths. Use a new output directory when the tool requires one; subject IDs and pair keys in examples are placeholders.
+
+**What this does:** Installs/verifies explicitly selected atlas sources, lists compatible atlases, then extracts ROI mean BOLD signals with the selected matching-space atlas.
+
+**Results:** `timeseries.tsv`, `labels.tsv`, `frames.tsv`, `roi_coverage.tsv`, the sampled atlas and `artifact.json` in a new external output directory.
+
+Run from `RS-fMRI/`. Source installation and payload fetching are explicit network operations; extraction itself never downloads data.
+
+Only selected sources can be installed with repeatable `--source`, for example `--source CBIG`. Do not recursively initialize every TemplateFlow dataset. A full `git clone --recurse-submodules` can fetch unrelated datasets and large histories; use the selective setup above.
+
+```sh
+python 02_custom/s11_atlas_bold/run.py extract \
+  --bold /ABSOLUTE/PATH/ADNI_DATA/derivatives/sub-ADNI999S9999_ses-M000_task-rest_run-1_space-MNI152NLin6Asym_desc-denoised_bold.nii.gz \
+  --mask /ABSOLUTE/PATH/ADNI_DATA/derivatives/sub-ADNI999S9999_ses-M000_task-rest_run-1_space-MNI152NLin6Asym_desc-brain_mask.nii.gz \
+  --atlas cbig_Schaefer2018_400Parcels_7Networks_order_FSLMNI152_2mm \
+  --space MNI152NLin6Asym --input-kind denoised \
+  --inclusion /ABSOLUTE/PATH/ADNI_DATA/qc/step9b --image-id 999999999 \
+  --resample-labels --min-coverage 0.5 \
+  --output-dir /ABSOLUTE/PATH/ADNI_DATA/atlas-signals/run-001/Schaefer400
+```
+
+For MNI152NLin2009cAsym, a matching example is `templateflow_tpl-MNI152NLin2009cAsym_res-02_atlas-Schaefer2018_desc-400Parcels7Networks_dseg`. The above subject/image values are synthetic placeholders. Results must use a new external directory; neither inputs nor source atlas files are modified.
+
 ## Purpose
 
 Select a pinned brain atlas and extract one mean BOLD signal per discrete ROI. Preserve label identity, input-frame indices and source evidence. Audit source labels, resampling losses and brain-mask coverage rather than silently removing empty ROIs. This step does not perform registration, denoising or connectivity estimation.
@@ -51,32 +83,6 @@ External catalogs may explicitly register 3-D label atlases with relative paths 
 | `artifact.json` | Input/output/code hashes, source pins, TR, processing declaration, QC settings and outcome |
 
 Exit code **2** means artifacts were written but ROI/source QC failed. Exit code **1** means an input/contract error. Code 0 establishes extraction checks only; every artifact remains `analysis_ready=false`, and physical registration/visual QC is not established. Without 9.B evidence, inclusion is explicitly `not_checked`.
-
-## Execution
-
-Run from `RS-fMRI/`. Source installation and payload fetching are explicit network operations; extraction itself never downloads data.
-
-```sh
-python 02_custom/s11_atlas_bold/sources.py install
-python 02_custom/s11_atlas_bold/sources.py fetch-templateflow
-python 02_custom/s11_atlas_bold/sources.py status
-python 02_custom/s11_atlas_bold/run.py list --space MNI152NLin6Asym
-```
-
-Only selected sources can be installed with repeatable `--source`, for example `--source CBIG`. Do not recursively initialize every TemplateFlow dataset. A full `git clone --recurse-submodules` can fetch unrelated datasets and large histories; use the selective setup above.
-
-```sh
-python 02_custom/s11_atlas_bold/run.py extract \
-  --bold /ABSOLUTE/PATH/ADNI_DATA/derivatives/sub-ADNI999S9999_ses-M000_task-rest_run-1_space-MNI152NLin6Asym_desc-denoised_bold.nii.gz \
-  --mask /ABSOLUTE/PATH/ADNI_DATA/derivatives/sub-ADNI999S9999_ses-M000_task-rest_run-1_space-MNI152NLin6Asym_desc-brain_mask.nii.gz \
-  --atlas cbig_Schaefer2018_400Parcels_7Networks_order_FSLMNI152_2mm \
-  --space MNI152NLin6Asym --input-kind denoised \
-  --inclusion /ABSOLUTE/PATH/ADNI_DATA/qc/step9b --image-id 999999999 \
-  --resample-labels --min-coverage 0.5 \
-  --output-dir /ABSOLUTE/PATH/ADNI_DATA/atlas-signals/run-001/Schaefer400
-```
-
-For MNI152NLin2009cAsym, a matching example is `templateflow_tpl-MNI152NLin2009cAsym_res-02_atlas-Schaefer2018_desc-400Parcels7Networks_dseg`. The above subject/image values are synthetic placeholders. Results must use a new external directory; neither inputs nor source atlas files are modified.
 
 ## Validation
 

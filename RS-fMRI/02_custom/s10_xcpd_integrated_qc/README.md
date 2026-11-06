@@ -1,5 +1,60 @@
 # Step 10 — S8 metrics, XCP-D and integrated imaging QC
 
+## Execution
+
+```sh
+python 02_custom/s10_xcpd_integrated_qc/pipeline.py \
+  --config /ABSOLUTE/PATH/xcpd.local.json preflight
+python 02_custom/s10_xcpd_integrated_qc/pipeline.py \
+  --config /ABSOLUTE/PATH/xcpd.local.json dry-run
+```
+
+Run from `RS-fMRI/` in the installed Python environment. Replace every `/ABSOLUTE/PATH`, `/ABS/PATH` or `/external` example with actual external paths. Use a new output directory when the tool requires one; subject IDs and pair keys in examples are placeholders.
+
+**What this does:** Checks the configured completed-pair inputs and prints the XCP-D plan. The separately selected `pilot` or `watch` commands below launch real postprocessing.
+
+**Results:** Preflight/plan evidence first; actual runs add denoised BOLD, ROI/FC, native reports and QC tables under the external runtime.
+
+### Run a pilot, then choose whether to watch
+
+```sh
+python 02_custom/s10_xcpd_integrated_qc/pipeline.py --config /ABSOLUTE/PATH/xcpd.local.json pilot
+```
+
+The pilot performs real XCP-D processing and checks its outputs. After reviewing that pilot, the following optional persistent worker handles newly completed pairs. Use one owner per runtime; do not start a duplicate pilot/watch beside an active worker.
+
+```sh
+python 02_custom/s10_xcpd_integrated_qc/pipeline.py --config /ABSOLUTE/PATH/xcpd.local.json watch
+```
+
+### Collect or recover an existing attempt
+
+```sh
+python 02_custom/s10_xcpd_integrated_qc/pipeline.py --config /ABSOLUTE/PATH/xcpd.local.json collect
+```
+
+`collect` refreshes QC tables. A researcher reviews the images and edits `visual_review.tsv`. Choose `retry-failed` to start a new failed-case attempt, or `revalidate` to check existing outputs without repeating the image calculation; these are distinct actions rather than a block to run blindly in sequence.
+
+### Finalize reviewed cohort imaging QC
+
+```sh
+python 02_custom/s10_xcpd_integrated_qc/pipeline.py \
+  --config /ABSOLUTE/PATH/xcpd.local.json finalize \
+  --cohort-complete --mriqc-flags /ABSOLUTE/PATH/current-cohort-flags.tsv
+```
+
+Run only after cohort completion and the required reviews. The watch loop never invokes finalization. `slurm` exports an array script without submitting `sbatch`; CIFTI/Apptainer execution requires separate validation.
+
+### Archive validated output on the configured macOS volume
+
+```sh
+python 02_custom/s10_xcpd_integrated_qc/offload_completed.py \
+  --root /ABSOLUTE/PATH/ADNI_DATA/pair_runtime \
+  --settings /ABSOLUTE/PATH/offload.local.json --once
+```
+
+This separate command **copies and verifies data, then reclaims the local copies**. Fill in the actual UUID, runtime and validated config_id in the [example settings](../../03_config/offload.example.json) first. The current offloader uses macOS volume checks; Linux needs the adapter described below.
+
 ## Purpose
 
 This workflow implements S8 → XCP-D → quantitative QC → validated external archiving from the referenced ADNI preprocessing task. Python and Docker handle repeated processing without LLM/API calls. Finalization remains deferred until the cohort and human review are ready. Installing the code does not switch active services or start new calculations.
@@ -29,32 +84,6 @@ The configuration pins XCP-D 26.2.0 by image digest: linc/nifti, MNI152NLin6Asym
 `clinical_scan_links.tsv` exports actual epi_image_id/epi_date and run identity for Step 9.A. Pass the link table from the same directory as `finalizations/<timestamp>/final_included_runs.tsv`. `ANALYSIS_READY=False` remains set: S10 finalization covers **imaging QC only**. Combining source QC from 3.A, study-specific 8.A criteria and clinical validation from 9.A is a separate research inclusion decision.
 
 `archive_ready.json` establishes archival readiness, not research inclusion. The offloader verifies config_id, evidence hashes, actual volume UUID and copied data before reclaiming local space.
-
-## Execution
-
-Run from `RS-fMRI/` with an actual external configuration. Do not start a duplicate pilot/watch against a runtime root already managed by an active worker.
-
-```sh
-python 02_custom/s10_xcpd_integrated_qc/pipeline.py --config /ABSOLUTE/PATH/xcpd.local.json preflight
-python 02_custom/s10_xcpd_integrated_qc/pipeline.py --config /ABSOLUTE/PATH/xcpd.local.json dry-run
-python 02_custom/s10_xcpd_integrated_qc/pipeline.py --config /ABSOLUTE/PATH/xcpd.local.json pilot
-python 02_custom/s10_xcpd_integrated_qc/pipeline.py --config /ABSOLUTE/PATH/xcpd.local.json watch
-# Collect separately when needed. A researcher edits visual_review.tsv after reviewing the images.
-python 02_custom/s10_xcpd_integrated_qc/pipeline.py --config /ABSOLUTE/PATH/xcpd.local.json collect
-# Retry failures as a new attempt / revalidate without repeating image calculations.
-python 02_custom/s10_xcpd_integrated_qc/pipeline.py --config /ABSOLUTE/PATH/xcpd.local.json retry-failed
-python 02_custom/s10_xcpd_integrated_qc/pipeline.py --config /ABSOLUTE/PATH/xcpd.local.json revalidate
-# Run only after the cohort is ready. The watch loop never invokes this command.
-python 02_custom/s10_xcpd_integrated_qc/pipeline.py --config /ABSOLUTE/PATH/xcpd.local.json finalize --cohort-complete --mriqc-flags /ABSOLUTE/PATH/current-cohort-flags.tsv
-```
-
-`slurm` exports an array script without submitting `sbatch`. CIFTI/Apptainer execution requires separate validation.
-
-External archiving is a separate command. Fill in the actual UUID, runtime and validated config_id in the [example settings](../../03_config/offload.example.json). **The command below copies and verifies data, then reclaims the local copies.** No actual data relocation is performed as part of this code consolidation.
-
-```sh
-python 02_custom/s10_xcpd_integrated_qc/offload_completed.py --root /ABSOLUTE/PATH/ADNI_DATA/pair_runtime --settings /ABSOLUTE/PATH/offload.local.json --once
-```
 
 ## Validation
 
