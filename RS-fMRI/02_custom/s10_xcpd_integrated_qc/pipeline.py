@@ -35,6 +35,7 @@ DEFAULT_UPSTREAM = LAB_ROOT / "01_upstream/ADNI_fMRI_protocol"
 if str(LAB_ROOT / "04_workflow") not in sys.path:
     sys.path.insert(0, str(LAB_ROOT / "04_workflow"))
 from protocol_source import inspect_protocol
+from processing_time import add_timing, refresh_safely
 
 
 def now():
@@ -703,7 +704,10 @@ class Pipeline:
         if result.returncode:
             if record['status'] != 'prepared':
                 record.update(status='failed', finished_at=now(), error='Previously started container vanished')
-                save(attempt / 'execution.json', record); return
+                add_timing(record)
+                save(attempt / 'execution.json', record)
+                refresh_safely(self.root)
+                return
             for p, expected in row.get('input_files', {}).items():
                 if sha(p) != expected:
                     raise ValueError('Input changed before XCP-D: ' + p)
@@ -721,6 +725,16 @@ class Pipeline:
         save(attempt / 'execution.json', record)
         save(self.hub / 'status.json', {'at': now(), 'status': 'xcpd_running', 'run': run_key(row), 'container': name, 'LLM_calls': 0})
         exit_code = self.wait_container(name, row)
+        record['container_ended_at'] = now()
+        try:
+            state = load_json_command(['docker', 'inspect', name])[0]['State']
+            record['container_started_at'] = state.get('StartedAt')
+            record['container_finished_at'] = state.get('FinishedAt')
+        except Exception as exc:
+            record['timing_observation_error'] = str(exc)
+        add_timing(record)
+        save(attempt / 'execution.json', record)
+        refresh_safely(self.root)
         with (attempt / 'container.log').open('w') as f:
             subprocess.run(['docker', 'logs', name], stdout=f, stderr=subprocess.STDOUT)
         unchanged = all(sha(p) == expected for p, expected in row.get('input_files', {}).items())
@@ -732,7 +746,9 @@ class Pipeline:
         if qc['xcpd_status'] == 'success':
             save(attempt / 'output_manifest.json', {str(p.relative_to(attempt / 'derivatives')): sha(p) for p in sorted((attempt / 'derivatives').rglob('*')) if p.is_file()})
         record.update(status=qc['xcpd_status'], exit_code=exit_code, finished_at=now(), input_unchanged=unchanged)
+        add_timing(record)
         save(attempt / 'execution.json', record)
+        refresh_safely(self.root)
         self.event('run_finished',run=run_key(row),status=qc['xcpd_status'],exit_code=exit_code,errors=qc['xcpd_errors'])
         save(self.hub/'status.json',{'at':now(),'status':'run_'+qc['xcpd_status'],'run':run_key(row),'LLM_calls':0})
         if qc['xcpd_status'] == 'success':

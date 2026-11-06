@@ -77,6 +77,7 @@ Use the [macOS/Linux execution guide](06_docs/platform_execution.md) for shared 
 | **7.A** | **Separate Docker volume profile** | [Custom](02_custom/s7a_volume_workflow/README.md) | Existing aCompCor profile, independent audit and metadata repair; separate from upstream 7 and S10 | [Run S7A](06_docs/platform_execution.md#s7a) |
 | **7.B** | **Live sessionwise preprocessing** | [Custom](02_custom/s7b_sessionwise_preprocessing/README.md) | Existing queue compatibility; new subjects use integrated source, active jobs retain their original runner | [Run S7B](06_docs/platform_execution.md#s7b) |
 | **7.C** | **ANTs iteration logs** | [Custom](02_custom/s7c_ants_iteration_logging/README.md) | Optional logging transport before a new fMRIPrep launch; no queue or image-settings change | [Run S7C](06_docs/platform_execution.md#s7c) |
+| **7.D** | **Processing-time records** | [Custom](02_custom/s7d_processing_timing/README.md) | Per-attempt MRIQC/fMRIPrep/XCP-D times, preprocessing/postprocessing totals and overall observed wall time | [Run S7D](02_custom/s7d_processing_timing/README.md) |
 | 8 | Final QC | [Protocol Step 8](01_upstream/ADNI_fMRI_protocol/s8_final_qc/README.md) | Motion, Euler, MRIQC and inclusion/exclusion reasons | [Run S8](06_docs/platform_execution.md#s8) |
 | **8.A** | **Motion retained-duration checks** | [Custom](02_custom/s8a_motion_duration_qc/README.md) | Actual TR × retained frames, FD proportion, initial-frame sensitivity and masks | [Run S8A](06_docs/platform_execution.md#s8a) |
 | 9 | Clinical Merge | [Protocol Step 9](01_upstream/ADNI_fMRI_protocol/s9_clinical_imaging_merge/README.md) | Upstream cognitive-score linkage/reports; preserve original outputs | [Run S9](06_docs/platform_execution.md#s9) |
@@ -93,6 +94,16 @@ Steps 1.A/1.B have not been defined and are not created yet. Add them when neede
 Connect upstream 1–7 → **S8/8.A + S10 pre-QC → XCP-D → quantitative/visual review → cohort imaging-QC finalization → S9/9.A clinical validation → 9.B final inclusion validation**. S10 can start as a separate worker once S7 pairs complete. `watch/collect` never makes final inclusion decisions. See the [S10 README](02_custom/s10_xcpd_integrated_qc/README.md) for commands, pair-input contracts and archival gates, and the [consolidation guide](06_docs/xcpd_consolidation.md) for directory retirement and service-transition boundaries.
 
 Preserve 7.A's existing aCompCor profile separately from S10's 36P/GSR profile; do not mix their results. Pass S10 finalization's `final_included_runs.tsv` and `clinical_scan_links.tsv` together to 9.A. Imaging QC alone does not establish full research inclusion.
+
+## Processing-time reports
+
+```sh
+: "${ADNI_RUNTIME_ROOT:?Set the existing external pipeline runtime directory}"
+python 02_custom/s7d_processing_timing/run.py --root "$ADNI_RUNTIME_ROOT"
+cat "$ADNI_RUNTIME_ROOT/timing/summary.json"
+```
+
+Step 7.D records each MRIQC/fMRIPrep/XCP-D attempt and aggregates preprocessing, postprocessing and overall observed elapsed time. New runners refresh the reports at completion; the collector also reads legacy receipts without restarting workers. Follow the [timing guide](02_custom/s7d_processing_timing/README.md) for automatic updates, archive inputs, retries, missing times and the distinction between parallel stage sums and real elapsed wall time.
 
 ## 🧠 Atlas library and BOLD extraction
 

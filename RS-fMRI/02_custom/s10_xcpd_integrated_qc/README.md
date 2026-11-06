@@ -102,3 +102,12 @@ Pass finalized `final_included_runs.tsv` and `clinical_scan_links.tsv` to 9.A, t
 The core XCP-D Linux container and validator can use the same scientific configuration on Mac Docker Desktop and Linux Docker Engine. The strict ADNI input layout still needs valid 7.B publication evidence. The external offloader calls macOS `diskutil info -plist`; native Linux needs a mounted-volume/copy-validation adapter before automatic archival and local cleanup. A systemd timer alone is not that port.
 
 See the [stage-specific host instructions](../../06_docs/platform_execution.md#s10) for prerequisites, executable routes and validation limits. Shared analysis settings remain in this step's existing configuration; host compatibility is not a new scientific QC pass.
+
+## Processing-time records
+
+```sh
+: "${ADNI_RUNTIME_ROOT:?Set the existing external pipeline runtime directory}"
+python 02_custom/s7d_processing_timing/run.py --root "$ADNI_RUNTIME_ROOT"
+```
+
+Completed and failed attempts retain start/end times and a `timing` object; sidecar reports aggregate MRIQC, fMRIPrep, XCP-D and the overall observed elapsed time. Existing legacy receipts can be collected without replacing a running worker. See [Step 7.D](../s7d_processing_timing/README.md) for outputs, automatic collection, archive/retry handling and missing-time limits.

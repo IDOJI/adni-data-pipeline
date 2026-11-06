@@ -27,6 +27,7 @@ REPO = Path(__file__).resolve().parents[2] / "01_upstream/ADNI_fMRI_protocol"
 if str(REPO.parents[1] / "04_workflow") not in sys.path:
     sys.path.insert(0, str(REPO.parents[1] / "04_workflow"))
 from protocol_source import inspect_protocol
+from processing_time import add_timing, refresh_safely
 
 
 def now():
@@ -305,6 +306,8 @@ def run_stage(cfg, stage, case, profile):
                   "input_before": inputs, "protocol_source": inspect_protocol(REPO.parents[1]), "upstream_commit": inspect_protocol(REPO.parents[1])["upstream_commit"]}
         dump(folder / "run.json", record)
         print(f"Running {stage}: {folder}", flush=True)
+        record["execution_started_at"] = now()
+        dump(folder / "run.json", record)
         with (folder / "console.log").open("w") as log:
             child = subprocess.run(argv, stdout=log, stderr=subprocess.STDOUT, check=False)
         record["container_ended_at"] = now()
@@ -319,14 +322,18 @@ def run_stage(cfg, stage, case, profile):
             destination.parent.mkdir(exist_ok=True)
             shutil.copy2(p, destination)
         record["ended_at"] = now()
+        add_timing(record)
         dump(folder / "run.json", record)
+        refresh_safely(root)
         if record["status"] == "failed":
             raise RuntimeError(f"Execution failed; see {folder / 'console.log'}")
         print(json.dumps({"status": record["status"], "record": str(folder / "run.json")}))
     except Exception as exc:
         if record is not None:
             record.update(status="failed", error=f"{type(exc).__name__}: {exc}", ended_at=now())
+            add_timing(record)
             dump(folder / "run.json", record)
+            refresh_safely(root)
         raise
     finally:
         lock.unlink()

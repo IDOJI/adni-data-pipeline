@@ -33,3 +33,7 @@ Use the [public/offline walkthrough](../07_reproducibility/README.md) for copied
 ## Host-specific stage instructions
 
 The [macOS/Linux guide](platform_execution.md) documents every upstream/custom position using the owned protocol and Custom Steps. Each Custom Step links to its own host section. Preserve the scientific profile and provenance when changing hosts; document and validate service/publication/volume adapters separately from imaging algorithms.
+
+## Processing-time records
+
+[Step 7.D](../02_custom/s7d_processing_timing/README.md) runs alongside 7.B and S10. Keep timing reports outside source/verified pair payloads, count retries explicitly, and distinguish stage-time sums from the elapsed pipeline wall span. An independent collector can record legacy completions without changing active deployment hashes.
