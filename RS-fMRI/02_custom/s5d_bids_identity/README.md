@@ -52,3 +52,9 @@ Full MRIQC/fMRIPrep calculation requires a separate explicit execution request a
 ## Dependencies and tests
 
 Python 3.11+, NumPy, NiBabel, PyYAML and the installed 7.B runtime dependencies. Synthetic tests cover UID ambiguity, Image ID/hash/date conflicts, unavailable files, exact-pair isolation, post-validation mutation and refusal to dispatch pending material. Run the repository pytest suite and `04_workflow/lab.py doctor`.
+
+## macOS and Linux
+
+Use host-correct BIDS roots and independent hash evidence in a new external configuration. Binding/guarded single-case delegation remains separate from the Mac-specific 7.B publisher and queue; do not claim the complete Linux dispatch/archive chain from a binding pass.
+
+See the [stage-specific host instructions](../../06_docs/platform_execution.md#s5d) for prerequisites, executable routes and validation limits. Shared analysis settings remain in this step's existing configuration; host compatibility is not a new scientific QC pass.

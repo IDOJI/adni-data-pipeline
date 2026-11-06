@@ -46,3 +46,9 @@ Pass the artifact with `--source-qc /external/qc/step3a` to verify input/output 
 Retain `pending` sessions as preprocessing candidates without treating them as research-quality passes. Use `--require-confirmed-qc` to process only confirmed source QC. If all sessions are blocked, preserve the audit files, record `no_surviving_sessions` and return CLI exit code 2. `prepare-config` also rejects that result.
 
 Without 3.A, the existing format-validation mode remains available. `source_qc_audit.tsv`, source-artifact hashes and excluded/pending counts identify whether the gate was applied. Clinical validation is performed separately in 9.A.
+
+## macOS and Linux
+
+Use the same Python CLI and delimiter/session contracts on both hosts. Rebuild path-bearing receipts for the new host. Upstream MRIQC is still subject-scoped; OS choice does not add a missing session filter.
+
+See the [stage-specific host instructions](../../06_docs/platform_execution.md#s5c) for prerequisites, executable routes and validation limits. Shared analysis settings remain in this step's existing configuration; host compatibility is not a new scientific QC pass.

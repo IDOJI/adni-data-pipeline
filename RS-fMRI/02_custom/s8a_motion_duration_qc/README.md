@@ -29,3 +29,9 @@ Synthetic images test exact 300-second/30% boundaries, overlapping motion/initia
 ## Dependencies
 
 Python 3.11+, NumPy, pandas and NiBabel. The initial imported code hash is recorded in `03_config/imported_sources.json`.
+
+## macOS and Linux
+
+The Python CLI, actual TR/frame checks, FD0.5/30%/300-second criteria and separate non-steady-state sensitivity are shared. Use real BIDS/derivative paths and a new external output directory on the selected host. This stage needs no Docker when reading existing outputs.
+
+See the [stage-specific host instructions](../../06_docs/platform_execution.md#s8a) for prerequisites, executable routes and validation limits. Shared analysis settings remain in this step's existing configuration; host compatibility is not a new scientific QC pass.

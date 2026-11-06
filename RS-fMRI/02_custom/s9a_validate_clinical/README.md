@@ -53,3 +53,9 @@ Synthetic runs cover diagnostic/date ties, conflicting diagnoses, outdated asses
 ## Dependencies
 
 Python 3.11+ standard library. Official diagnosis definitions: [ADNI DXSUM](https://adni.loni.usc.edu/quick-start-guide-asset/diagnostic.html). Selected clinical rules from Research's `2026-10-30-preserve-all-v1` were adapted to explicit CSV/run inputs; full numerical equivalence with the original RDS/R module is not claimed.
+
+## macOS and Linux
+
+Run the same Python CLI and nearest/28-day, tie and demographics rules on both hosts. Set authorized clinical input paths locally and generate new output evidence. A Linux run does not alter clinical eligibility or fill missing source values.
+
+See the [stage-specific host instructions](../../06_docs/platform_execution.md#s9a) for prerequisites, executable routes and validation limits. Shared analysis settings remain in this step's existing configuration; host compatibility is not a new scientific QC pass.

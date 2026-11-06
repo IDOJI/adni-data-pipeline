@@ -63,3 +63,9 @@ Synthetic tests cover pending preservation, QC/clinical/ST/conversion exclusions
 ## Dependencies
 
 Python 3.11+ standard library and this repository's `02_custom/_shared.py`, with actual 3.A and corrected 9.A artifacts.
+
+## macOS and Linux
+
+The same Python CLI verifies 3.A/9.A and reviewed ST/conversion evidence on either host. Revalidate source artifacts rather than editing old path/hash receipts, and preserve pending/held/excluded states and unfinished final research inclusion.
+
+See the [stage-specific host instructions](../../06_docs/platform_execution.md#s9b) for prerequisites, executable routes and validation limits. Shared analysis settings remain in this step's existing configuration; host compatibility is not a new scientific QC pass.

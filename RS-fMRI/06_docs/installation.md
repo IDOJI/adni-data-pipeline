@@ -12,7 +12,9 @@ Follow upstream `env/env_adni.yml`, `env/env_clinica.yml`, R packages and Apptai
 
 Image names in `03_config/lab_config.example.yaml` are examples based on MRIQC 24.0.2 and fMRIPrep 25.2.7 used in local checks. Distinguish them from the upstream commit's 24.0.0 example. Preserve actual image digests and commands in per-run provenance.
 
-## Mac
+## macOS and Linux
+
+Use the [stage-by-stage host guide](platform_execution.md) before moving to a different computer. It provides separate Docker Desktop/Engine setup, common commands and a support matrix. Core Python tools and Linux-container calculations are distinct from Mac-specific service, copy and volume-management adapters.
 
 Custom Steps and configuration tools are tested on Mac. Upstream s4/s6/s7 launchers target Slurm/Apptainer and are not automatically converted to Mac. The existing `local_mac` pilot is an untracked local extension, not part of the submodule. Step 7.A adds a separate Docker volume execution/audit profile, and S10 adds completed-pair postprocessing/integrated QC. The full local_mac implementation and S6/S7 queue are not consolidated; a flat-derivative-to-S10-pair adapter is also separate. See [consolidation scope](xcpd_consolidation.md).
 
@@ -23,3 +25,7 @@ Custom Steps and configuration tools are tested on Mac. Upstream s4/s6/s7 launch
 ## Optional atlas library
 
 Step 11 sources and TemplateFlow payloads are installed explicitly using its source manager. Do not recursively clone the whole TemplateFlow archive or full CBIG history as part of ordinary installation. See the [atlas guide](atlas_library.md).
+
+## Native Linux deployment boundary
+
+Ubuntu CI checks Python/source/synthetic contracts; it does not establish a completed full Linux imaging cohort. The 7.B publisher uses macOS `cp -cR`, the queue uses `caffeinate`, and the S10 offloader uses `diskutil`. Port and validate those operational components before claiming automatic five-subject processing through external archival on Linux. See the [implementation map](platform_execution.md#s7b) and [S10 archival boundary](platform_execution.md#s10).

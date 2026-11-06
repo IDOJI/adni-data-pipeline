@@ -48,3 +48,9 @@ The existing synthetic execution, failure recovery, header/voxel invariance, ind
 ## Dependencies
 
 Python 3.11+, [requirements](../../requirements.txt), Docker and existing image/template caches. Execution targets Linux AMD64; Mac emulation and runtime require environment-specific validation. See [preserved methods](METHODS.md), [literature and scope](literature.md), and the [consolidation and transition guide](../../06_docs/xcpd_consolidation.md).
+
+## macOS and Linux
+
+Use Docker Desktop on Mac and Docker Engine on Linux x86-64, with the same immutable images and host-correct bind paths. Preserve this separate volume/aCompCor profile and its caches; it is not the main surface-enabled 36P-LINC profile. Full Linux imaging execution remains a deployment validation task.
+
+See the [stage-specific host instructions](../../06_docs/platform_execution.md#s7a) for prerequisites, executable routes and validation limits. Shared analysis settings remain in this step's existing configuration; host compatibility is not a new scientific QC pass.

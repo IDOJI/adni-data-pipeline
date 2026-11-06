@@ -131,3 +131,9 @@ python 02_custom/s11_atlas_bold/diagnose_coverage.py \
 ```
 
 Replace `BIDS` with the actual matching subject/session entities; EPI and anatomical masks are separate files. Inputs must be finite 3-D images on the same explicit standard-space grid. The EPI mask must be the one used by extraction. `coverage_diagnostics.tsv` preserves each existing ROI QC outcome and compares included/excluded EPI-reference medians, GM probability, T1 intensity and anatomical-mask support. It does not expand masks, drop ROIs, introduce a new cutoff or establish a unique cause. Reference attenuation in excluded tissue supports joint dropout/mask review; distortion, atrophy and local registration can still contribute. Default coverage 0.5, minimum one voxel and `analysis_ready=false` remain unchanged.
+
+## macOS and Linux
+
+The source manager and Python extraction CLI use the same pinned atlas/label hashes, spaces, coverage settings and run/frame evidence on both hosts. Fetch only selected sources explicitly, use host-correct external paths and preserve raw/denoised input declarations. This step does not need a new imaging container to read existing derivatives.
+
+See the [stage-specific host instructions](../../06_docs/platform_execution.md#s11) for prerequisites, executable routes and validation limits. Shared analysis settings remain in this step's existing configuration; host compatibility is not a new scientific QC pass.

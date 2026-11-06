@@ -4,6 +4,8 @@ Run each block in the same terminal, in order. The small offline example produce
 
 The public example preserves the current **sessionwise / surface-enabled / SyN-SDC / 36P-LINC** analysis options. It is an explicit one-participant demo, independent of the private rolling queue. These commands do not install services or alter an existing ADNI run.
 
+For host preparation and each stage's Mac/Linux limits, read the [platform guide](../06_docs/platform_execution.md). The standalone public example does not install the Mac queue or a Linux archival service.
+
 ## 0. Install the example environment
 
 Use Python **3.11+**, Git, and a new source directory. Python 3.11.16 was tested. Run the following from any directory; the data/results live outside the source checkout.
