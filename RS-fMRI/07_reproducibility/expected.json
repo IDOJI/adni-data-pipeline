@@ -1,0 +1,22 @@
+{
+  "source_qc_status": "pass",
+  "handoff_sessions": 1,
+  "binding_ready": 1,
+  "clinical_stage": "Dementia",
+  "diagnosis": "Dementia_other_suspected",
+  "clinical_status": "pass",
+  "inclusion": "eligible",
+  "analysis_ready": "False",
+  "motion_censored_frames": 2,
+  "retained_fd_seconds": 354.0,
+  "retained_fd_nonsteady_seconds": 348.0,
+  "roi_shape": [120, 2],
+  "roi_first": [1.0, 10.0],
+  "roi_last": [120.0, 1200.0],
+  "hippocampus_left_mm3": 123.4,
+  "hippocampus_right_mm3": 145.6,
+  "lh_superiorfrontal_thickness_mm": 2.1,
+  "reho_A": 0.2,
+  "reho_B_missing": true,
+  "final_inclusion": "pending"
+}

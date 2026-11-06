@@ -25,3 +25,7 @@ Independent reporting steps create new outputs only. Steps that alter participan
 ## Unresolved upstream boundaries
 
 Session-restricted MRIQC execution, fitting-population limits, upstream s8 missing-value handling/TSV inputs and a complete Mac adapter remain future work. Step 9.A validates diagnostic mapping, date windows and ties; it does not remerge every cognitive score or replace research inclusion decisions. Passing current code tests does not establish those capabilities.
+
+## Reproducibility and standalone reporting
+
+Use the [public/offline walkthrough](../07_reproducibility/README.md) for copied terminal commands and reviewed reference values. Optional 5.D verifies an explicit pair before dispatch, 7.C adds prospective ANTs iteration logs, and 12 exports existing validated archive scalars/reports after S10. See each step README for its input/output/validation contract. The examples do not install live services or determine cohort inclusion.

@@ -1,0 +1,43 @@
+{
+  "dataset": "ds000030",
+  "version": "1.0.0",
+  "git_commit": "4070b6eea231517bfeff42527a46d9d166ac4e13",
+  "license": "CC0",
+  "doi": "10.18112/openneuro.ds000030.v1.0.0",
+  "source": "https://github.com/OpenNeuroDatasets/ds000030/tree/4070b6eea231517bfeff42527a46d9d166ac4e13",
+  "citation": "https://www.nature.com/articles/sdata2016110",
+  "files": [
+    {
+      "path": "sub-10159/anat/sub-10159_T1w.nii.gz",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds000030/sub-10159/anat/sub-10159_T1w.nii.gz",
+      "bytes": 11637742,
+      "sha256": "0cb8a28928917b452b516e4e4694b3b79eb96b4c558f47ac63603035d0072e8b",
+      "annex_md5": "75cab8005361c2504ba5a7f02ecbacd7"
+    },
+    {
+      "path": "sub-10159/func/sub-10159_task-rest_bold.nii.gz",
+      "url": "https://s3.amazonaws.com/openneuro.org/ds000030/sub-10159/func/sub-10159_task-rest_bold.nii.gz",
+      "bytes": 24052822,
+      "sha256": "0c7eb669bcbb09f5e7abcf25766621e92edc0d67bd895aa24e79e0c5405de0fb",
+      "annex_md5": "1e2cd9091e3f9b0d4475ce423a1d0840"
+    },
+    {
+      "path": "dataset_description.json",
+      "url": "https://raw.githubusercontent.com/OpenNeuroDatasets/ds000030/4070b6eea231517bfeff42527a46d9d166ac4e13/dataset_description.json",
+      "bytes": 4245,
+      "sha256": "9a360b4bbce9ae7af40eee3f7965c52be42b0369ae43cf8923788587ecab35fd"
+    },
+    {
+      "path": "task-rest_bold.json",
+      "url": "https://raw.githubusercontent.com/OpenNeuroDatasets/ds000030/4070b6eea231517bfeff42527a46d9d166ac4e13/task-rest_bold.json",
+      "bytes": 593,
+      "sha256": "687e3de62991298fb9260dedd689ca0c069ada55e14278ef6a9e6348b9d3b937"
+    },
+    {
+      "path": "sub-10159/func/sub-10159_task-rest_bold.json",
+      "url": "https://raw.githubusercontent.com/OpenNeuroDatasets/ds000030/4070b6eea231517bfeff42527a46d9d166ac4e13/sub-10159/func/sub-10159_task-rest_bold.json",
+      "bytes": 1430,
+      "sha256": "d18afa7db7932ebc6e668874deaa3d8709ad37a26f17d17af3a8b202e03ef9de"
+    }
+  ]
+}

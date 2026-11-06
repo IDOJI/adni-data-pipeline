@@ -14,3 +14,7 @@
 - 9.A v2 adapts the Research participant-static PTDEMOG rules with raw-row provenance and TEAM exclusion. 9.B combines independently generated QC/clinical artifacts with explicitly confirmed ST/conversion exclusions; no private subject lists are embedded.
 
 - Step 11 links Neuroparc, CBIG, Nilearn and the TemplateFlow archive as separately licensed pinned submodules. Individual atlas provenance, label metadata and applicable terms remain with their sources. The parent repository stores a metadata catalog and its own extraction/QC code, not redistributed ADNI data.
+
+## Public reproducibility example
+
+`07_reproducibility/` adds repository-owned synthetic integration fixtures, reference checks, a public-data launcher and numerical comparison. The real NIfTI example is downloaded from OpenNeuro ds000030 1.0.0 (CC0); source commit, file hashes, DOI and publication attribution are recorded in `public_dataset.json`. Public or private image payloads and license files are not stored in this repository. Synthetic example values do not constitute processed ADNI results.

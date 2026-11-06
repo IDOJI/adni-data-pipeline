@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Inspect the pinned protocol and render external configuration; never submit jobs."""
+"""Inspect the protocol, plan commands and run explicit scalar exports; never submit jobs."""
 from __future__ import annotations
 
 import argparse
@@ -186,7 +186,24 @@ def render_config(config_path, output_dir, handoff=None):
     return {'config': str(out / 'upstream.yaml'), **record}
 
 
-def commands(config, session_handoff=None):
+def metrics_summary_command(archive_root, status=None, watch=False):
+    """Build the explicit Step-12 command without launching a process."""
+    archive = external(archive_root)
+    if not archive.is_dir():
+        raise ValueError('Use an existing external archive root')
+    argv = [sys.executable, str(ROOT / '02_custom/s12_metrics_summary/run.py'),
+            '--archive-root', str(archive)]
+    if status:
+        state = external(status)
+        if state.is_dir():
+            raise ValueError('Metrics status must be a file path')
+        argv += ['--status', str(state)]
+    if watch:
+        argv.append('--watch')
+    return argv
+
+
+def commands(config, session_handoff=None, archive_root=None, metrics_status=None):
     """Explicit plans only. Upstream script-specific working directories are retained."""
     cfg = external(config)
     if not cfg.is_file():
@@ -210,6 +227,10 @@ def commands(config, session_handoff=None):
         if not csv.is_file():
             raise ValueError('Missing mriqc_sessions.csv')
         plans['7'] += ' --sessions-csv ' + shlex.quote(str(csv))
+    if metrics_status and not archive_root:
+        raise ValueError('Step-12 status requires an explicit archive root')
+    if archive_root:
+        plans['12'] = shlex.join(metrics_summary_command(archive_root, metrics_status))
     return {'mode': 'print_only', 'commands': plans,
             'caveats': ['Step 6 is subject-scoped and may process other BIDS sessions; subset group IQMs before outlier fitting.',
                         'Upstream --dry-run can write job files; it is not a read-only command.',
@@ -230,15 +251,25 @@ def main():
     c = sub.add_parser('plan')
     c.add_argument('--config', required=True)
     c.add_argument('--handoff')
+    c.add_argument('--archive-root', help='Include the explicit Step-12 archive export in the printed plan')
+    c.add_argument('--metrics-status', help='External Step-12 status JSON path')
+    e = sub.add_parser('export-results', help='Run Step 12 for verified archives; no image processing')
+    e.add_argument('--archive-root', required=True)
+    e.add_argument('--status')
+    e.add_argument('--watch', action='store_true')
     a = p.parse_args()
     try:
         if a.action == 'doctor':
             result = doctor()
         elif a.action == 'prepare-config':
             result = render_config(a.lab_config, a.output_dir, a.handoff)
+        elif a.action == 'export-results':
+            doctor()
+            child = subprocess.run(metrics_summary_command(a.archive_root, a.status, a.watch), check=False)
+            p.exit(child.returncode)
         else:
             doctor()
-            result = commands(a.config, a.handoff)
+            result = commands(a.config, a.handoff, a.archive_root, a.metrics_status)
         print(json.dumps(result, indent=2, ensure_ascii=False))
     except (ValueError, KeyError, FileNotFoundError, subprocess.CalledProcessError) as exc:
         p.exit(1, str(exc) + '\n')

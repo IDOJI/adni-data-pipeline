@@ -1,0 +1,129 @@
+#!/usr/bin/env python
+"""Stream the original ANTs executable, adding only verbose output."""
+import datetime as dt
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import shutil
+import signal
+import subprocess
+import sys
+import threading
+import uuid
+
+
+def now():
+    return dt.datetime.now(dt.timezone.utc).isoformat()
+
+
+def save(path, value):
+    tmp = path.with_suffix('.writing')
+    tmp.write_text(json.dumps(value, indent=2) + '\n')
+    tmp.replace(path)
+
+
+def verbose_args(args):
+    out = []; i = 0
+    while i < len(args):
+        if args[i] in ('--verbose', '-v'):
+            # ANTs accepts a bare -v. Never consume the next option.
+            i += 2 if i + 1 < len(args) and args[i + 1].lower() in ('0', '1', 'true', 'false') else 1
+        elif args[i].startswith('--verbose='):
+            i += 1
+        else:
+            out.append(args[i]); i += 1
+    return out + ['--verbose', '1']
+
+
+class Progress:
+    def __init__(self, folder):
+        self.folder = folder
+        self.latest = {'status': 'running', 'stage': None, 'level': None}
+
+    def line(self, text):
+        stage = re.search(r'^Stage\s+(\d+)', text.strip())
+        level = re.search(r'Current level\s*=\s*(\d+)', text)
+        diagnostic = re.match(r'^\s*(?:[0-9]+|XX)?DIAGNOSTIC,\s*(\d+)\s*,([^,]+),([^,]+)(?:,([^,]+))?', text)
+        if stage:
+            self.latest.update(stage=int(stage[1]), level=None, iteration=None)
+        if level:
+            self.latest.update(level=int(level[1]), iteration=None)
+        if diagnostic:
+            self.latest.update(iteration=int(diagnostic[1]), metric=diagnostic[2].strip(),
+                               convergence=diagnostic[3].strip(),
+                               ants_elapsed=diagnostic[4].strip() if diagnostic[4] else None)
+        if stage or level or diagnostic:
+            self.latest['updated_at'] = now()
+            with (self.folder / 'progress.jsonl').open('a') as f:
+                f.write(json.dumps(self.latest) + '\n')
+            save(self.folder / 'progress.json', self.latest)
+
+
+def main():
+    own = Path(__file__).resolve().parent
+    search = os.pathsep.join(p for p in os.environ.get('PATH', '').split(os.pathsep)
+                             if p and Path(p).resolve() != own)
+    executable = shutil.which('antsRegistration', path=search)
+    if not executable or Path(executable).resolve() == Path(__file__).resolve():
+        raise RuntimeError('Original antsRegistration not found outside logging wrapper')
+    folder = Path(os.environ['ADNI_ANTS_LOG_ROOT']) / (dt.datetime.now(dt.timezone.utc).strftime('%Y%m%dT%H%M%S') + '-' + uuid.uuid4().hex)
+    folder.mkdir(parents=True, exist_ok=False)
+    argv = [executable, *verbose_args(sys.argv[1:])]
+    record = {'started_at': now(), 'cwd': os.getcwd(), 'original_executable': executable,
+              'original_args': sys.argv[1:], 'effective_argv': argv,
+              'wrapper_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+              'change': 'verbose output only', 'status': 'running'}
+    save(folder / 'execution.json', record)
+    progress = Progress(folder); errors = []
+    child = subprocess.Popen(argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    def relay(sig, frame):
+        if child.poll() is None:
+            child.send_signal(sig)
+    for sig in (signal.SIGTERM, signal.SIGINT):
+        signal.signal(sig, relay)
+
+    def pump(pipe, target, name, parse=False):
+        pending = b''
+        try:
+            with (folder / name).open('wb', buffering=0) as log:
+                while True:
+                    data = os.read(pipe.fileno(), 8192)
+                    if not data:
+                        break
+                    log.write(data)
+                    try:
+                        target.write(data); target.flush()
+                    except BrokenPipeError:
+                        pass
+                    if parse:
+                        parts = re.split(b'[\r\n]', pending + data); pending = parts.pop()
+                        for line in parts:
+                            progress.line(line.decode(errors='replace'))
+                        if len(pending) > 262144:
+                            pending = b''  # Raw bytes remain in stdout.log.
+                if parse and pending:
+                    progress.line(pending.decode(errors='replace'))
+        except Exception as exc:
+            errors.append(repr(exc))
+            if child.poll() is None:
+                child.terminate()
+
+    threads = [threading.Thread(target=pump, args=(child.stdout, sys.stdout.buffer, 'stdout.log', True)),
+               threading.Thread(target=pump, args=(child.stderr, sys.stderr.buffer, 'stderr.log'))]
+    for thread in threads:
+        thread.start()
+    rc = child.wait()
+    for thread in threads:
+        thread.join()
+    record.update(ended_at=now(), exit_code=rc, status='success' if rc == 0 and not errors else 'failed', errors=errors)
+    save(folder / 'execution.json', record)
+    progress.latest.update(status=record['status'], updated_at=now())
+    save(folder / 'progress.json', progress.latest)
+    return 125 if errors else rc if rc >= 0 else 128 - rc
+
+
+if __name__ == '__main__':
+    sys.exit(main())
