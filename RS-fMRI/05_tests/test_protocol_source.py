@@ -21,8 +21,11 @@ def git(repo, *args):
 def checkout(tmp_path):
     repo = tmp_path / 'repository'
     root = repo / 'RS-fMRI'
-    shutil.copytree(ROOT / '01_upstream/ADNI_fMRI_protocol', root / '01_upstream/ADNI_fMRI_protocol',
-                    ignore=shutil.ignore_patterns('__pycache__', '.pytest_cache', '.git'))
+    manifest = json.loads((ROOT / '03_config/protocol_sources.json').read_text())
+    for name in manifest['files']:
+        target = root / '01_upstream/ADNI_fMRI_protocol' / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(ROOT / '01_upstream/ADNI_fMRI_protocol' / name, target)
     (root / '03_config').mkdir()
     for name in ('upstream.lock.json', 'protocol_sources.json', 'protocol_history.json'):
         shutil.copy2(ROOT / '03_config' / name, root / '03_config' / name)
