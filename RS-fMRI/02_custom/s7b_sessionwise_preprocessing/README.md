@@ -64,3 +64,12 @@ Python 3.11+, repository requirements, installed Docker images/templates, a vali
 The configured single-case `run.py` builds Linux-container argv on either POSIX host after path setup. The completed-pair publisher uses macOS `/bin/cp -cR`, and `queue_service.py` uses `/usr/bin/caffeinate`. Linux needs publisher/controller and service adapters before the complete automatic ADNI chain is available. Do not run Mac-specific publication or queue commands as a Linux deployment recipe.
 
 See the [stage-specific host instructions](../../06_docs/platform_execution.md#s7b) for prerequisites, executable routes and validation limits. Shared analysis settings remain in this step's existing configuration; host compatibility is not a new scientific QC pass.
+
+## Processing-time records
+
+```sh
+: "${ADNI_RUNTIME_ROOT:?Set the existing external pipeline runtime directory}"
+python 02_custom/s7d_processing_timing/run.py --root "$ADNI_RUNTIME_ROOT"
+```
+
+Completed and failed attempts retain start/end times and a `timing` object; sidecar reports aggregate MRIQC, fMRIPrep, XCP-D and the overall observed elapsed time. Existing legacy receipts can be collected without replacing a running worker. See [Step 7.D](../s7d_processing_timing/README.md) for outputs, automatic collection, archive/retry handling and missing-time limits.

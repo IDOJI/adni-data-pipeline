@@ -2,6 +2,7 @@
 """Stage bundled public NIfTIs; print imaging commands unless --execute is set."""
 from __future__ import annotations
 import argparse
+import datetime as dt
 import json
 import os
 from pathlib import Path
@@ -159,11 +160,19 @@ def execute(root, stage, license_file, ants_verbose=False):
     log = root/'logs'/(stage+'.log')
     receipt = root/'logs'/(stage+'_execution.json')
     if receipt.exists(): raise FileExistsError('Execution already recorded; use a new public root for another run')
-    evidence = dict(status='running', command=command, image_id=image['Id'], repo_digests=image.get('RepoDigests'), platform=image.get('Architecture'), ants_verbose=ants_verbose, environment=fingerprint())
+    evidence = dict(status='running', stage=stage, case=dict(subject='toy001', session='M000'), started_at=dt.datetime.now(dt.timezone.utc).isoformat(), command=command, image_id=image['Id'], repo_digests=image.get('RepoDigests'), platform=image.get('Architecture'), ants_verbose=ants_verbose, environment=fingerprint())
     write_json(receipt,evidence)
     print('Running; follow the log with: tail -f ' + shlex.quote(str(log)), flush=True)
     with log.open('x') as stream: child = subprocess.run(command, stdout=stream, stderr=subprocess.STDOUT)
-    evidence.update(status='success' if child.returncode == 0 else 'failed', returncode=child.returncode); write_json(receipt,evidence)
+    evidence.update(status='success' if child.returncode == 0 else 'failed', returncode=child.returncode,
+                    container_ended_at=dt.datetime.now(dt.timezone.utc).isoformat())
+    workflow = ROOT / '04_workflow'
+    import sys
+    if str(workflow) not in sys.path: sys.path.insert(0, str(workflow))
+    from processing_time import add_timing, refresh_safely
+    add_timing(evidence)
+    write_json(receipt, evidence)
+    refresh_safely(root)
     if child.returncode: raise SystemExit(child.returncode)
     if stage == 'xcpd': validate(root)
 
