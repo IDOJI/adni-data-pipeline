@@ -43,7 +43,7 @@ External private YAML: runtime, source_bids, source_manifest, source_phase_evide
 
 ## Processing
 
-`make_source_manifest.py` validates exact selected BIDS images/sidecars and independent phase evidence. `run.py` reuses pinned upstream Step 5 intake and launches the existing MRIQC/fMRIPrep Docker commands with read-only inputs. It preserves sessionwise anatomy, FreeSurfer reconstruction, requested standard/surface outputs and fsLR 91k. Input hashes, cache signatures, exact commands and original run provenance remain mandatory.
+`make_source_manifest.py` validates exact selected BIDS images/sidecars and independent phase evidence. `run.py` reuses the integrated protocol’s Step 5 intake and launches the existing MRIQC/fMRIPrep Docker commands with read-only inputs. It preserves sessionwise anatomy, FreeSurfer reconstruction, requested standard/surface outputs and fsLR 91k. Input hashes, cache signatures, exact commands and original run provenance remain mandatory.
 
 `observe.py` reconnects to existing containers without starting new calculations. Independently captured exit receipts protect auto-removed containers during controller replacement. `publish_pairs.py` publishes completed outputs under actual EPI/T1 dates while preserving internal BIDS paths.
 
@@ -57,7 +57,7 @@ Synthetic tests cover legacy/new routing, unchanged surface/CIFTI options, prese
 
 ## Dependencies
 
-Python 3.11+, repository requirements, installed Docker images/templates, a valid license and pinned upstream. No image pulls or analysis-setting changes are required for a code-path handoff.
+Python 3.11+, repository requirements, installed Docker images/templates, a valid license and the integrated protocol sources. No image pulls or analysis-setting changes are required for a code-path handoff.
 
 ## macOS and Linux
 

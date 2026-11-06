@@ -13,7 +13,6 @@ Use Python **3.11+**, Git, and a new source directory. Python 3.11.16 was tested
 ```sh
 git clone --branch main https://github.com/IDOJI/adni-data-pipeline.git "$HOME/adni-repro-source"
 cd "$HOME/adni-repro-source/RS-fMRI"
-git submodule update --init 01_upstream/ADNI_fMRI_protocol
 python3 -c 'import sys; assert sys.version_info >= (3, 11), "Use Python 3.11 or newer"'
 python3 -m venv "$HOME/.venvs/adni-rsfmri-repro"
 source "$HOME/.venvs/adni-rsfmri-repro/bin/activate"
@@ -23,7 +22,7 @@ export TOY_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/adni-toy.XXXXXX")/run"
 python 07_reproducibility/toy.py init --root "$TOY_ROOT"
 ```
 
-If using an existing checkout, start with `cd` into its `RS-fMRI/` directory and use the environment commands above. Record `git rev-parse HEAD` and use that **same revision** on the second computer. Avoid `git submodule update --remote`: the upstream commit must remain the recorded gitlink.
+If using an existing checkout, start with `cd` into its `RS-fMRI/` directory and use the environment commands above. Record `git rev-parse HEAD` and use that **same revision** on the second computer. Core source is versioned by this repository. Optional atlas/SNP submodules still use reviewed pins rather than automatic remote updates.
 
 The dependency file pins the tested example environment, including its Python dependencies. It does not install FSL, ANTs, AFNI or FreeSurfer on the host. The core example needs no Docker; actual imaging execution uses pinned containers. For repository-wide development tests, install `requirements.txt` and pytest separately as described in the [installation guide](../06_docs/installation.md).
 

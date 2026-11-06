@@ -2,7 +2,7 @@
 
 | Component | Initial pin or baseline | Status |
 |---|---|---|
-| Upstream | `e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3` | Previously reviewed local commit; no automatic adoption of remote updates |
+| Original protocol baseline | `e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3` | 76 files imported byte-identically as ordinary source on 2026-11-06; original 153-commit history indexed and bundled separately |
 | Wrapper | 0.5.0, 2026-11-01 | Source QC, sex filling/TEAM exclusion, 9.B inclusion validation, configuration handoff and tests |
 | Motion-duration | Existing local_mac checker | Initially imported byte-identically; source hash recorded separately |
 | Example MRIQC | 24.0.2 | Actual installation, execution and digest require environment-specific verification |

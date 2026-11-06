@@ -32,6 +32,9 @@ ENTITY_NAMES = dict(sub='subject', ses='session', task='task', run='run',
 MANUAL = ('visual_qc_status', 'visual_qc_reason', 'reviewer', 'review_date', 'review_notes')
 LAB_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_UPSTREAM = LAB_ROOT / "01_upstream/ADNI_fMRI_protocol"
+if str(LAB_ROOT / "04_workflow") not in sys.path:
+    sys.path.insert(0, str(LAB_ROOT / "04_workflow"))
+from protocol_source import inspect_protocol
 
 
 def now():
@@ -582,18 +585,14 @@ class Pipeline:
         cfg = self.cfg
         cfg['repo'] = str(Path(cfg.get('repo') or DEFAULT_UPSTREAM).resolve())
         if Path(cfg['repo']) != DEFAULT_UPSTREAM.resolve():
-            raise ValueError('Use the pinned upstream submodule; do not substitute an unreviewed checkout')
+            raise ValueError('Use the integrated protocol source; do not substitute an unreviewed checkout')
         runtime = Path(cfg['root']).expanduser()
         repo_root = LAB_ROOT.parent.resolve()
         if not runtime.is_absolute() or 'ABSOLUTE/PATH' in str(runtime) or runtime.resolve() == Path('/'):
             raise ValueError('Set an actual absolute external runtime root')
         if runtime.resolve() == repo_root or repo_root in runtime.resolve().parents or runtime.resolve() in repo_root.parents:
             raise ValueError('Runtime must be outside the source repository')
-        lock = load(LAB_ROOT / '03_config/upstream.lock.json')
-        actual = subprocess.check_output(['git', '-C', cfg['repo'], 'rev-parse', 'HEAD'], text=True).strip()
-        dirty = subprocess.check_output(['git', '-C', cfg['repo'], 'status', '--porcelain'], text=True).strip()
-        if actual != lock['commit'] or dirty:
-            raise ValueError('Pinned upstream differs or has local modifications; run lab.py doctor')
+        self.protocol_source = inspect_protocol(LAB_ROOT)
         if cfg['combine_runs'] or not cfg['defer_final_decision']:
             raise ValueError('This automatic service requires independent runs and deferred finalization')
         if not cfg['linc_qc']:raise ValueError('LINC QC is required for automated output validation')
@@ -638,7 +637,8 @@ class Pipeline:
         save(pre, {'config_id': self.config_id, 'created_at': now(), 'rows': rows})
         write_s8_tables(rows, s8)
         save(sd / 'provenance.json', {'created_at': now(), 'pipeline_sha256': sha(__file__),
-             'repo_commit': subprocess.check_output(['git', '-C', self.cfg['repo'], 'rev-parse', 'HEAD'], text=True).strip(),
+             'repo_commit': inspect_protocol(LAB_ROOT)['repository_commit'],
+             'protocol_source': inspect_protocol(LAB_ROOT),
              's8_sha256': {n: sha(Path(self.cfg['repo']) / 's8_final_qc' / (n + '.py')) for n in ('summarize_motion_from_confounds', 'extract_euler_from_freesurfer', 'finalize_inclusion')},
              'pair_metadata': load(Path(pair) / 'pair_metadata.json'), 'xcpd_image': self.cfg['image']})
         for name, subset in [('auto_qc', rows), ('candidates', [r for r in rows if r['candidate']]),
@@ -1032,7 +1032,7 @@ def main():
         (p.hub / 'xcpd-version.txt').write_text(versions)
         save(p.hub / 'environment.json', {'at': now(), 'os': platform.platform(), 'architecture': platform.machine(), 'cpu_count':os.cpu_count(),
              'slurm': shutil.which('sbatch'), 'apptainer': shutil.which('apptainer'), 'docker_image': cfg['image'], 'version': versions.strip(),
-             'local_free_bytes': shutil.disk_usage(p.root).free,'repo_commit':subprocess.check_output(['git','-C',cfg['repo'],'rev-parse','HEAD'],text=True).strip()})
+             'local_free_bytes': shutil.disk_usage(p.root).free,'repo_commit':inspect_protocol(LAB_ROOT)['repository_commit']})
         print(versions.strip(), p.hub); return
     if args.action == 'finalize':
         if not args.cohort_complete: raise ValueError('Explicit --cohort-complete required; automatic loop never finalizes')

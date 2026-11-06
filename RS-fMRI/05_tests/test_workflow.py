@@ -23,9 +23,10 @@ def configuration(tmp_path):
     return cfg
 
 
-def test_real_gitlink_lock_and_original_checkout():
+def test_integrated_protocol_identity_and_origin():
     result = lab.doctor()
-    assert result['upstream_clean']
+    assert result['protocol_clean']
+    assert result['distribution'] == 'integrated-source'
     assert result['scientific_validation'] != 'passed'
 
 

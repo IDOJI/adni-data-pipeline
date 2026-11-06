@@ -1,0 +1,472 @@
+{
+  "schema_version": 1,
+  "upstream_repository": "https://github.com/statMINDlab/ADNI_fMRI_protocol.git",
+  "upstream_commit": "e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3",
+  "imported_on": "2026-11-06",
+  "distribution": "integrated-source",
+  "files": {
+    ".gitignore": {
+      "sha256": "270e5b6fdf307afcc0ffe4157ec63d8a577b172fe8da3c8789bdae1132ae982c",
+      "git_blob": "92b13cf57945a5219a16596a7835ec81af53a241",
+      "mode": "100644",
+      "bytes": 7878
+    },
+    "CITATION.cff": {
+      "sha256": "95baccf22b852be1873fbe7ed952eec196d496d2d4c5bc133318a5787473b15b",
+      "git_blob": "a5c7dfd9a9fd72cf5f966b62af78df85adb2109a",
+      "mode": "100644",
+      "bytes": 323
+    },
+    "CITATION.md": {
+      "sha256": "bf759f799569a43f7989a19f206023ad42bbf7d89a5825557b9f39f5026eb0aa",
+      "git_blob": "0d9be6b92e18e3822c900c73cbbb7441a0bbdef4",
+      "mode": "100644",
+      "bytes": 49
+    },
+    "CONTRIBUTING.md": {
+      "sha256": "4820ab27a7ee4b5ec28397d1f5c199a2fa782e521c94f4634ad1a4110441c188",
+      "git_blob": "bfd366a9126e2cbbdf2a832518ea720acce77f28",
+      "mode": "100644",
+      "bytes": 2902
+    },
+    "LICENSE": {
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+      "git_blob": "f288702d2fa16d3cdf0035b15a9fcbc552cd88e7",
+      "mode": "100644",
+      "bytes": 35149
+    },
+    "README.md": {
+      "sha256": "36c52bd03ffca410b3167a7dd58d70e7c3562431622f975c95eda929a003a127",
+      "git_blob": "1930fbf15b5c0c956bf8b97eb490b7599637a7ff",
+      "mode": "100644",
+      "bytes": 9274
+    },
+    "TROUBLESHOOTING.md": {
+      "sha256": "a993303e5ba528850a78fb5f46be51f3b00c95dcd604083a2403a16f4aba43f0",
+      "git_blob": "1af59cddde221e47f81522d045102e9b0b15dffb",
+      "mode": "100644",
+      "bytes": 3484
+    },
+    "config/config_adni.yaml": {
+      "sha256": "f6c65cb494be5aa930ccbc2c274ffda76a68e71cb3eb69d25da7dac9e27de21a",
+      "git_blob": "7841c5fc5153aa166da47455c8aa5dd86991737c",
+      "mode": "100644",
+      "bytes": 7479
+    },
+    "env/env_adni.yml": {
+      "sha256": "f8718b904176f798d461b5ecbc8ddf852453441b9611467cee33eda67fab9684",
+      "git_blob": "9b587856405a2ace0231a38afa8abb282ab5f309",
+      "mode": "100644",
+      "bytes": 418
+    },
+    "env/env_clinica.yml": {
+      "sha256": "81dacf1e217111d0fd9646c02b8a6fc77c3ad066b66510e49fd93817baef709a",
+      "git_blob": "bbe2412411a5477ec4086211aaebd3fdadb73afe",
+      "mode": "100644",
+      "bytes": 132
+    },
+    "env_setup.sh": {
+      "sha256": "2353fa03257af34c56448973c72fd047681a7f84adb85fffbd12b8b96159454b",
+      "git_blob": "e99108d4122faf9bd57ccb02baf3a07ffb0086b0",
+      "mode": "100644",
+      "bytes": 7374
+    },
+    "requirements.txt": {
+      "sha256": "7b0ad4d7a30f464367c4e68b59d6665cb4b32b63f9d1be4445bb40908c3f861c",
+      "git_blob": "3f5ce1006fef354afc861d8cfa82c86260d1a629",
+      "mode": "100644",
+      "bytes": 586
+    },
+    "ruff.toml": {
+      "sha256": "30ed63a49960caa6ba292b13250fad07b787e5fefce9efb5a4732f5a5f22d046",
+      "git_blob": "bce0461ae472470436713b7312e3904c775cb07a",
+      "mode": "100644",
+      "bytes": 881
+    },
+    "s1_setup_account/README.md": {
+      "sha256": "fcad4a6adb5d3ed7cf04d5c39d38c378fedc1d27d8e2fe55c52b7018c0f80a08",
+      "git_blob": "d80f163424801af17b595aa212affec5918d4f69",
+      "mode": "100644",
+      "bytes": 727
+    },
+    "s2_download/README.md": {
+      "sha256": "ca373f441582def14fe1f856049a4d0b1e2433b83d964b57cc031facd4730e3b",
+      "git_blob": "5b3670e9c49216546ef04340b501f9c8a089e8fa",
+      "mode": "100644",
+      "bytes": 5080
+    },
+    "s3_organize/README.md": {
+      "sha256": "d97aa8077e188dd08da16d2e23a1ab4d6c493315f8db0b874157adc0ed42c3fe",
+      "git_blob": "a5efc3faf77105d2e51e701f69eac054b463d4d9",
+      "mode": "100644",
+      "bytes": 4272
+    },
+    "s3_organize/create_dicom_dir_csv.sh": {
+      "sha256": "df7bc8c1b3c50daeb1eb1ef60826d7978ca4e7ac1d23b80d9bdddbc1964cbd58",
+      "git_blob": "4a1b5db6245b4420a02b071b382f469cdd5c50bd",
+      "mode": "100755",
+      "bytes": 2928
+    },
+    "s3_organize/make_subject_list_for_conversions.sh": {
+      "sha256": "d6fee1ba8369ae78e587016a86f6a47dc560460597379c4f6710aa6558eca9e5",
+      "git_blob": "e5374820b4b775bab50336089bfa105190813d91",
+      "mode": "100755",
+      "bytes": 3240
+    },
+    "s4_clinica/README.md": {
+      "sha256": "4c4b6db8673f41ecf64648b995905e4b2bf7648ddd8d445be74f040fabd6cfde",
+      "git_blob": "eedfd3fbe2ab64309aa7f4ccf6ed17587b659436",
+      "mode": "100644",
+      "bytes": 2322
+    },
+    "s4_clinica/adni_clinica.slurm": {
+      "sha256": "ca43d3582d9ae0bccabf0a73bfa139b2eff56b5d4ae02e94076c1740a7284d83",
+      "git_blob": "9d0dd0d0193bfef7719dd72d1bee3a033d9ef71f",
+      "mode": "100755",
+      "bytes": 1187
+    },
+    "s4_clinica/adni_submit_slurm.sh": {
+      "sha256": "e0b6f45b8610a06d8e5bcbc425731352f1d99332c51c210c0c06d4fc8206c614",
+      "git_blob": "1ba95b3ebe88455f941b649cd628e4dcd85713b5",
+      "mode": "100755",
+      "bytes": 3325
+    },
+    "s4_clinica/create_slurm_script_per_sub.sh": {
+      "sha256": "280aff46eebc9139d72fdac3d693b7e75eb95be1d3eb69ec945e48ed27238941",
+      "git_blob": "6a2f90ca30aadd0d377409949e69402c8719f883",
+      "mode": "100755",
+      "bytes": 5966
+    },
+    "s4_clinica/merge_clinica_conversion_info.py": {
+      "sha256": "469f978490419bc386dcc7273a5596306fcb6b47001d4aff91341037644bba8b",
+      "git_blob": "279da886b6a640e10410f7954f30bfadf2a577ba",
+      "mode": "100755",
+      "bytes": 5045
+    },
+    "s4_clinica/merge_clinica_conversion_info.sh": {
+      "sha256": "4284eed2461e96507d09d627c1044cac9294995ac3e494abc56eca6e2de47185",
+      "git_blob": "f746c08e78b502c7c374f41282f7f2f01432abf7",
+      "mode": "100755",
+      "bytes": 2303
+    },
+    "s4_clinica/merge_individual_clinica.sh": {
+      "sha256": "d4e370d9d53603a08fb875575a538f43063ae124a953344c1ec809b8b1ac13c8",
+      "git_blob": "5305188a1067275172e8c1915b53ccadceb3af41",
+      "mode": "100755",
+      "bytes": 3237
+    },
+    "s4b_slice_timing/README.md": {
+      "sha256": "b02f2ae8d4ec4dc382133b6148e914976424d290e43919112a82c4e25edd477e",
+      "git_blob": "78363bde0b9f3d947ca3344c9b4534cd79fbe202",
+      "mode": "100644",
+      "bytes": 6455
+    },
+    "s4b_slice_timing/insert_philips_slicetiming.py": {
+      "sha256": "f292c1dffa6d43bc684818e17c08d359d73cb5ae17dcbcb71d5bf6b2bbefeb52",
+      "git_blob": "b301f283ecf55ed1310ff8130c6afd3a41fa68a9",
+      "mode": "100644",
+      "bytes": 23727
+    },
+    "s5_post_clinica_qc/README.md": {
+      "sha256": "5357c0e02453106dd38c1b91fe53492bb9f387c41a79337c884befdedbe92bc6",
+      "git_blob": "b90e372f978f02aaafcc672dc08dd00c76b87a82",
+      "mode": "100644",
+      "bytes": 3516
+    },
+    "s5_post_clinica_qc/create_mastersheet/config/dicom_fields.py": {
+      "sha256": "6ab698bdcfebebad54352b43d0453fab92b32b0566800cafdcc830168c437788",
+      "git_blob": "15b513a23f2aee57005f3f43c23ae6d2948ef67b",
+      "mode": "100644",
+      "bytes": 9201
+    },
+    "s5_post_clinica_qc/create_mastersheet/main.py": {
+      "sha256": "7948b8923ab0737d33f6aa19465ad81f2e7cf6c24cd4ccdd11589c9b1c224573",
+      "git_blob": "fcc344a07a1f0ba7673f552d5731afd9342906c3",
+      "mode": "100644",
+      "bytes": 5328
+    },
+    "s5_post_clinica_qc/create_mastersheet/parsers/anchors.py": {
+      "sha256": "513b8e446d91c21afa7c0a6a989af2b3f66e10887294b00e92e56b4ce2fc3f3e",
+      "git_blob": "d415e18402768b4244240a63649ca4d16871382d",
+      "mode": "100644",
+      "bytes": 1846
+    },
+    "s5_post_clinica_qc/create_mastersheet/parsers/dicom_parser.py": {
+      "sha256": "31f9cc994e6a5162ecbcb8e3411e138658bcb6427039d75db7b30e220a6a6385",
+      "git_blob": "65d6deaf6007f887533dec3bac1c2eca31ba45f2",
+      "mode": "100644",
+      "bytes": 1267
+    },
+    "s5_post_clinica_qc/create_mastersheet/parsers/nifti_parser.py": {
+      "sha256": "322cb7b3c5cc1b668d4f9779c700bba43542172bca15023cfd8088fa12078fe6",
+      "git_blob": "4880db73b892fbcb50fe15790bce5b945c6f7ac1",
+      "mode": "100644",
+      "bytes": 1401
+    },
+    "s5_post_clinica_qc/create_mastersheet/parsers/path_strategies/base.py": {
+      "sha256": "d686bd6e1d1947e3bc7cf256388e533623b5e4bc542afc5b193cfe5b0a13fcc0",
+      "git_blob": "95460dd525d1561c6c8fec68f6ba7bde4e41228c",
+      "mode": "100644",
+      "bytes": 407
+    },
+    "s5_post_clinica_qc/create_mastersheet/parsers/path_strategies/default_flat.py": {
+      "sha256": "93dc05b454de5824a56e46f5ef6872f7fc3b7083d200f24576e5035e4785121b",
+      "git_blob": "3a170a95da2f377d963242053de8d03aa8545c3d",
+      "mode": "100644",
+      "bytes": 2324
+    },
+    "s5_post_clinica_qc/create_mastersheet/parsers/path_strategies/per_subject.py": {
+      "sha256": "48693405f001e445635b6a46e012287cf1f0d631d57a225a5466aed1488b4363",
+      "git_blob": "0ecaac7d25789c5b78a84e2644794f2795183622",
+      "mode": "100644",
+      "bytes": 3935
+    },
+    "s5_post_clinica_qc/create_mastersheet/parsers/structural_probe.py": {
+      "sha256": "13871433f47249203df8663851012807455e9b0a7af4fd48b566e932fc9ea3c3",
+      "git_blob": "9dd09906ba65ba23113de03c08811f949e3e71d9",
+      "mode": "100644",
+      "bytes": 3645
+    },
+    "s5_post_clinica_qc/create_report/run_session_heuristics.py": {
+      "sha256": "e62b59d154b910e7b900b7b9f14cfeb639c7b6915e79dd00eee10a4bf8f54712",
+      "git_blob": "e21b1bff8b77daa8a33a2626e4883e8f2bb2e2f4",
+      "mode": "100644",
+      "bytes": 6992
+    },
+    "s5_post_clinica_qc/create_report/scripts/config.py": {
+      "sha256": "0de8ad75b0db4cfcf9f71dd9982cbd51b5642a18d3a8cb954cbd7e16066f821f",
+      "git_blob": "775c2278dcf272c23bfb167d54f873828c541a89",
+      "mode": "100644",
+      "bytes": 1122
+    },
+    "s5_post_clinica_qc/create_report/scripts/heuristics.py": {
+      "sha256": "16002da78ad055272ec70820481f09f7572c18df1b8409f5646d6d510c21c320",
+      "git_blob": "a176eca6b3becc574a87be75d8de69f606c51cb0",
+      "mode": "100644",
+      "bytes": 3113
+    },
+    "s5_post_clinica_qc/create_report/scripts/plots.py": {
+      "sha256": "443871bd681e1812574d6a275dc795bdd2b42e709a6a7e447225081b1c58b2d3",
+      "git_blob": "daa37ff148f71cbf2e46755396180cda6115124d",
+      "mode": "100644",
+      "bytes": 15493
+    },
+    "s5_post_clinica_qc/create_report/scripts/session_pipeline.py": {
+      "sha256": "07e9c14458f175359f148d07ca60a1c7bbd700a2de69fc82f776a3f96910cfcd",
+      "git_blob": "6a6257f8f2dbf696b99285ae82cd7940b9d0fcdb",
+      "mode": "100644",
+      "bytes": 21000
+    },
+    "s5_post_clinica_qc/requirements.txt": {
+      "sha256": "02b44bca7e0bbb8c753d25ce3568c26cfc05a4ffee7cc5754c6a97aa2a6360e2",
+      "git_blob": "7a18924e2449f522514dbb6a68345a5c1c9d46cd",
+      "mode": "100644",
+      "bytes": 48
+    },
+    "s6_mriqc/README.md": {
+      "sha256": "f26e98f33ea668aa0929a6bc4530772d637bccf78f1d3b0e419881412fb0d861",
+      "git_blob": "e4d0183f5df1102d04b99a846824ae5ea8b9098d",
+      "mode": "100644",
+      "bytes": 7105
+    },
+    "s6_mriqc/adni_mriqc.slurm": {
+      "sha256": "e48ee549a196f91cf28396ad6dfb3a735940b14ef9707da1ce5750fe0b2f38b8",
+      "git_blob": "2bd0af0aec059469124f9f1b27d0a69ec4191ef4",
+      "mode": "100644",
+      "bytes": 6694
+    },
+    "s6_mriqc/adni_outlier_pipeline.R": {
+      "sha256": "c9ade3c9c945761b89d6dd57fd27543ad74a7a13e49674d6aecb62a40ebf9cfe",
+      "git_blob": "2495ec43db997e3646c637b85c05d7c954ddf017",
+      "mode": "100644",
+      "bytes": 21598
+    },
+    "s6_mriqc/mriqc_group.slurm": {
+      "sha256": "e97d6263328b2b3ec6b6bfc2f3c5af55abd99612ddf01cd9f385e615c6a59923",
+      "git_blob": "9d4483f92896163f515b39d0365705a84fc1b0ae",
+      "mode": "100644",
+      "bytes": 1755
+    },
+    "s7_fmriprep/README.md": {
+      "sha256": "a402ce7159b18ff91568bcaad7943908a93361f8ccc0f43a341a8edede666a70",
+      "git_blob": "5b175ec9d91081d915a38f2d2f3d4c166e5a3342",
+      "mode": "100644",
+      "bytes": 5506
+    },
+    "s7_fmriprep/fmriprep_error_report.py": {
+      "sha256": "8467074025eaa6ae21486e064a1b2acdc4a9459f5e9e98b01f471548d980c0d3",
+      "git_blob": "6dc62331a293b183542938bb4b0116e04e60ab34",
+      "mode": "100644",
+      "bytes": 12587
+    },
+    "s7_fmriprep/fmriprep_rerun_nosynflag_array.slurm": {
+      "sha256": "afa8f32c4a778c8c59e6610a6701e9b633f033ea0023c0f97fd7660168d4bf66",
+      "git_blob": "7a596672cc402b1417c9ca7c11a7c0c4cd731890",
+      "mode": "100644",
+      "bytes": 3104
+    },
+    "s7_fmriprep/fmriprep_rerun_synflag_array.slurm": {
+      "sha256": "8cd2611d00d0c7867c3b23504d0d3325b83db23b98a52edf7a72a92b4e9636c2",
+      "git_blob": "91b3c640813103094fdc5ceacd5e4ea33986418d",
+      "mode": "100644",
+      "bytes": 3899
+    },
+    "s7_fmriprep/make_bids_filters.py": {
+      "sha256": "436db1433228ad8fb3fed74e9f5c66a8ff7a551e4eb68e7e4012f9d64bcb725e",
+      "git_blob": "e542c502754aa10a17f1ea17cf84b0d3e216a4d6",
+      "mode": "100644",
+      "bytes": 4881
+    },
+    "s7_fmriprep/rerun_fmriprep_bold_create_job_array.sh": {
+      "sha256": "2e2b0da0670603f46ee58941f6f7d51a5179a0442b7b3373c2bd1e7e6dedc03d",
+      "git_blob": "116522ec3ce59fe4ce3e45cb1738d33174d53233",
+      "mode": "100755",
+      "bytes": 2641
+    },
+    "s7_fmriprep/run_fmriprep_bids_filter_array_all.sh": {
+      "sha256": "d9be28ccab309610a789543d9e5009bba7988c526edf52e716498b467e827bd0",
+      "git_blob": "31fdd753e5750186ca7fb8922a95776fb6b7a988",
+      "mode": "100644",
+      "bytes": 12775
+    },
+    "s8_final_qc/README.md": {
+      "sha256": "be8309448da25fe0fbc02eb07ceb7b32e745a6f6f2968d42b03de253de59aa0c",
+      "git_blob": "afaba32650ef3000409fc1e71b3b2a8d3f967a4e",
+      "mode": "100644",
+      "bytes": 9076
+    },
+    "s8_final_qc/collect_sample_sizes.py": {
+      "sha256": "3f8c245cd9dee8b8857e3d5877184cfc02ebbde69b94ad079712d25e40003993",
+      "git_blob": "79a0e9fe0003173f3139d50c6099fcf23d51c047",
+      "mode": "100644",
+      "bytes": 16271
+    },
+    "s8_final_qc/extract_euler_from_freesurfer.py": {
+      "sha256": "29006d7b28ced1b2dfcc167e65733163028c78bd51059026c81c81d71f2414c2",
+      "git_blob": "e34ea963bada01d0504e8c59ead9d75f2a0770b0",
+      "mode": "100644",
+      "bytes": 6911
+    },
+    "s8_final_qc/finalize_inclusion.py": {
+      "sha256": "0a0c0d504deddfa9431f516ffac8de55a902f1ce1f4270fb237bcdf24bdd0053",
+      "git_blob": "b95307fd52fe49758d0173e7378353353a6504bc",
+      "mode": "100644",
+      "bytes": 8106
+    },
+    "s8_final_qc/make_sample_size_table.py": {
+      "sha256": "bb1135de87bdb658c776c44ba77f7e527742f2da6b14ada6c0109672705332c1",
+      "git_blob": "c3c924bce2ca10e1df72d1d5f0e67e77435b93fa",
+      "mode": "100644",
+      "bytes": 11080
+    },
+    "s8_final_qc/summarize_motion_from_confounds.py": {
+      "sha256": "55df816bab2e5e2f3806456e234e5b2231e41b5a671c5d7cd54b2d2040a2bbdf",
+      "git_blob": "41eaa47f85ac369b2c90038ea5c753b44d10d0c7",
+      "mode": "100644",
+      "bytes": 5187
+    },
+    "s9_clinical_imaging_merge/README.md": {
+      "sha256": "c19f6f303e75c9cc1cff11490bf3b45d22970e7a2d347c1aa650d9dddf8fdd32",
+      "git_blob": "d1e3baa6d175771c303fbce70ff98b0c422ff156",
+      "mode": "100644",
+      "bytes": 4502
+    },
+    "s9_clinical_imaging_merge/adni_swimlane_clinical.py": {
+      "sha256": "ff00ded1b133db14afb07bf93e3291b644a7fbf4161a50237816c2d872a2eb16",
+      "git_blob": "39d632bbe46961980e33cd792c4355ba9346ba8e",
+      "mode": "100644",
+      "bytes": 42703
+    },
+    "s9_clinical_imaging_merge/build_imaging_input.py": {
+      "sha256": "19c24f4f8d8722f3cfd3e78a83da9fe7e34b9a74d1b8a4130c9faf64231ba438",
+      "git_blob": "c1a0625f3938d752a894b66dd211b0f86d5b070f",
+      "mode": "100644",
+      "bytes": 5352
+    },
+    "utils/__init__.py": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "mode": "100644",
+      "bytes": 0
+    },
+    "utils/config_tools.py": {
+      "sha256": "a48847743b9622103b2489e00f7958652e89b2eea8552e46a73ec9f13ded1fd6",
+      "git_blob": "1e2958a72f11b25f2d67d2990a6498004fdc285a",
+      "mode": "100644",
+      "bytes": 4147
+    },
+    "utils/tests/test_clinica_scripts.py": {
+      "sha256": "527bdc15ad3c9748a8239dba66f729e068f2918792a511ce3b3e485ea3de67e7",
+      "git_blob": "0a740e40131589f60faeb855258409429e116ea8",
+      "mode": "100644",
+      "bytes": 5026
+    },
+    "utils/tests/test_collect_sample_sizes.py": {
+      "sha256": "151c0be076f3f3ee4133d7aa3fa9072299b0f53353d64a019bb936b249456439",
+      "git_blob": "99350a632ea0c32d7a0f7af35051806bc9cb4415",
+      "mode": "100644",
+      "bytes": 5475
+    },
+    "utils/tests/test_config_tools.py": {
+      "sha256": "595e92a4696e934f9ede4b83cb4242d2920839a8fb506333606a15c0e88e9e24",
+      "git_blob": "e8330d6f76bf0a6283dd412da9c5c86c6c30b8e3",
+      "mode": "100644",
+      "bytes": 3233
+    },
+    "utils/tests/test_create_dicom_dir_csv.py": {
+      "sha256": "a99a815805589772c0851e64fdc428ac4191a8e5818ec43708a7709a5e0a18a9",
+      "git_blob": "ace5bf900a02cf34a78fd9de1df11cb7aa141959",
+      "mode": "100644",
+      "bytes": 2410
+    },
+    "utils/tests/test_create_mastersheet_main.py": {
+      "sha256": "eaa41b8b2abb787a25361ce6c8e964b75e49176bd95ccf055dc46dd91fc1e540",
+      "git_blob": "ac7b2080f80535cd639109fa38448c986f122556",
+      "mode": "100644",
+      "bytes": 5283
+    },
+    "utils/tests/test_finalize_inclusion.py": {
+      "sha256": "b6137800b287f7acf4ee24d6c8c68de23eb52810bdda7f642da565777d599935",
+      "git_blob": "e3b3c855ac2a43940328d598806f7878a4d7472c",
+      "mode": "100644",
+      "bytes": 1641
+    },
+    "utils/tests/test_fmriprep_scripts.py": {
+      "sha256": "544d12ea8b07f8041155bcb3d1319fc8968d30db9fa86aee657530164f0b9809",
+      "git_blob": "b65e973555b89e68f01955e854af2aefff2e108b",
+      "mode": "100644",
+      "bytes": 11825
+    },
+    "utils/tests/test_insert_philips_slicetiming.py": {
+      "sha256": "9485ed3451c6c26784a9455edb6a78b108e7abc8a2ec4ef420627379d609457f",
+      "git_blob": "7d3b1b491c98b380fa5edf6c3b1486059b1bad3d",
+      "mode": "100644",
+      "bytes": 16074
+    },
+    "utils/tests/test_make_sample_size_table.py": {
+      "sha256": "f9ada1ec8ce9d7d3513d084dabcea253995920a5085747926e87c4b32f30d714",
+      "git_blob": "b9278741018cb44128fbb858698626d74d7f2e35",
+      "mode": "100644",
+      "bytes": 4885
+    },
+    "utils/tests/test_mriqc_scripts.py": {
+      "sha256": "dd9657c753f2bba4689e2c25cecc73b0bf731cd53642a34ea407d9f594d0cbe8",
+      "git_blob": "ca678f5b8497bb064fa60cb1f052b26acdc5028b",
+      "mode": "100644",
+      "bytes": 10253
+    },
+    "utils/tests/test_run_session_heuristics.py": {
+      "sha256": "e52582ae64a3cfe314310b7e9a025d04b40eca034c0cf312e9ff06988e126443",
+      "git_blob": "9c04bf842bde2f2c667729d69aafe4fa3df71df1",
+      "mode": "100644",
+      "bytes": 4194
+    }
+  },
+  "omitted_categories": [
+    "participant lists and generated CSV/TSV tables",
+    "generated HTML/SVG reports",
+    "notebooks containing execution outputs",
+    "screenshots and image assets",
+    "upstream CI and local assistant configuration"
+  ]
+}

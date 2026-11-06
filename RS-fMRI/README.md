@@ -5,7 +5,6 @@
 ```sh
 git clone https://github.com/IDOJI/adni-data-pipeline.git
 cd adni-data-pipeline/RS-fMRI
-git submodule update --init 01_upstream/ADNI_fMRI_protocol
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
@@ -24,10 +23,10 @@ Use the [offline/public walkthrough](07_reproducibility/README.md) when practici
 
 Contribution and maintenance rules: [Repository instructions.md](<Repository instructions.md>)
 
-This pipeline **pins statMINDlab's ADNI fMRI protocol as a Git submodule** and maintains lab additions under `02_custom/`. This README describes the complete execution order across upstream and Custom Steps.
+This pipeline **includes statMINDlab-derived ADNI protocol code as ordinary editable source** under `01_upstream/ADNI_fMRI_protocol/` and maintains lab additions under `02_custom/`. See the [source integration and preserved history](06_docs/source_integration.md). This README describes the complete execution order across upstream and Custom Steps.
 
 - Upstream: [statMINDlab/ADNI_fMRI_protocol](https://github.com/statMINDlab/ADNI_fMRI_protocol/tree/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3)
-- Pinned commit: `e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3` — [versions and validation scope](03_config/versions.md)
+- Original import commit: `e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3` — [versions and validation scope](03_config/versions.md)
 - Upstream data selection, Clinica, MRIQC, fMRIPrep and base QC form the main workflow. A historical Research Selection Table is not required.
 - Additional steps execute independently through explicit input/output paths. Adding a directory does not execute a step automatically.
 - This initial implementation has code and synthetic-data validation. It does not establish full-cohort ADNI preprocessing or completed scientific inclusion decisions.
@@ -36,7 +35,7 @@ This pipeline **pins statMINDlab's ADNI fMRI protocol as a Git submodule** and m
 
 ```text
 RS-fMRI/
-├── 01_upstream/ADNI_fMRI_protocol/  # Submodule pinned to the upstream commit
+├── 01_upstream/ADNI_fMRI_protocol/  # Ordinary owned source; attribution retained
 ├── 02_custom/
 │   ├── s3a_source_qc/            # Source QC, NFQ, deletion and identity audits
 │   ├── s5c_validate_handoff/     # Step 5 TSV → Step 6/7 input handoff
@@ -58,29 +57,29 @@ Top-level numbers `01`–`07` classify directories. Actual execution follows the
 
 Run the [copy-and-paste reproducibility walkthrough](07_reproducibility/README.md) for a synthetic reference, pinned public T1w/BOLD inputs, actual Docker commands and peer comparison. The real CC0 NIfTI sample is bundled as ordinary Git files under [public_data](07_reproducibility/public_data/ds000030-1.0.0/README.md).
 
-Use the [macOS/Linux execution guide](06_docs/platform_execution.md) for shared analysis settings, host setup, each upstream/custom stage, and the explicit publisher/controller/archival portability boundaries. The pinned upstream submodule stays unchanged.
+Use the [macOS/Linux execution guide](06_docs/platform_execution.md) for shared analysis settings, host setup, each upstream/custom stage, and the explicit publisher/controller/archival portability boundaries. The imported protocol is maintained in this repository; its original baseline remains recorded.
 
 ## 🗺️ Complete execution order
 
 | Order | Stage | Code | Main inputs/outputs and completion conditions | Terminal command and host notes |
 |---|---|---|---|---|
-| 1 | Account & Access | [Upstream Step 1](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s1_setup_account/README.md) | ADNI access approval | [Run S1](06_docs/platform_execution.md#s1) |
-| 2 | Download | [Upstream Step 2](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s2_download/README.md) | Download images/metadata/clinical tables through the original UI and preserve collection CSVs | [Run S2](06_docs/platform_execution.md#s2) |
-| 3 | Organize & Download QC | [Upstream Step 3](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s3_organize/README.md) | Compare DICOM inventory with download lists | [Run S3](06_docs/platform_execution.md#s3) |
+| 1 | Account & Access | [Protocol Step 1](01_upstream/ADNI_fMRI_protocol/s1_setup_account/README.md) | ADNI access approval | [Run S1](06_docs/platform_execution.md#s1) |
+| 2 | Download | [Protocol Step 2](01_upstream/ADNI_fMRI_protocol/s2_download/README.md) | Download images/metadata/clinical tables through the original UI and preserve collection CSVs | [Run S2](06_docs/platform_execution.md#s2) |
+| 3 | Organize & Download QC | [Protocol Step 3](01_upstream/ADNI_fMRI_protocol/s3_organize/README.md) | Compare DICOM inventory with download lists | [Run S3](06_docs/platform_execution.md#s3) |
 | **3.A** | **Source QC and NFQ validation** | [Custom](02_custom/s3a_source_qc/README.md) | Audit source IDs/dates/UIDs/quality/deletions/NFQ; connect evidence to 5.C | [Run S3A](06_docs/platform_execution.md#s3a) |
-| 4 | Clinica | [Upstream Step 4](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s4_clinica/README.md) | DICOM → BIDS; preserve conversion_info | [Run S4](06_docs/platform_execution.md#s4) |
-| 4.B | Philips SliceTiming | [Upstream Step 4b](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s4b_slice_timing/README.md) | Dry-run first; review actual image identity and slice-axis correspondence | [Run S4B](06_docs/platform_execution.md#s4b) |
-| 5.A–B | Post-Clinica QC | [Upstream Step 5](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s5_post_clinica_qc/README.md) | Mastersheet → final_heuristics.tsv | [Run S5AB](06_docs/platform_execution.md#s5ab) |
+| 4 | Clinica | [Protocol Step 4](01_upstream/ADNI_fMRI_protocol/s4_clinica/README.md) | DICOM → BIDS; preserve conversion_info | [Run S4](06_docs/platform_execution.md#s4) |
+| 4.B | Philips SliceTiming | [Protocol Step 4b](01_upstream/ADNI_fMRI_protocol/s4b_slice_timing/README.md) | Dry-run first; review actual image identity and slice-axis correspondence | [Run S4B](06_docs/platform_execution.md#s4b) |
+| 5.A–B | Post-Clinica QC | [Protocol Step 5](01_upstream/ADNI_fMRI_protocol/s5_post_clinica_qc/README.md) | Mastersheet → final_heuristics.tsv | [Run S5AB](06_docs/platform_execution.md#s5ab) |
 | **5.C** | **Input handoff validation** | [Custom](02_custom/s5c_validate_handoff/README.md) | Compare selected BOLD with 3.A evidence; block failures/conflicts, mark pending and generate 6/7 inputs | [Run S5C](06_docs/platform_execution.md#s5c) |
 | **5.D** | **Exact-pair BIDS identity** | [Custom](02_custom/s5d_bids_identity/README.md) | Hash/UID/header verification and guarded exact EPI–T1 dispatch; synthetic example included | [Run S5D](06_docs/platform_execution.md#s5d) |
-| 6 | MRIQC | [Upstream Step 6](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s6_mriqc/README.md) | Generate IQMs/reports; verify IQM fitting scope against Step-5 survivors | [Run S6](06_docs/platform_execution.md#s6) |
-| 7 | fMRIPrep | [Upstream Step 7](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s7_fmriprep/README.md) | Explicitly pass 5.C session CSVs; generate images, confounds and reports | [Run S7](06_docs/platform_execution.md#s7) |
+| 6 | MRIQC | [Protocol Step 6](01_upstream/ADNI_fMRI_protocol/s6_mriqc/README.md) | Generate IQMs/reports; verify IQM fitting scope against Step-5 survivors | [Run S6](06_docs/platform_execution.md#s6) |
+| 7 | fMRIPrep | [Protocol Step 7](01_upstream/ADNI_fMRI_protocol/s7_fmriprep/README.md) | Explicitly pass 5.C session CSVs; generate images, confounds and reports | [Run S7](06_docs/platform_execution.md#s7) |
 | **7.A** | **Separate Docker volume profile** | [Custom](02_custom/s7a_volume_workflow/README.md) | Existing aCompCor profile, independent audit and metadata repair; separate from upstream 7 and S10 | [Run S7A](06_docs/platform_execution.md#s7a) |
 | **7.B** | **Live sessionwise preprocessing** | [Custom](02_custom/s7b_sessionwise_preprocessing/README.md) | Existing queue compatibility; new subjects use integrated source, active jobs retain their original runner | [Run S7B](06_docs/platform_execution.md#s7b) |
 | **7.C** | **ANTs iteration logs** | [Custom](02_custom/s7c_ants_iteration_logging/README.md) | Optional logging transport before a new fMRIPrep launch; no queue or image-settings change | [Run S7C](06_docs/platform_execution.md#s7c) |
-| 8 | Final QC | [Upstream Step 8](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s8_final_qc/README.md) | Motion, Euler, MRIQC and inclusion/exclusion reasons | [Run S8](06_docs/platform_execution.md#s8) |
+| 8 | Final QC | [Protocol Step 8](01_upstream/ADNI_fMRI_protocol/s8_final_qc/README.md) | Motion, Euler, MRIQC and inclusion/exclusion reasons | [Run S8](06_docs/platform_execution.md#s8) |
 | **8.A** | **Motion retained-duration checks** | [Custom](02_custom/s8a_motion_duration_qc/README.md) | Actual TR × retained frames, FD proportion, initial-frame sensitivity and masks | [Run S8A](06_docs/platform_execution.md#s8a) |
-| 9 | Clinical Merge | [Upstream Step 9](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s9_clinical_imaging_merge/README.md) | Upstream cognitive-score linkage/reports; preserve original outputs | [Run S9](06_docs/platform_execution.md#s9) |
+| 9 | Clinical Merge | [Protocol Step 9](01_upstream/ADNI_fMRI_protocol/s9_clinical_imaging_merge/README.md) | Upstream cognitive-score linkage/reports; preserve original outputs | [Run S9](06_docs/platform_execution.md#s9) |
 | **9.A** | **Clinical validation** | [Custom](02_custom/s9a_validate_clinical/README.md) | Actual scan dates, all nearest diagnoses, 28-day window, Dementia/suspected etiology and PTDEMOG/APOE | [Run S9A](06_docs/platform_execution.md#s9a) |
 | **9.B** | **Final inclusion validation** | [Custom](02_custom/s9b_validate_inclusion/README.md) | Combine source QC, clinical validation and confirmed ST/conversion failures; retain pending under nearest/28-day policy | [Run S9B](06_docs/platform_execution.md#s9b) |
 | **10** | **XCP-D and integrated imaging QC** | [Custom](02_custom/s10_xcpd_integrated_qc/README.md) | Completed S7 pair → S8 metrics → provisional XCP-D → validation/human review → explicit cohort finalization; export 9.A links | [Run S10](06_docs/platform_execution.md#s10) |
@@ -97,7 +96,7 @@ Preserve 7.A's existing aCompCor profile separately from S10's 36P/GSR profile; 
 
 ## 🧠 Atlas library and BOLD extraction
 
-After S10 imaging review → 9.A → 9.B, [Step 11](02_custom/s11_atlas_bold/README.md) can extract a separately selected atlas from the intended BOLD derivative. The library links Neuroparc, CBIG, Nilearn and TemplateFlow at fixed commits, with 252 registered file variants. Install these optional sources explicitly; ordinary setup and CI initialize only the core ADNI submodule.
+After S10 imaging review → 9.A → 9.B, [Step 11](02_custom/s11_atlas_bold/README.md) can extract a separately selected atlas from the intended BOLD derivative. The library links Neuroparc, CBIG, Nilearn and TemplateFlow at fixed commits, with 252 registered file variants. Install these optional sources explicitly; ordinary setup and CI use protocol files already included in Git.
 
 ```sh
 python 02_custom/s11_atlas_bold/sources.py install
@@ -125,7 +124,7 @@ python 04_workflow/lab.py prepare-config \
   --output-dir /ABSOLUTE/PATH/ADNI_DATA/config/run-001
 ```
 
-The generated `upstream.yaml` preserves the upstream configuration schema without modifying `config/config_adni.yaml` in the submodule. Connect Steps 5.A/B as follows, replacing placeholders with actual paths.
+The generated `upstream.yaml` preserves the upstream configuration schema without modifying `config/config_adni.yaml` in the integrated protocol source. Connect Steps 5.A/B as follows, replacing placeholders with actual paths.
 
 ```sh
 export ADNI_CONFIG=/ABSOLUTE/PATH/ADNI_DATA/config/run-001/upstream.yaml
@@ -207,15 +206,14 @@ Existing clones using the initial unnumbered layout must first follow the [one-t
 
 ```sh
 git pull --ff-only
-git submodule update --init 01_upstream/ADNI_fMRI_protocol
 python 04_workflow/lab.py doctor
 ```
 
-These commands restore the commit recorded by the parent repository. Adopt new upstream versions on a separate test branch following the [update guide](06_docs/update_guide.md). Versioning uses the gitlink mechanism described in [official Git submodule documentation](https://git-scm.com/docs/gitsubmodules).
+These commands update owned source. Review later original-repository changes through the [update guide](06_docs/update_guide.md); SNP and atlas gitlinks retain separate versioning.
 
 ## 📚 Attribution and license
 
-Use the upstream [CITATION.cff](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/CITATION.cff) for authorship and citation. Added-code sources are recorded in [NOTICE](NOTICE.md); [LICENSE](../LICENSE) states the upstream-compatible GPL-3.0 terms. Original ADNI data is not redistributed.
+Use the upstream [CITATION.cff](01_upstream/ADNI_fMRI_protocol/CITATION.cff) for authorship and citation. Added-code sources are recorded in [NOTICE](NOTICE.md); [LICENSE](../LICENSE) states the upstream-compatible GPL-3.0 terms. Original ADNI data is not redistributed.
 
 ## Live automation
 

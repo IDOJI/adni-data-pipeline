@@ -61,7 +61,7 @@ This workflow implements S8 → XCP-D → quantitative QC → validated external
 
 ## Input
 
-- External JSON: copy [xcpd_linc.example.json](../../03_config/xcpd_linc.example.json) and set root/license/templateflow. `repo=null` selects this repository's pinned upstream submodule; an unreviewed checkout cannot replace it.
+- External JSON: copy [xcpd_linc.example.json](../../03_config/xcpd_linc.example.json) and set root/license/templateflow. `repo=null` selects this repository's integrated protocol source directory; an unreviewed checkout cannot replace it.
 - `<root>/results/<PTID>/EPI_YYYYMMDD_MT1_YYYYMMDD/{fmriprep,mriqc,pair_metadata.json}`: the published, completed-pair layout from the referenced task. fMRIPrep inputs must include functional/anatomical images, masks/references/transforms, confounds JSON/TSV, HTML reports and sessionwise FreeSurfer logs.
 - `pair_metadata.json`: subject/PTID/pair_id, actual epi_date/mt1_date and image IDs, execution_session_label, `delivery_status=processing_complete_QC_pending`, and the actual mriqc/fmriprep start times, runner hashes and images under `execution_identity`.
 - `<root>/runs/<subject>/logs/*_{mriqc,fmriprep}_sub-*_ses-*/run.json`: evidence of successful execution, unchanged inputs and matching published identity. Copying directories without execution records does not establish completion.
@@ -71,7 +71,7 @@ This workflow implements S8 → XCP-D → quantitative QC → validated external
 
 The configuration pins XCP-D 26.2.0 by image digest: linc/nifti, MNI152NLin6Asym/res-2, 36P/GSR, FD 0.3 mm, at least 240 seconds, 4S256 (256 ROIs), 0.01–0.08 Hz, 6 mm smoothing, dummy scans 0, despiking and LINC/ABCC QC. Compare configuration details with the actual xcp_d.toml. This is separate from Step 8.A's 300-second criterion; neither check replaces the other.
 
-1. Verify S6/S7 completion evidence, reuse motion/Euler functions from pinned upstream S8 and collect MRIQC IQMs.
+1. Verify S6/S7 completion evidence, reuse motion/Euler functions from integrated protocol S8 and collect MRIQC IQMs.
 2. Block individual motion failures, missing required metrics and explicit exclusions. When only cohort Euler/MRIQC decisions are pending, `allow_deferred_cohort_candidates=true` permits provisional XCP-D candidates without marking them as passed.
 3. Verify the actual PyBIDS selection across subject/session/task/run/acq/dir/echo/rec. An absent run entity is selected as null; no run-01 is invented.
 4. Preserve read-only inputs and hashes, expand only after the first pilot validates, and retain failed attempts, partial results and Docker reconnection support. Validate BOLD/ROI/FC/coverage, motion/censor/LINC QC, HTML, ALFF/ReHo and actual execution settings.
@@ -91,7 +91,7 @@ The configuration pins XCP-D 26.2.0 by image digest: linc/nifti, MNI152NLin6Asym
 
 ## Dependencies
 
-Python 3.11+, [requirements](../../requirements.txt), pinned upstream S8, Docker, an existing XCP-D 26.2.0 image and atlas/template caches. See the [official CLI](https://xcp-d.readthedocs.io/en/26.2.0/usage.html), [official mode settings](https://xcp-d.readthedocs.io/en/26.2.0/workflows.html) and [consolidation and transition boundaries](../../06_docs/xcpd_consolidation.md).
+Python 3.11+, [requirements](../../requirements.txt), integrated protocol S8, Docker, an existing XCP-D 26.2.0 image and atlas/template caches. See the [official CLI](https://xcp-d.readthedocs.io/en/26.2.0/usage.html), [official mode settings](https://xcp-d.readthedocs.io/en/26.2.0/workflows.html) and [consolidation and transition boundaries](../../06_docs/xcpd_consolidation.md).
 
 ## Downstream research inclusion
 

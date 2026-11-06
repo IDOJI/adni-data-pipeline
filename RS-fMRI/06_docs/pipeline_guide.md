@@ -32,4 +32,4 @@ Use the [public/offline walkthrough](../07_reproducibility/README.md) for copied
 
 ## Host-specific stage instructions
 
-The [macOS/Linux guide](platform_execution.md) documents every upstream/custom position without editing the pinned upstream. Each Custom Step links to its own host section. Preserve the scientific profile and provenance when changing hosts; document and validate service/publication/volume adapters separately from imaging algorithms.
+The [macOS/Linux guide](platform_execution.md) documents every upstream/custom position using the owned protocol and Custom Steps. Each Custom Step links to its own host section. Preserve the scientific profile and provenance when changing hosts; document and validate service/publication/volume adapters separately from imaging algorithms.

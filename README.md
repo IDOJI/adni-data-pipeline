@@ -2,11 +2,11 @@
 
 Contribution and maintenance rules: [Repository instructions.md](<Repository instructions.md>)
 
-A research repository for processing and validating ADNI data by modality, with **[RS-fMRI](RS-fMRI/README.md)** and **[SNP](SNP/README.md)** modules. Each module separates pinned upstream code, project additions and validation records.
+A research repository for processing and validating ADNI data by modality, with **[RS-fMRI](RS-fMRI/README.md)** and **[SNP](SNP/README.md)** modules. RS-fMRI includes repository-owned protocol source; SNP and optional atlas libraries retain separate pinned sources.
 
 | Area | Status | Guide |
 |---|---|---|
-| RS-fMRI | Pinned upstream submodule, Custom Steps, integrated execution guide, synthetic validation, XCP-D and integrated imaging QC | [RS-fMRI/README.md](RS-fMRI/README.md) |
+| RS-fMRI | Integrated protocol source, Custom Steps, integrated execution guide, synthetic validation, XCP-D and integrated imaging QC | [RS-fMRI/README.md](RS-fMRI/README.md) |
 | SNP | Eissman-based TOPMed r3 workflow, pinned GWAS_QC submodule, command planning and synthetic variant-audit validation; cohort execution requires external resources and review | [SNP/README.md](SNP/README.md) |
 
 ```text
@@ -38,7 +38,7 @@ Host-specific RS-fMRI setup and stage instructions are in the [macOS/Linux guide
 ## 🚀 Getting started
 
 ```sh
-git clone --recurse-submodules https://github.com/IDOJI/adni-data-pipeline.git
+git clone https://github.com/IDOJI/adni-data-pipeline.git
 cd adni-data-pipeline/RS-fMRI
 python3 -m venv .venv
 source .venv/bin/activate

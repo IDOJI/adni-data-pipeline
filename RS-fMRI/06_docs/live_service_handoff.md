@@ -21,4 +21,9 @@ python 04_workflow/live_services.py --config /ABSOLUTE/PATH/historical-xcpd.json
 python 02_custom/s10_xcpd_integrated_qc/offload_completed.py --root /ABSOLUTE/PATH/runtime --settings /ABSOLUTE/PATH/offload-settings.json
 ```
 
-The regular S10 constructor continues to require its pinned upstream and a new explicit configuration. Only this verified compatibility entry point preserves a historical configuration identity. It does not authorize changed images, thresholds, atlases, nuisance settings or previously unknown caches. Existing completed attempts and human-review fields are preserved.
+The regular S10 constructor continues to require validated integrated protocol source and a new explicit configuration. Only this verified compatibility entry point preserves a historical configuration identity. It does not authorize changed images, thresholds, atlases, nuisance settings or previously unknown caches. Existing completed attempts and human-review fields are preserved.
+
+
+## Source integration and active deployments
+
+New deployments validate ordinary parent-tracked source through `protocol_source.py`. Preserve old deployment-bound source files, configuration IDs and cache signatures while jobs run. Keep inert legacy Git metadata and local runner overlays until a verified idle handoff; changing the parent source distribution does not authorize a controller restart or rewriting an existing receipt. See the [integration contract](source_integration.md#existing-live-installations).
