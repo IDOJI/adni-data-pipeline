@@ -9,7 +9,7 @@ The public example preserves the current **sessionwise / surface-enabled / SyN-S
 Use Python **3.11+**, Git, and a new source directory. Python 3.11.16 was tested. Run the following from any directory; the data/results live outside the source checkout.
 
 ```sh
-git clone --branch codex/rsfmri-reproducibility https://github.com/IDOJI/adni-data-pipeline.git "$HOME/adni-repro-source"
+git clone --branch main https://github.com/IDOJI/adni-data-pipeline.git "$HOME/adni-repro-source"
 cd "$HOME/adni-repro-source/RS-fMRI"
 git submodule update --init 01_upstream/ADNI_fMRI_protocol
 python3 -c 'import sys; assert sys.version_info >= (3, 11), "Use Python 3.11 or newer"'
