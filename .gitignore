@@ -58,3 +58,7 @@ RS-fMRI/02_custom/**/config.json
 *.nii.gz
 *.dtseries.nii
 *.sif
+
+# Explicit user-approved CC0 public MRI sample; retain all other imaging exclusions.
+!/RS-fMRI/07_reproducibility/public_data/ds000030-1.0.0/sub-10159/anat/sub-10159_T1w.nii.gz
+!/RS-fMRI/07_reproducibility/public_data/ds000030-1.0.0/sub-10159/func/sub-10159_task-rest_bold.nii.gz

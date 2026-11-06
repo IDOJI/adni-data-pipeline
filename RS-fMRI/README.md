@@ -34,7 +34,7 @@ RS-fMRI/
 
 Top-level numbers `01`–`06` classify directories. Actual execution follows the upstream and Custom Step positions in the table below.
 
-Run the [copy-and-paste reproducibility walkthrough](07_reproducibility/README.md) for a synthetic reference, pinned public T1w/BOLD inputs, actual Docker commands and peer comparison.
+Run the [copy-and-paste reproducibility walkthrough](07_reproducibility/README.md) for a synthetic reference, pinned public T1w/BOLD inputs, actual Docker commands and peer comparison. The real CC0 NIfTI sample is bundled as ordinary Git files under [public_data](07_reproducibility/public_data/ds000030-1.0.0/README.md).
 
 ## 🚀 Initial installation
 
@@ -106,7 +106,7 @@ Run 3.A with explicit Study Files paths using its [execution commands](02_custom
 
 ## ⚙️ Configuration and handoffs
 
-Store private configuration in `03_config/lab_config.local.yaml` or outside the repository. Keep all data and results outside the repository.
+Store private configuration in `03_config/lab_config.local.yaml` or outside the repository. Keep research inputs and generated results outside the repository; the explicitly approved CC0 public sample is included under `07_reproducibility/public_data/`.
 
 ```sh
 cp 03_config/lab_config.example.yaml 03_config/lab_config.local.yaml

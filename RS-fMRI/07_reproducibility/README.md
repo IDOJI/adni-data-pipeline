@@ -1,6 +1,6 @@
 # Copy-and-paste RS-fMRI examples
 
-Run each block in the same terminal, in order. The small offline example produces actual QC tables, ROI means and a one-row metrics report using repository code. A second example supplies public **real T1w/resting BOLD images** for MRIQC → fMRIPrep → XCP-D. Neither example needs ADNI access or any private participant list.
+Run each block in the same terminal, in order. The small offline example produces actual QC tables, ROI means and a one-row metrics report using repository code. A second example includes public **real T1w/resting BOLD image files in this repository** for MRIQC → fMRIPrep → XCP-D. Neither example needs ADNI access or any private participant list.
 
 The public example preserves the current **sessionwise / surface-enabled / SyN-SDC / 36P-LINC** analysis options. It is an explicit one-participant demo, independent of the private rolling queue. These commands do not install services or alter an existing ADNI run.
 
@@ -139,18 +139,18 @@ Expected: `PASS` for the nine selected result tables and the reference measureme
 
 ## B. Actual MRIQC → fMRIPrep → XCP-D on public brain images
 
-### B1. Fetch and verify the public images
+### B1. Stage and verify the included public images
 
-[OpenNeuro ds000030 1.0.0](https://doi.org/10.18112/openneuro.ds000030.v1.0.0), CC0, contains the public UCLA CNP data described by [Poldrack et al.](https://www.nature.com/articles/sdata2016110). The selected public subject is `sub-10159`. [public_dataset.json](public_dataset.json) pins the source Git commit, exact bytes and SHA-256 of **every** downloaded file. NIfTI sizes were also checked against the tag's Git-annex MD5 records. Payload URLs may serve a current object; hash disagreement stops execution rather than silently accepting an updated file.
+[OpenNeuro ds000030 1.0.0](https://doi.org/10.18112/openneuro.ds000030.v1.0.0), CC0, contains the public UCLA CNP data described by [Poldrack et al.](https://www.nature.com/articles/sdata2016110). The selected public subject is `sub-10159`. [public_dataset.json](public_dataset.json) pins the source Git commit, exact bytes and SHA-256 of **every** downloaded file. The five source files, including both actual NIfTI payloads, are included as ordinary Git files under [public_data/ds000030-1.0.0](public_data/ds000030-1.0.0/README.md). A normal clone includes the images; no Git LFS or separate OpenNeuro download is required. Source attribution and the separate CC0 data license are included beside the images. NIfTI sizes were also checked against the tag's Git-annex MD5 records.
 
 ```sh
 export PUBLIC_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/adni-public.XXXXXX")/run"
 python 07_reproducibility/public.py fetch --root "$PUBLIC_ROOT"
 ```
 
-Download: **35,696,832 bytes** total; T1w is 176×256×256 and BOLD is 64×64×34×152, TR=2 s. The public BOLD header declares slice axis k; its JSON has 34 SliceTiming entries. The fetcher checks the slice-axis/count and TR correspondence; it does not independently establish the scanner acquisition order without source DICOM.
+Included source payload: **35,696,832 bytes** total; T1w is 176×256×256 and BOLD is 64×64×34×152, TR=2 s. The public BOLD header declares slice axis k; its JSON has 34 SliceTiming entries. The default `fetch` command verifies and copies the included files into the new external working directory without network access. Missing or changed bundled files cause an error, with no automatic download fallback. It checks the slice-axis/count and TR correspondence; it does not independently establish the scanner acquisition order without source DICOM.
 
-The NIfTI bytes are preserved. Subject/session filenames become `sub-toy001/ses-M000` so the **sessionwise** profile has an explicit session. `ses-M000` is only an execution wrapper, **not** ADNI VISCODE, a date, or a clinical pairing claim. Inherited BOLD JSON metadata are merged explicitly. Source files, mapping and hashes remain under `download/` and `input_manifest.json`.
+The NIfTI bytes are preserved. Subject/session filenames become `sub-toy001/ses-M000` so the **sessionwise** profile has an explicit session. `ses-M000` is only an execution wrapper, **not** ADNI VISCODE, a date, or a clinical pairing claim. Inherited BOLD JSON metadata are merged explicitly. Verified source copies, mapping and hashes remain under the external `download/` and `input_manifest.json`; the committed sample is unchanged. For an independent upstream re-download, use `--source remote` with a new root. That explicit option verifies the same pinned hashes and stops on disagreement.
 
 ### B2. Prepare Docker and the FreeSurfer license
 
@@ -163,7 +163,7 @@ docker info --format '{{.OSType}}'
 python 07_reproducibility/public.py pull --root "$PUBLIC_ROOT" --execute
 ```
 
-This is the only image-download block: the images and later TemplateFlow/atlas downloads can total **several GB**. MRIQC, fMRIPrep and XCP-D use immutable digests and `linux/amd64`. Apple Silicon therefore uses emulation; an AMD64 Linux machine avoids that architecture mismatch. No Docker Desktop settings are changed. MRIQC's historical tag was 24.0.2; inspect the actual image version/GeneratedBy record rather than treating that tag as proof of a stable release. fMRIPrep is 25.2.7 and XCP-D is 26.2.0.
+This block downloads container images: they and later TemplateFlow/atlas downloads can total **several GB**. MRIQC, fMRIPrep and XCP-D use immutable digests and `linux/amd64`. Apple Silicon therefore uses emulation; an AMD64 Linux machine avoids that architecture mismatch. No Docker Desktop settings are changed. MRIQC's historical tag was 24.0.2; inspect the actual image version/GeneratedBy record rather than treating that tag as proof of a stable release. fMRIPrep is 25.2.7 and XCP-D is 26.2.0.
 
 ### B3. MRIQC, stage 6
 
@@ -238,7 +238,7 @@ The tool reports **byte-identical**, **exact decoded values**, **within toleranc
 
 `atol=1e-6, rtol=1e-5` are **engineering comparison defaults**, not scientifically validated equivalence margins. The condition is `abs(left-right) <= atol + rtol*abs(right)`. Use `--atol 0 --rtol 0` for exact decoded values. CPU architecture, threads, upstream defaults, floating-point libraries and stochastic skull stripping can affect actual imaging results; pinned seeds/images alone do not promise byte-identical output on every computer. A mismatch is evidence to inspect, not automatically proof that one person's run is invalid. Input/config mismatch always fails, even when numbers happen to agree.
 
-**Validation status:** the public 35.7MB inputs were downloaded and hash/header verified; command construction and synthetic integration/comparison were tested. A fresh full MRIQC/fMRIPrep/XCP-D run of this public subject and a cross-machine imaging baseline have **not** been established by this kit. The committed baseline is section A's analytical/synthetic output only. Share actual public-run outputs/evidence after completing section B to establish a reviewed imaging reference.
+**Validation status:** the public 35.7MB inputs are bundled as real Git files and were downloaded and hash/header verified; default staging was tested without network access; command construction and synthetic integration/comparison were tested. A fresh full MRIQC/fMRIPrep/XCP-D run of this public subject and a cross-machine imaging baseline have **not** been established by this kit. The committed baseline is section A's analytical/synthetic output only. Share actual public-run outputs/evidence after completing section B to establish a reviewed imaging reference.
 
 ## D. Which parts still require real ADNI inputs?
 

@@ -45,6 +45,8 @@ python 04_workflow/lab.py doctor
 python -m pytest -q
 ```
 
+The [CC0 public MRI sample](RS-fMRI/07_reproducibility/public_data/ds000030-1.0.0/README.md) is included as ordinary Git files, with original source metadata and attribution. This explicitly approved example is separate from private ADNI inputs.
+
 Keep research data, private configuration and results outside the repository. Do not publish original ADNI images, clinical tables, SNP data, real participant lists or credentials here. Passing code tests does not establish scientific validity for the full cohort.
 
 For SNP setup, methods and the Mermaid workflow, start with the [SNP README](SNP/README.md). Its source check and tests require only Python and Git; genomic execution requires a validated Linux environment and external reference resources.

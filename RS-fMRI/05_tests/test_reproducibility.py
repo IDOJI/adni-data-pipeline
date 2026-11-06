@@ -136,3 +136,44 @@ def test_public_comparison_checks_completion_input_hashes_and_actual_argv(tmp_pa
     shutil.copyfile(a/'logs/xcpd_execution.json',p)
     (b/'input.txt').write_text('mutated')
     assert compare.compare(a,b,patterns=['values.tsv'])['status']=='FAIL'
+
+
+def test_real_sample_is_bundled_and_default_staging_is_offline(tmp_path,monkeypatch):
+    public=mod('public');toy=mod('toy');spec=public.specification()
+    bundled=KIT/spec['bundled_path']
+    assert spec['distribution']=='ordinary_git_blobs'
+    assert len(spec['files'])==5 and sum(e['bytes'] for e in spec['files'])==35696832
+    expected_sums={e['path']:e['sha256'] for e in spec['files']}
+    actual_sums={line.split('  ',1)[1]:line.split('  ',1)[0] for line in (bundled/'SHA256SUMS').read_text().splitlines()}
+    assert actual_sums==expected_sums
+    for entry in spec['files']:
+        p=bundled/entry['path']
+        assert p.is_file() and not p.is_symlink()
+        assert p.stat().st_size==entry['bytes'] and toy.sha(p)==entry['sha256']
+    monkeypatch.setattr(public.urllib.request,'urlopen',lambda *a,**k:pytest.fail('Bundled staging must not access the network'))
+    root=tmp_path/'from-git';public.fetch(root)
+    assert json.loads((root/'input_manifest.json').read_text())['payload_source']=='bundled_git_files'
+    assert nib.load(root/'bids/sub-toy001/ses-M000/anat/sub-toy001_ses-M000_T1w.nii.gz').shape==(176,256,256)
+    assert nib.load(root/'bids/sub-toy001/ses-M000/func/sub-toy001_ses-M000_task-rest_bold.nii.gz').shape==(64,64,34,152)
+    for entry in spec['files']:assert toy.sha(root/'download'/entry['path'])==entry['sha256']
+
+
+def test_missing_bundle_never_falls_back_to_network(tmp_path,monkeypatch):
+    public=mod('public');spec=public.specification();spec['bundled_path']=str(tmp_path/'missing')
+    monkeypatch.setattr(public,'specification',lambda:spec)
+    monkeypatch.setattr(public.urllib.request,'urlopen',lambda *a,**k:pytest.fail('Missing bundle must not trigger a download'))
+    root=tmp_path/'output'
+    with pytest.raises(FileNotFoundError,match='Bundled public payload missing'):public.fetch(root)
+    assert not root.exists()
+
+
+def test_git_ignore_exception_only_allows_two_approved_nii_files():
+    public=mod('public');spec=public.specification()
+    prefix='RS-fMRI/07_reproducibility/'+spec['bundled_path']+'/'
+    for entry in spec['files']:
+        if entry['path'].endswith('.nii.gz'):
+            r=subprocess.run(['git','-C',str(ROOT.parent),'check-ignore','--no-index','--quiet',prefix+entry['path']])
+            assert r.returncode==1
+    for path in [prefix+'other_bold.nii.gz','RS-fMRI/private_bold.nii.gz','RS-fMRI/private_clinical.csv']:
+        r=subprocess.run(['git','-C',str(ROOT.parent),'check-ignore','--no-index','--quiet',path])
+        assert r.returncode==0

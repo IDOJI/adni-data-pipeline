@@ -39,5 +39,7 @@
       "bytes": 1430,
       "sha256": "d18afa7db7932ebc6e668874deaa3d8709ad37a26f17d17af3a8b202e03ef9de"
     }
-  ]
+  ],
+  "bundled_path": "public_data/ds000030-1.0.0",
+  "distribution": "ordinary_git_blobs"
 }

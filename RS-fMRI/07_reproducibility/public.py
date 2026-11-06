@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Pinned public NIfTI demo. Prints commands by default; --execute launches a stage."""
+"""Stage bundled public NIfTIs; print imaging commands unless --execute is set."""
 from __future__ import annotations
 import argparse
 import json
@@ -25,16 +25,26 @@ SPACES = ['MNI152NLin6Asym:res-2', 'MNI152NLin2009cAsym', 'fsnative', 'fsaverage
 def specification(): return json.loads((HERE / 'public_dataset.json').read_text())
 
 
-def fetch(root, cache=None):
+def fetch(root, cache=None, source='bundled'):
     if root.exists(): raise FileExistsError('Use a new public-demo root; inputs are never overwritten')
-    root.mkdir(parents=True)
+    if source not in ('bundled', 'remote'): raise ValueError('Unknown public payload source')
+    if source == 'remote' and cache is not None: raise ValueError('Use either --source remote or --cache-dir')
     spec = specification()
+    payload_root = Path(cache) if cache is not None else HERE / spec['bundled_path']
+    if source == 'bundled':
+        # Verify availability and exact bytes before creating any output. Never download silently.
+        for entry in spec['files']:
+            bundled = payload_root / entry['path']
+            if not bundled.is_file() or bundled.is_symlink():
+                raise FileNotFoundError('Bundled public payload missing/not a regular file: ' + str(bundled))
+            if bundled.stat().st_size != entry['bytes'] or sha(bundled) != entry['sha256']:
+                raise ValueError('Public payload differs from pinned source: ' + entry['path'])
+    root.mkdir(parents=True)
     for entry in spec['files']:
         dest = root / 'download' / entry['path']; dest.parent.mkdir(parents=True, exist_ok=True)
-        cached = cache / entry['path'] if cache else None
         temporary = dest.with_name(dest.name + '.partial')
         try:
-            if cached and cached.is_file(): shutil.copyfile(cached, temporary)
+            if source == 'bundled': shutil.copyfile(payload_root / entry['path'], temporary)
             else:
                 with urllib.request.urlopen(entry['url'], timeout=120) as response, temporary.open('wb') as out:
                     received = 0
@@ -48,10 +58,10 @@ def fetch(root, cache=None):
         finally:
             temporary.unlink(missing_ok=True)
     bids = root / 'bids'; stem = 'sub-toy001_ses-M000'
-    for kind, suffix, source in [('anat', 'T1w', 'sub-10159/anat/sub-10159_T1w.nii.gz'), ('func', 'task-rest_bold', 'sub-10159/func/sub-10159_task-rest_bold.nii.gz')]:
+    for kind, suffix, source_path in [('anat', 'T1w', 'sub-10159/anat/sub-10159_T1w.nii.gz'), ('func', 'task-rest_bold', 'sub-10159/func/sub-10159_task-rest_bold.nii.gz')]:
         target = bids / 'sub-toy001/ses-M000' / kind / (stem + '_' + suffix + '.nii.gz')
-        target.parent.mkdir(parents=True, exist_ok=True); shutil.copyfile(root/'download'/source, target)
-        if sha(target) != sha(root/'download'/source): raise ValueError('Image changed while creating execution layout')
+        target.parent.mkdir(parents=True, exist_ok=True); shutil.copyfile(root/'download'/source_path, target)
+        if sha(target) != sha(root/'download'/source_path): raise ValueError('Image changed while creating execution layout')
     group = json.loads((root/'download/task-rest_bold.json').read_text())
     group.update(json.loads((root/'download/sub-10159/func/sub-10159_task-rest_bold.json').read_text()))
     write_json(bids/'sub-toy001/ses-M000/func'/ (stem+'_task-rest_bold.json'), group)
@@ -64,6 +74,7 @@ def fetch(root, cache=None):
     write_json(root/'config/fmriprep_filter.json', filters)
     write_json(root/'config/mriqc_filter.json', {'bold':filters['bold'], 'T1w':filters['t1w']})
     write_json(root/'input_manifest.json', {'dataset':spec, 'source_subject':'sub-10159', 'execution_subject':'sub-toy001', 'execution_session':'ses-M000',
+        'payload_source':'explicit_cache' if cache is not None else 'bundled_git_files' if source == 'bundled' else 'upstream_download',
         'session_note':'Execution wrapper for sessionwise processing; this is not an ADNI VISCODE or acquisition date.',
         'sha256':{str(p.relative_to(root)):sha(p) for folder in (bids,root/'config') for p in sorted(folder.rglob('*')) if p.is_file()}})
     cfg = xcp_config()
@@ -72,7 +83,7 @@ def fetch(root, cache=None):
         'xcpd':{k:v for k,v in cfg.items() if k not in ('root','repo','license','templateflow','slurm','run_id')},
         'code_sha256':fingerprint()['code_sha256'], 'upstream':fingerprint()['upstream']})
     write_json(root/'environment.json', fingerprint())
-    print(json.dumps({'status':'verified_public_input', 'root':str(root), 'image_shape':image.shape, 'input_bytes':sum(e['bytes'] for e in spec['files'])}))
+    print(json.dumps({'status':'verified_public_input', 'root':str(root), 'image_shape':image.shape, 'input_bytes':sum(e['bytes'] for e in spec['files']), 'payload_source':source}))
 
 
 def xcp_config():
@@ -171,12 +182,13 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('stage', choices=['fetch','pull','mriqc','fmriprep','motion','xcpd','validate'])
     parser.add_argument('--root', type=external, required=True)
-    parser.add_argument('--cache-dir', type=Path)
+    parser.add_argument('--cache-dir', type=Path, help='Explicit local payload directory, verified against the same hashes')
+    parser.add_argument('--source', choices=['bundled','remote'], default='bundled', help='Use included Git files by default; remote explicitly re-downloads the upstream payloads')
     parser.add_argument('--license', type=Path, default=Path(os.environ['FS_LICENSE']) if os.environ.get('FS_LICENSE') else None)
     parser.add_argument('--execute', action='store_true')
     parser.add_argument('--ants-verbose', action='store_true')
     args = parser.parse_args(); root=args.root
-    if args.stage == 'fetch': fetch(root,args.cache_dir)
+    if args.stage == 'fetch': fetch(root,args.cache_dir,args.source)
     elif args.stage == 'pull':
         for image in IMAGES.values():
             command=['docker','pull','--platform','linux/amd64',image]; print(shlex.join(command),flush=True)

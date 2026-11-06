@@ -1,6 +1,6 @@
 # Installation and execution environments
 
-Use the [copy-and-paste examples](../07_reproducibility/README.md) for a pinned core Python environment, an offline reference check and explicitly launched public imaging jobs.
+Use the [copy-and-paste examples](../07_reproducibility/README.md) for a pinned core Python environment, an offline reference check and explicitly launched public imaging jobs. The real CC0 MRI sample is included in a normal clone; `public.py fetch` verifies and stages it without an OpenNeuro download.
 
 ## Wrapper and Custom Steps
 
