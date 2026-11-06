@@ -1,0 +1,12 @@
+# Tested core environment for the offline toy and public launcher, Python 3.11.16.
+# Container dependencies are pinned by image digest in public.py.
+numpy==2.4.6
+pandas==3.1.0
+nibabel==5.4.2
+scipy==1.17.1
+PyYAML==6.0.3
+importlib_resources==7.1.0
+packaging==26.3
+python-dateutil==4.0.0
+typing_extensions==4.16.0
+tzdata==2026.6

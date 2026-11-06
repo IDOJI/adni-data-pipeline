@@ -14,4 +14,6 @@
 - `.githooks/commit-msg` adds this trailer in Codex environments, preserves other co-authors and prevents duplicates. Follow the [setup guide](.githooks/README.md).
 - In a new clone, check existing hook configuration, then enable it with `git config --local core.hooksPath .githooks`. Set `CODEX_COAUTHOR=1` explicitly in Codex environments without `CODEX_THREAD_ID`.
 
+- Explicit user authorization on 2026-11-06 permits the two unchanged CC0 OpenNeuro ds000030 1.0.0 NIfTI payloads and their public metadata/provenance under `RS-fMRI/07_reproducibility/public_data/ds000030-1.0.0/`, exactly as listed in `public_dataset.json`. This narrow public-example exception does not permit private ADNI images, clinical data, unrelated participant lists or software license keys.
+
 - Write all repository-owned Markdown explanations, headings, tables and example comments in English. Keep the pinned upstream submodule unchanged.

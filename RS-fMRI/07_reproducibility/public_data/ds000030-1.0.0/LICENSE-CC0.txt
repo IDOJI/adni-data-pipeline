@@ -1,0 +1,16 @@
+Public dataset license: CC0 1.0 Universal
+
+These five source files are an unchanged subset of the UCLA Consortium for
+Neuropsychiatric Phenomics LA5c Study, OpenNeuro ds000030, version 1.0.0.
+The source dataset_description.json declares License: CC0.
+
+CC0 1.0 Universal Public Domain Dedication:
+https://creativecommons.org/publicdomain/zero/1.0/
+https://creativecommons.org/publicdomain/zero/1.0/legalcode
+
+Source dataset DOI: https://doi.org/10.18112/openneuro.ds000030.v1.0.0
+Source revision: 4070b6eea231517bfeff42527a46d9d166ac4e13
+Source publication: https://doi.org/10.1038/sdata.2016.110
+
+This data license is separate from the repository's GPL-3.0 source-code license.
+No ADNI-restricted images, clinical tables or software license keys are included.

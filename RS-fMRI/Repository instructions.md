@@ -8,4 +8,6 @@
 - Distinguish command plans from completed execution, and technical validation from research inclusion decisions. Full MRIQC/fMRIPrep execution requires a separate request and verification of the actual environment.
 - Validation: `python -m pytest -q` and `python 04_workflow/lab.py doctor`. Do not modify the existing upstream working copy or data.
 
+- Explicit user authorization on 2026-11-06 permits the two unchanged CC0 OpenNeuro ds000030 1.0.0 NIfTI payloads and their public metadata/provenance under `RS-fMRI/07_reproducibility/public_data/ds000030-1.0.0/`, exactly as listed in `public_dataset.json`. This narrow public-example exception does not permit private ADNI images, clinical data, unrelated participant lists or software license keys.
+
 - Write all repository-owned Markdown explanations, headings, tables and example comments in English. Keep the pinned upstream submodule unchanged.

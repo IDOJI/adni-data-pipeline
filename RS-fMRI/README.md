@@ -28,10 +28,13 @@ RS-fMRI/
 ├── 03_config/                     # Public configuration examples and version locks
 ├── 04_workflow/                   # Version checks, external configuration and command plans
 ├── 05_tests/                      # Synthetic and upstream compatibility tests
-└── 06_docs/                       # Installation, data preparation, extension and updates
+├── 06_docs/                       # Installation, data preparation, extension and updates
+└── 07_reproducibility/            # Public toy inputs, commands and numerical comparison
 ```
 
 Top-level numbers `01`–`06` classify directories. Actual execution follows the upstream and Custom Step positions in the table below.
+
+Run the [copy-and-paste reproducibility walkthrough](07_reproducibility/README.md) for a synthetic reference, pinned public T1w/BOLD inputs, actual Docker commands and peer comparison. The real CC0 NIfTI sample is bundled as ordinary Git files under [public_data](07_reproducibility/public_data/ds000030-1.0.0/README.md).
 
 ## 🚀 Initial installation
 
@@ -60,10 +63,12 @@ This environment supports handoff tools and tests. Prepare Clinica, MRIQC, fMRIP
 | 4.B | Philips SliceTiming | [Upstream Step 4b](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s4b_slice_timing/README.md) | Dry-run first; review actual image identity and slice-axis correspondence |
 | 5.A–B | Post-Clinica QC | [Upstream Step 5](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s5_post_clinica_qc/README.md) | Mastersheet → final_heuristics.tsv |
 | **5.C** | **Input handoff validation** | [Custom](02_custom/s5c_validate_handoff/README.md) | Compare selected BOLD with 3.A evidence; block failures/conflicts, mark pending and generate 6/7 inputs |
+| **5.D** | **Exact-pair BIDS identity** | [Custom](02_custom/s5d_bids_identity/README.md) | Hash/UID/header verification and guarded exact EPI–T1 dispatch; synthetic example included |
 | 6 | MRIQC | [Upstream Step 6](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s6_mriqc/README.md) | Generate IQMs/reports; verify IQM fitting scope against Step-5 survivors |
 | 7 | fMRIPrep | [Upstream Step 7](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s7_fmriprep/README.md) | Explicitly pass 5.C session CSVs; generate images, confounds and reports |
 | **7.A** | **Separate Docker volume profile** | [Custom](02_custom/s7a_volume_workflow/README.md) | Existing aCompCor profile, independent audit and metadata repair; separate from upstream 7 and S10 |
 | **7.B** | **Live sessionwise preprocessing** | [Custom](02_custom/s7b_sessionwise_preprocessing/README.md) | Existing queue compatibility; new subjects use integrated source, active jobs retain their original runner |
+| **7.C** | **ANTs iteration logs** | [Custom](02_custom/s7c_ants_iteration_logging/README.md) | Optional logging transport before a new fMRIPrep launch; no queue or image-settings change |
 | 8 | Final QC | [Upstream Step 8](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s8_final_qc/README.md) | Motion, Euler, MRIQC and inclusion/exclusion reasons |
 | **8.A** | **Motion retained-duration checks** | [Custom](02_custom/s8a_motion_duration_qc/README.md) | Actual TR × retained frames, FD proportion, initial-frame sensitivity and masks |
 | 9 | Clinical Merge | [Upstream Step 9](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s9_clinical_imaging_merge/README.md) | Upstream cognitive-score linkage/reports; preserve original outputs |
@@ -71,6 +76,7 @@ This environment supports handoff tools and tests. Prepare Clinica, MRIQC, fMRIP
 | **9.B** | **Final inclusion validation** | [Custom](02_custom/s9b_validate_inclusion/README.md) | Combine source QC, clinical validation and confirmed ST/conversion failures; retain pending under nearest/28-day policy |
 | **10** | **XCP-D and integrated imaging QC** | [Custom](02_custom/s10_xcpd_integrated_qc/README.md) | Completed S7 pair → S8 metrics → provisional XCP-D → validation/human review → explicit cohort finalization; export 9.A links |
 | **11** | **Atlas-based BOLD signals** | [Custom](02_custom/s11_atlas_bold/README.md) | Select a pinned matching-space atlas; audit labels/coverage and extract ROI means from reviewed BOLD |
+| **12** | **One-row scalar results and HTML** | [Custom](02_custom/s12_metrics_summary/README.md) | Verified S10 archive → volume/thickness/ReHo/ALFF/QC table and native reports; independent of optional 11 |
 
 Steps 1.A/1.B have not been defined and are not created yet. Add them when needed using the [Custom Step guide](06_docs/pipeline_guide.md).
 
@@ -100,7 +106,7 @@ Run 3.A with explicit Study Files paths using its [execution commands](02_custom
 
 ## ⚙️ Configuration and handoffs
 
-Store private configuration in `03_config/lab_config.local.yaml` or outside the repository. Keep all data and results outside the repository.
+Store private configuration in `03_config/lab_config.local.yaml` or outside the repository. Keep research inputs and generated results outside the repository; the explicitly approved CC0 public sample is included under `07_reproducibility/public_data/`.
 
 ```sh
 cp 03_config/lab_config.example.yaml 03_config/lab_config.local.yaml
@@ -211,3 +217,9 @@ See the [live-service handoff guide](06_docs/live_service_handoff.md) for switch
 Execution order: **9.B metadata inclusion → actual raw BIDS/derivative run link → original acquisition frame map → Step 11 extraction → descriptive coverage diagnosis**. See the [Step 11 adapter commands](02_custom/s11_atlas_bold/README.md#original-acquisition-frames-and-actual-bids-run-evidence). Supply the hash-bound `--run-link` with the original 9.B artifact and image ID; `eligible`/`pending` remain separate. Supply `--frame-map` to preserve original frame numbers and time gaps in `frames.tsv`. Never reapply a pre-censor mask to a shortened XCP-D image. The adapter's nominal raw time does not include slice-timing offsets.
 
 Low-coverage investigation compares the unchanged EPI mask with BOLD reference, T1, GM probability and anatomical mask. It writes evidence for review and retains the original QC failures. Coverage 0.5, minimum one voxel, nearest/28-day clinical matching and pending preservation are unchanged; the adapters do not authorize final cohort inclusion or relax study-specific duration criteria.
+
+## Reproducible examples and scalar export
+
+[Step-by-step terminal blocks](07_reproducibility/README.md) cover actual source/handoff/clinical/QC/extraction/export code using labeled synthetic fixtures, plus MRIQC/fMRIPrep/XCP-D on a pinned CC0 public subject. The quick example has a committed analytical reference; a real public-subject imaging reference has not yet been computed. Comparison checks source/code/options and selected numerical products separately.
+
+After validated archival, run `python 04_workflow/lab.py export-results --archive-root /ABS/PATH/archive --status /ABS/PATH/runtime/metrics.json`. `--watch` opts into a plain 120-second scan loop; no imaging is launched. Optional Step 11 is not required by Step 12. Final research inclusion stays pending.

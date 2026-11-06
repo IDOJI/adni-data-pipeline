@@ -20,7 +20,8 @@ adni-data-pipeline/
 │   ├── 03_config/                      # Configuration examples and version records
 │   ├── 04_workflow/                    # Handoff, configuration and command planning
 │   ├── 05_tests/                       # Synthetic validation
-│   └── 06_docs/                        # Installation, updates and validation
+│   ├── 06_docs/                        # Installation, updates and validation
+│   └── 07_reproducibility/             # Public inputs, executable examples and result comparison
 └── SNP/
     ├── 01_upstream/GWAS_QC/             # Pinned upstream commit
     ├── 02_custom/                      # Multi-array variant audit
@@ -29,6 +30,8 @@ adni-data-pipeline/
     ├── 05_tests/                       # Synthetic validation
     └── 06_docs/                        # Methods, installation, merging and X
 ```
+
+Try the [copy-and-paste RS-fMRI examples](RS-fMRI/07_reproducibility/README.md): offline reference checks, pinned public T1w/BOLD data, stage commands and numerical comparison.
 
 ## 🚀 Getting started
 
@@ -41,6 +44,8 @@ python -m pip install -r requirements.txt
 python 04_workflow/lab.py doctor
 python -m pytest -q
 ```
+
+The [CC0 public MRI sample](RS-fMRI/07_reproducibility/public_data/ds000030-1.0.0/README.md) is included as ordinary Git files, with original source metadata and attribution. This explicitly approved example is separate from private ADNI inputs.
 
 Keep research data, private configuration and results outside the repository. Do not publish original ADNI images, clinical tables, SNP data, real participant lists or credentials here. Passing code tests does not establish scientific validity for the full cohort.
 
