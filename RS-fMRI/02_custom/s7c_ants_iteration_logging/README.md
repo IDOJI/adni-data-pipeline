@@ -25,3 +25,9 @@ For an existing compatible backend, `run.py --runner /external/backend.py -- <ba
 ## Validation and dependencies
 
 Python 3.11+, Docker and an installed pinned image. Synthetic transport/stream tests check unchanged computational argv and cache bytes, live raw channels/progress before completion, and preservation of failure exit codes. The transport does not establish registration accuracy or research inclusion.
+
+## macOS and Linux
+
+The same logging transport operates inside the pinned Linux container on both hosts. Preserve image PATH, registration argv and code hashes; only host bind sources differ. A Mac controller activation or keep-awake service is separate and needs its own Linux implementation.
+
+See the [stage-specific host instructions](../../06_docs/platform_execution.md#s7c) for prerequisites, executable routes and validation limits. Shared analysis settings remain in this step's existing configuration; host compatibility is not a new scientific QC pass.

@@ -36,6 +36,8 @@ Top-level numbers `01`–`06` classify directories. Actual execution follows the
 
 Run the [copy-and-paste reproducibility walkthrough](07_reproducibility/README.md) for a synthetic reference, pinned public T1w/BOLD inputs, actual Docker commands and peer comparison. The real CC0 NIfTI sample is bundled as ordinary Git files under [public_data](07_reproducibility/public_data/ds000030-1.0.0/README.md).
 
+Use the [macOS/Linux execution guide](06_docs/platform_execution.md) for shared analysis settings, host setup, each upstream/custom stage, and the explicit publisher/controller/archival portability boundaries. The pinned upstream submodule stays unchanged.
+
 ## 🚀 Initial installation
 
 ```sh
@@ -53,30 +55,30 @@ This environment supports handoff tools and tests. Prepare Clinica, MRIQC, fMRIP
 
 ## 🗺️ Complete execution order
 
-| Order | Stage | Code | Main inputs/outputs and completion conditions |
-|---|---|---|---|
-| 1 | Account & Access | [Upstream Step 1](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s1_setup_account/README.md) | ADNI access approval |
-| 2 | Download | [Upstream Step 2](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s2_download/README.md) | Download images/metadata/clinical tables through the original UI and preserve collection CSVs |
-| 3 | Organize & Download QC | [Upstream Step 3](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s3_organize/README.md) | Compare DICOM inventory with download lists |
-| **3.A** | **Source QC and NFQ validation** | [Custom](02_custom/s3a_source_qc/README.md) | Audit source IDs/dates/UIDs/quality/deletions/NFQ; connect evidence to 5.C |
-| 4 | Clinica | [Upstream Step 4](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s4_clinica/README.md) | DICOM → BIDS; preserve conversion_info |
-| 4.B | Philips SliceTiming | [Upstream Step 4b](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s4b_slice_timing/README.md) | Dry-run first; review actual image identity and slice-axis correspondence |
-| 5.A–B | Post-Clinica QC | [Upstream Step 5](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s5_post_clinica_qc/README.md) | Mastersheet → final_heuristics.tsv |
-| **5.C** | **Input handoff validation** | [Custom](02_custom/s5c_validate_handoff/README.md) | Compare selected BOLD with 3.A evidence; block failures/conflicts, mark pending and generate 6/7 inputs |
-| **5.D** | **Exact-pair BIDS identity** | [Custom](02_custom/s5d_bids_identity/README.md) | Hash/UID/header verification and guarded exact EPI–T1 dispatch; synthetic example included |
-| 6 | MRIQC | [Upstream Step 6](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s6_mriqc/README.md) | Generate IQMs/reports; verify IQM fitting scope against Step-5 survivors |
-| 7 | fMRIPrep | [Upstream Step 7](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s7_fmriprep/README.md) | Explicitly pass 5.C session CSVs; generate images, confounds and reports |
-| **7.A** | **Separate Docker volume profile** | [Custom](02_custom/s7a_volume_workflow/README.md) | Existing aCompCor profile, independent audit and metadata repair; separate from upstream 7 and S10 |
-| **7.B** | **Live sessionwise preprocessing** | [Custom](02_custom/s7b_sessionwise_preprocessing/README.md) | Existing queue compatibility; new subjects use integrated source, active jobs retain their original runner |
-| **7.C** | **ANTs iteration logs** | [Custom](02_custom/s7c_ants_iteration_logging/README.md) | Optional logging transport before a new fMRIPrep launch; no queue or image-settings change |
-| 8 | Final QC | [Upstream Step 8](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s8_final_qc/README.md) | Motion, Euler, MRIQC and inclusion/exclusion reasons |
-| **8.A** | **Motion retained-duration checks** | [Custom](02_custom/s8a_motion_duration_qc/README.md) | Actual TR × retained frames, FD proportion, initial-frame sensitivity and masks |
-| 9 | Clinical Merge | [Upstream Step 9](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s9_clinical_imaging_merge/README.md) | Upstream cognitive-score linkage/reports; preserve original outputs |
-| **9.A** | **Clinical validation** | [Custom](02_custom/s9a_validate_clinical/README.md) | Actual scan dates, all nearest diagnoses, 28-day window, Dementia/suspected etiology and PTDEMOG/APOE |
-| **9.B** | **Final inclusion validation** | [Custom](02_custom/s9b_validate_inclusion/README.md) | Combine source QC, clinical validation and confirmed ST/conversion failures; retain pending under nearest/28-day policy |
-| **10** | **XCP-D and integrated imaging QC** | [Custom](02_custom/s10_xcpd_integrated_qc/README.md) | Completed S7 pair → S8 metrics → provisional XCP-D → validation/human review → explicit cohort finalization; export 9.A links |
-| **11** | **Atlas-based BOLD signals** | [Custom](02_custom/s11_atlas_bold/README.md) | Select a pinned matching-space atlas; audit labels/coverage and extract ROI means from reviewed BOLD |
-| **12** | **One-row scalar results and HTML** | [Custom](02_custom/s12_metrics_summary/README.md) | Verified S10 archive → volume/thickness/ReHo/ALFF/QC table and native reports; independent of optional 11 |
+| Order | Stage | Code | Main inputs/outputs and completion conditions | Host notes |
+|---|---|---|---|---|
+| 1 | Account & Access | [Upstream Step 1](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s1_setup_account/README.md) | ADNI access approval | [Mac/Linux](06_docs/platform_execution.md#s1) |
+| 2 | Download | [Upstream Step 2](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s2_download/README.md) | Download images/metadata/clinical tables through the original UI and preserve collection CSVs | [Mac/Linux](06_docs/platform_execution.md#s2) |
+| 3 | Organize & Download QC | [Upstream Step 3](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s3_organize/README.md) | Compare DICOM inventory with download lists | [Mac/Linux](06_docs/platform_execution.md#s3) |
+| **3.A** | **Source QC and NFQ validation** | [Custom](02_custom/s3a_source_qc/README.md) | Audit source IDs/dates/UIDs/quality/deletions/NFQ; connect evidence to 5.C | [Mac/Linux](06_docs/platform_execution.md#s3a) |
+| 4 | Clinica | [Upstream Step 4](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s4_clinica/README.md) | DICOM → BIDS; preserve conversion_info | [Mac/Linux](06_docs/platform_execution.md#s4) |
+| 4.B | Philips SliceTiming | [Upstream Step 4b](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s4b_slice_timing/README.md) | Dry-run first; review actual image identity and slice-axis correspondence | [Mac/Linux](06_docs/platform_execution.md#s4b) |
+| 5.A–B | Post-Clinica QC | [Upstream Step 5](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s5_post_clinica_qc/README.md) | Mastersheet → final_heuristics.tsv | [Mac/Linux](06_docs/platform_execution.md#s5ab) |
+| **5.C** | **Input handoff validation** | [Custom](02_custom/s5c_validate_handoff/README.md) | Compare selected BOLD with 3.A evidence; block failures/conflicts, mark pending and generate 6/7 inputs | [Mac/Linux](06_docs/platform_execution.md#s5c) |
+| **5.D** | **Exact-pair BIDS identity** | [Custom](02_custom/s5d_bids_identity/README.md) | Hash/UID/header verification and guarded exact EPI–T1 dispatch; synthetic example included | [Mac/Linux](06_docs/platform_execution.md#s5d) |
+| 6 | MRIQC | [Upstream Step 6](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s6_mriqc/README.md) | Generate IQMs/reports; verify IQM fitting scope against Step-5 survivors | [Mac/Linux](06_docs/platform_execution.md#s6) |
+| 7 | fMRIPrep | [Upstream Step 7](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s7_fmriprep/README.md) | Explicitly pass 5.C session CSVs; generate images, confounds and reports | [Mac/Linux](06_docs/platform_execution.md#s7) |
+| **7.A** | **Separate Docker volume profile** | [Custom](02_custom/s7a_volume_workflow/README.md) | Existing aCompCor profile, independent audit and metadata repair; separate from upstream 7 and S10 | [Mac/Linux](06_docs/platform_execution.md#s7a) |
+| **7.B** | **Live sessionwise preprocessing** | [Custom](02_custom/s7b_sessionwise_preprocessing/README.md) | Existing queue compatibility; new subjects use integrated source, active jobs retain their original runner | [Mac/Linux](06_docs/platform_execution.md#s7b) |
+| **7.C** | **ANTs iteration logs** | [Custom](02_custom/s7c_ants_iteration_logging/README.md) | Optional logging transport before a new fMRIPrep launch; no queue or image-settings change | [Mac/Linux](06_docs/platform_execution.md#s7c) |
+| 8 | Final QC | [Upstream Step 8](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s8_final_qc/README.md) | Motion, Euler, MRIQC and inclusion/exclusion reasons | [Mac/Linux](06_docs/platform_execution.md#s8) |
+| **8.A** | **Motion retained-duration checks** | [Custom](02_custom/s8a_motion_duration_qc/README.md) | Actual TR × retained frames, FD proportion, initial-frame sensitivity and masks | [Mac/Linux](06_docs/platform_execution.md#s8a) |
+| 9 | Clinical Merge | [Upstream Step 9](https://github.com/statMINDlab/ADNI_fMRI_protocol/blob/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3/s9_clinical_imaging_merge/README.md) | Upstream cognitive-score linkage/reports; preserve original outputs | [Mac/Linux](06_docs/platform_execution.md#s9) |
+| **9.A** | **Clinical validation** | [Custom](02_custom/s9a_validate_clinical/README.md) | Actual scan dates, all nearest diagnoses, 28-day window, Dementia/suspected etiology and PTDEMOG/APOE | [Mac/Linux](06_docs/platform_execution.md#s9a) |
+| **9.B** | **Final inclusion validation** | [Custom](02_custom/s9b_validate_inclusion/README.md) | Combine source QC, clinical validation and confirmed ST/conversion failures; retain pending under nearest/28-day policy | [Mac/Linux](06_docs/platform_execution.md#s9b) |
+| **10** | **XCP-D and integrated imaging QC** | [Custom](02_custom/s10_xcpd_integrated_qc/README.md) | Completed S7 pair → S8 metrics → provisional XCP-D → validation/human review → explicit cohort finalization; export 9.A links | [Mac/Linux](06_docs/platform_execution.md#s10) |
+| **11** | **Atlas-based BOLD signals** | [Custom](02_custom/s11_atlas_bold/README.md) | Select a pinned matching-space atlas; audit labels/coverage and extract ROI means from reviewed BOLD | [Mac/Linux](06_docs/platform_execution.md#s11) |
+| **12** | **One-row scalar results and HTML** | [Custom](02_custom/s12_metrics_summary/README.md) | Verified S10 archive → volume/thickness/ReHo/ALFF/QC table and native reports; independent of optional 11 | [Mac/Linux](06_docs/platform_execution.md#s12) |
 
 Steps 1.A/1.B have not been defined and are not created yet. Add them when needed using the [Custom Step guide](06_docs/pipeline_guide.md).
 

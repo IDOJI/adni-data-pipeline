@@ -33,6 +33,8 @@ adni-data-pipeline/
 
 Try the [copy-and-paste RS-fMRI examples](RS-fMRI/07_reproducibility/README.md): offline reference checks, pinned public T1w/BOLD data, stage commands and numerical comparison.
 
+Host-specific RS-fMRI setup and stage instructions are in the [macOS/Linux guide](RS-fMRI/06_docs/platform_execution.md). Shared analysis settings, executable local/container routes and missing Linux operational adapters are documented separately.
+
 ## 🚀 Getting started
 
 ```sh

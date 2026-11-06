@@ -48,3 +48,9 @@ Synthetic tests check one-row output, known volume/thickness/ReHo values, NA pre
 ## Dependencies
 
 Python 3.11+ and pandas from [requirements.txt](../../requirements.txt). Inputs must retain the original report assets and FreeSurfer/S8/XCP-D files in the archived pair. No image pipeline is rerun and no external service is contacted.
+
+## macOS and Linux
+
+The exporter and explicit Python `--watch` scan loop can read existing valid archives on both hosts. Set the actual mounted archive path and keep relative HTML/assets intact. Linux archival must first implement and validate the S10 volume/copy transition; copying a Mac receipt or setting its status by hand is not a verified archive.
+
+See the [stage-specific host instructions](../../06_docs/platform_execution.md#s12) for prerequisites, executable routes and validation limits. Shared analysis settings remain in this step's existing configuration; host compatibility is not a new scientific QC pass.

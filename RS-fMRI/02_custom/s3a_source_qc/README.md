@@ -46,3 +46,9 @@ Synthetic schemas test quality/chosen separation, grades 4/−1, deletion/confli
 Python 3.11+ standard library. Sources and original code hashes are recorded in `03_config/imported_sources.json`. Reference: [ADNI MRI QC](https://adni.loni.usc.edu/data-samples/adni-data/neuroimaging/mri/mri-quality-control/).
 
 This step supplements upstream image selection and conversion. It audits T1/EPI source records; actual T1-reference/BOLD pairing, NIfTI/JSON consistency and ST axis/direction require separate image-level validation. Auditing ADNI4 NFQ sources does not add Clinica ADNI4 support.
+
+## macOS and Linux
+
+The Python CLI and source-QC rules are shared. Set Study Files/output paths to this host and preserve the source hashes and pending/blocked identity decisions. This step needs neither Docker nor a service manager.
+
+See the [stage-specific host instructions](../../06_docs/platform_execution.md#s3a) for prerequisites, executable routes and validation limits. Shared analysis settings remain in this step's existing configuration; host compatibility is not a new scientific QC pass.

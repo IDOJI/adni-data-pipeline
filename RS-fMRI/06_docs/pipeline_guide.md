@@ -29,3 +29,7 @@ Session-restricted MRIQC execution, fitting-population limits, upstream s8 missi
 ## Reproducibility and standalone reporting
 
 Use the [public/offline walkthrough](../07_reproducibility/README.md) for copied terminal commands and reviewed reference values. Optional 5.D verifies an explicit pair before dispatch, 7.C adds prospective ANTs iteration logs, and 12 exports existing validated archive scalars/reports after S10. See each step README for its input/output/validation contract. The examples do not install live services or determine cohort inclusion.
+
+## Host-specific stage instructions
+
+The [macOS/Linux guide](platform_execution.md) documents every upstream/custom position without editing the pinned upstream. Each Custom Step links to its own host section. Preserve the scientific profile and provenance when changing hosts; document and validate service/publication/volume adapters separately from imaging algorithms.

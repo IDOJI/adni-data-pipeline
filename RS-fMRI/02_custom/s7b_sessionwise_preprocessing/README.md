@@ -36,3 +36,9 @@ Synthetic tests cover legacy/new routing, unchanged surface/CIFTI options, prese
 ## Dependencies
 
 Python 3.11+, repository requirements, installed Docker images/templates, a valid license and pinned upstream. No image pulls or analysis-setting changes are required for a code-path handoff.
+
+## macOS and Linux
+
+The configured single-case `run.py` builds Linux-container argv on either POSIX host after path setup. The completed-pair publisher uses macOS `/bin/cp -cR`, and `queue_service.py` uses `/usr/bin/caffeinate`. Linux needs publisher/controller and service adapters before the complete automatic ADNI chain is available. Do not run Mac-specific publication or queue commands as a Linux deployment recipe.
+
+See the [stage-specific host instructions](../../06_docs/platform_execution.md#s7b) for prerequisites, executable routes and validation limits. Shared analysis settings remain in this step's existing configuration; host compatibility is not a new scientific QC pass.

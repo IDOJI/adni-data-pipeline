@@ -67,3 +67,9 @@ Python 3.11+, [requirements](../../requirements.txt), pinned upstream S8, Docker
 ## Downstream research inclusion
 
 Pass finalized `final_included_runs.tsv` and `clinical_scan_links.tsv` to 9.A, then pass the corrected v2 artifact to [9.B](../s9b_validate_inclusion/README.md). The gate combines source QC, nearest/28-day clinical conditions and confirmed ST absence while preserving source-QC pending and imaging-review decisions. S10 imaging QC alone does not establish research inclusion.
+
+## macOS and Linux
+
+The core XCP-D Linux container and validator can use the same scientific configuration on Mac Docker Desktop and Linux Docker Engine. The strict ADNI input layout still needs valid 7.B publication evidence. The external offloader calls macOS `diskutil info -plist`; native Linux needs a mounted-volume/copy-validation adapter before automatic archival and local cleanup. A systemd timer alone is not that port.
+
+See the [stage-specific host instructions](../../06_docs/platform_execution.md#s10) for prerequisites, executable routes and validation limits. Shared analysis settings remain in this step's existing configuration; host compatibility is not a new scientific QC pass.
