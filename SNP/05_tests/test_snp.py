@@ -6,6 +6,7 @@ import sqlite3
 import subprocess
 import tempfile
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -93,6 +94,39 @@ class SourceAndWorkflowTests(unittest.TestCase):
                 paths[0].write_text(json.dumps(record))
                 with self.subTest(changes=changes), self.assertRaises(ValueError):
                     workflow.check_jobs(paths, expected)
+
+    def test_stage_runner_requires_inputs_and_preserves_logs(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self.config.update(data_root=str(root / "data"), reference_root=str(root / "ref"), container=str(root / "qc.simg"))
+            batch = self.config["batches"][0]
+            log = root / "logs/pre.log"
+            with self.assertRaises(ValueError):
+                workflow.run_stage(self.config, batch["id"], "preimputation", str(log))
+            self.assertFalse(log.exists())
+            inputs = [root / "qc.simg", root / "data" / batch["sex_file"], root / "ref" / (self.config["references"]["topmed_sites_stem"] + ".txt.gz")]
+            inputs += [Path(str(root / "data" / batch["input_bfile"]) + ext) for ext in (".bed", ".bim", ".fam")]
+            for path in inputs:
+                path.parent.mkdir(parents=True, exist_ok=True); path.write_text("synthetic placeholder")
+            with patch.object(workflow.shutil, "which", return_value="/synthetic/apptainer"), patch.object(workflow.subprocess, "run") as run:
+                result = workflow.run_stage(self.config, batch["id"], "preimputation", str(log))
+                self.assertEqual(result["status"], "process_completed")
+                self.assertEqual(result["qc_review"], "required")
+                self.assertIn("gwas_qc_preimputation.sh", run.call_args.args[0])
+                before = log.read_bytes()
+                with self.assertRaises(FileExistsError):
+                    workflow.run_stage(self.config, batch["id"], "preimputation", str(log))
+                self.assertEqual(log.read_bytes(), before)
+                run.side_effect = subprocess.CalledProcessError(7, ["synthetic-runtime"])
+                failed_log = root / "logs/failed.log"
+                with self.assertRaises(subprocess.CalledProcessError):
+                    workflow.run_stage(self.config, batch["id"], "preimputation", str(failed_log))
+                self.assertTrue(failed_log.is_file())
+                existing = Path(str(root / "data" / batch["preimputation_stem"]) + ".bed")
+                existing.write_bytes(b"existing result")
+                with self.assertRaises(ValueError):
+                    workflow.run_stage(self.config, batch["id"], "preimputation", str(root / "logs/another.log"))
+                self.assertEqual(existing.read_bytes(), b"existing result")
 
 
 class VariantAuditTests(unittest.TestCase):

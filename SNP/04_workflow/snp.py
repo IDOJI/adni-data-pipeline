@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the source pin and print QC commands without executing them."""
+"""Check pinned source, plan commands or execute one configured upstream QC stage."""
 from __future__ import annotations
 
 import argparse
@@ -8,6 +8,7 @@ import json
 from pathlib import Path, PurePosixPath
 import re
 import shlex
+import shutil
 import subprocess
 import sys
 
@@ -184,6 +185,52 @@ def check_jobs(paths, expected_batches):
             "server_evidence_independently_verified": False}
 
 
+def run_stage(config, batch_id, stage, log_path):
+    matches = [entry for entry in plan(config)["stages"] if entry["batch"] == batch_id and entry["stage"] == stage]
+    if len(matches) != 1:
+        raise ValueError("Stage is unavailable; check batch ID and the cleaned_genotypes/ancestry_subsets handoffs")
+    batch = next(b for b in config["batches"] if b["id"] == batch_id)
+    data, refs = external(config["data_root"]), external(config["reference_root"])
+    required = [external(config["container"])]
+    if stage == "preimputation":
+        prefixes = [data / batch["input_bfile"]]
+        required += [data / batch["sex_file"], refs / (config["references"]["topmed_sites_stem"] + ".txt.gz")]
+        output = data / batch["preimputation_stem"]
+    elif stage == "postimputation1":
+        prefixes = []
+        required += [data / batch["sex_file"], refs / config["references"]["snpweights_stem"],
+                     refs / (config["references"]["snpweights_stem"] + "_snp.txt")]
+        required += [data / batch["imputation_dir"] / f"chr{i}.dose.vcf.gz" for i in range(1, 23)]
+        required += [refs / (config["references"]["rsid_stem"] + f"_chr{i}.txt") for i in range(1, 23)]
+        output = data / batch["postimputation_stem"]
+    else:
+        label = stage.partition(":")[2]
+        subset = next(s for s in batch["ancestry_subsets"] if s["label"] == label)
+        prefixes = [data / batch["cleaned_genotypes"], data / (batch["postimputation_stem"] + "_IDs_sex")]
+        required += [data / subset["keep_file"], data / (batch["postimputation_stem"] + "_IDs_sex.log"),
+                     refs / (config["references"]["rsid_stem"] + ".txt")]
+        output = data / (batch["postimputation_stem"] + "_IDs_sex_" + label)
+    required += [Path(str(prefix) + suffix) for prefix in prefixes for suffix in (".bed", ".bim", ".fam")]
+    missing = [str(path) for path in required if not path.is_file()]
+    if missing:
+        raise ValueError("Missing stage inputs: " + ", ".join(missing))
+    if not shutil.which(config["runtime"]):
+        raise ValueError("Container runtime is not installed: " + config["runtime"])
+    external(str(output))
+    if any(output.parent.glob(output.name + "*")):
+        raise ValueError("Stage output prefix already exists; use a fresh prefix")
+    log = external(log_path)
+    log.parent.mkdir(parents=True, exist_ok=True)
+    # Reserve the log before starting; an earlier run's log is never overwritten.
+    with log.open("x") as stream:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        stream.write(json.dumps({"batch": batch_id, "stage": stage, "argv": matches[0]["argv"]}) + "\n")
+        stream.flush()
+        subprocess.run(matches[0]["argv"], stdout=stream, stderr=subprocess.STDOUT, check=True)
+    return {"status": "process_completed", "batch": batch_id, "stage": stage, "log": str(log),
+            "qc_review": "required"}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="action", required=True)
@@ -193,6 +240,11 @@ def main():
     cmd = sub.add_parser("check-jobs", help="Check recorded autosomal TOPMed environments before merging")
     cmd.add_argument("--config", required=True)
     cmd.add_argument("--records", nargs="+", required=True)
+    cmd = sub.add_parser("run-stage", help="Execute one configured upstream QC stage and save its log")
+    cmd.add_argument("--config", required=True)
+    cmd.add_argument("--batch", required=True)
+    cmd.add_argument("--stage", required=True, help="preimputation, postimputation1 or postimputation2:LABEL")
+    cmd.add_argument("--log", required=True)
     args = parser.parse_args()
     try:
         source = doctor()
@@ -200,8 +252,12 @@ def main():
             result = source
         else:
             config = read_config(args.config)
-            result = plan(config) if args.action == "plan" else check_jobs(
-                args.records, [b["id"] for b in config["batches"]])
+            if args.action == "plan":
+                result = plan(config)
+            elif args.action == "run-stage":
+                result = run_stage(config, args.batch, args.stage, args.log)
+            else:
+                result = check_jobs(args.records, [b["id"] for b in config["batches"]])
         print(json.dumps(result, indent=2))
     except (ValueError, KeyError, TypeError, OSError, subprocess.CalledProcessError) as error:
         parser.exit(2, f"Error: {error}\n")

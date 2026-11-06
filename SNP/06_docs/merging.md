@@ -2,6 +2,8 @@
 
 Work within each reviewed ancestry group after post-QC part 2 and the [TOPMed record check](installation.md#record-topmed-jobs). The commands below are templates for the genomics environment. The upstream reference is [Multi-set Merges](https://github.com/VUMC-VMAC/GWAS_QC/blob/5bbabfb54c2fffb86f39810386652daa124ce683/README.md#multi-set-merges).
 
+For commands with attached inputs and expected results, use [toy Steps 6–11](../07_toy/README.md#6-resolve-duplicate-participants).
+
 ## 1. Resolve duplicate participants
 
 Identify repeated participants across arrays using the sample mapping, including participants with different IDs. Calculate concordance at allele-aligned, jointly nonmissing shared loci; save the number compared and number discordant.

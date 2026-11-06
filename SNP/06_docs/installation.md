@@ -22,16 +22,64 @@ Check each delivery's build and the reference files' origin, allele convention a
 
 ## Run each batch
 
-Use the [README commands](../README.md#getting-started) to copy the configuration and generate a command plan. Create output parent directories and execute each stage separately, retaining logs and exit statuses.
+For an immediately runnable example with public data, use the [toy walkthrough](../07_toy/README.md). The commands below require your actual inputs and the runtime described above. Run from `SNP/`.
 
-| Stage | Script and handoff |
-|---|---|
-| Pre-QC | `gwas_qc_preimputation.sh`; review counts and plots, then set `cleaned_genotypes` from its final genotype output |
-| Imputation | Submit chromosome VCFs to TOPMed; retain job settings, reports and original dosage VCFs |
-| Post-QC part 1 | `gwas_qc_postimputation_part1.sh`; review ancestry assignments and populate `ancestry_subsets` |
-| Post-QC part 2 | Regenerate the plan for `gwas_qc_postimputation_part2.sh`; `-p` defers PCA until after merging |
+### 1. Configure paths
+
+Set these paths once, copy the example, and edit its batch builds, input files and reference/runtime paths:
+
+```sh
+export SNP_CONFIG=/ABSOLUTE/PATH/private-snp-config.json
+export SNP_LOGS=/ABSOLUTE/PATH/snp-logs
+export SNP_BATCH=human610
+cp 03_config/pipeline.example.json "$SNP_CONFIG"
+python3 04_workflow/snp.py doctor
+```
+
+Check the generated commands:
+
+```sh
+python3 04_workflow/snp.py plan --config "$SNP_CONFIG"
+```
+
+### 2. Run pre-imputation QC
+
+```sh
+python3 04_workflow/snp.py run-stage --config "$SNP_CONFIG" \
+  --batch "$SNP_BATCH" --stage preimputation \
+  --log "$SNP_LOGS/$SNP_BATCH-pre.log"
+```
+
+This runs `gwas_qc_preimputation.sh`. Review counts and plots, and set `cleaned_genotypes` in the configuration to its final genotype output.
+
+### 3. Complete hosted imputation
 
 For upload, use sorted, bgzip-compressed chromosome VCFs with GT and GRCh38 `chr` names; see [TOPMed data preparation](https://statgen.github.io/tis-v2-docs/imputation/data-preparation/). For post-QC, provide decrypted `chr1.dose.vcf.gz` through `chr22.dose.vcf.gz` in each batch's imputation directory. The plan omits `-z`; keep decryption passwords outside logs.
+
+This stage requires a TOPMed account and server submission. There is no local command here that substitutes for the service. Save its job settings, reports and original dosage VCFs, then complete the job-record check below before merging.
+
+### 4. Run post-imputation part 1
+
+```sh
+python3 04_workflow/snp.py run-stage --config "$SNP_CONFIG" \
+  --batch "$SNP_BATCH" --stage postimputation1 \
+  --log "$SNP_LOGS/$SNP_BATCH-post1.log"
+```
+
+This runs `gwas_qc_postimputation_part1.sh`. Review ancestry assignments and populate `ancestry_subsets` with the resulting keep lists.
+
+### 5. Run post-imputation part 2
+
+For each reviewed ancestry label in the configuration:
+
+```sh
+export SNP_ANCESTRY=EUR
+python3 04_workflow/snp.py run-stage --config "$SNP_CONFIG" \
+  --batch "$SNP_BATCH" --stage "postimputation2:$SNP_ANCESTRY" \
+  --log "$SNP_LOGS/$SNP_BATCH-post2-$SNP_ANCESTRY.log"
+```
+
+This runs `gwas_qc_postimputation_part2.sh` with `-p` to defer PCA until after merging. Repeat the batch stages for each array. `run-stage` requires the configured inputs and runtime, rejects existing output prefixes/logs, and captures stdout/stderr. A completed process still needs QC review.
 
 ## Record TOPMed jobs
 

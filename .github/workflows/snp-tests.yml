@@ -16,10 +16,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          submodules: recursive
           persist-credentials: false
+      - run: git -C .. submodule update --init -- SNP/01_upstream/GWAS_QC
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
       - run: python3 04_workflow/snp.py doctor
       - run: python3 -m unittest discover -s 05_tests -v
+      - name: Reproduce the public toy workflow
+        run: |
+          export SNP_TOY_RUN="$(mktemp -d)"
+          python3 07_toy/run.py setup --run-dir "$SNP_TOY_RUN"
+          for stage in prepare pre imputation post1 post2 deduplicate harmonize merge final x; do
+            python3 07_toy/run.py "$stage" --run-dir "$SNP_TOY_RUN"
+          done
+          python3 07_toy/run.py verify --run-dir "$SNP_TOY_RUN"
