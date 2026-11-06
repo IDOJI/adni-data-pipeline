@@ -98,12 +98,37 @@ Preserve 7.A's existing aCompCor profile separately from S10's 36P/GSR profile; 
 ## Processing-time reports
 
 ```sh
-: "${ADNI_RUNTIME_ROOT:?Set the existing external pipeline runtime directory}"
-python 02_custom/s7d_processing_timing/run.py --root "$ADNI_RUNTIME_ROOT"
-cat "$ADNI_RUNTIME_ROOT/timing/summary.json"
+# Later execution, after preparation and the source-only hook check in Step 7.D:
+export PREPROC_CONFIG="/ABSOLUTE/PATH/preprocessing.local.yaml"
+export ADNI_SUBJECT="ADNI999S9999"
+python 02_custom/s7b_sessionwise_preprocessing/run.py \
+  --config "$PREPROC_CONFIG" run --stage mriqc --subject "$ADNI_SUBJECT"
+python 02_custom/s7b_sessionwise_preprocessing/run.py \
+  --config "$PREPROC_CONFIG" run --stage fmriprep --subject "$ADNI_SUBJECT"
 ```
 
-Step 7.D records each MRIQC/fMRIPrep/XCP-D attempt and aggregates preprocessing, postprocessing and overall observed elapsed time. New runners refresh the reports at completion; the collector also reads legacy receipts without restarting workers. Follow the [timing guide](02_custom/s7d_processing_timing/README.md) for automatic updates, archive inputs, retries, missing times and the distinction between parallel stage sums and real elapsed wall time.
+When you execute these real imaging commands with the timing-enabled 7.B runner, each completion/failure records its duration and refreshes the reports automatically. After the completed pair has been published in the S10 input layout, its XCP-D execution records time through the same mechanism:
+
+```sh
+export XCPD_CONFIG="/ABSOLUTE/PATH/xcpd.local.json"
+python 02_custom/s10_xcpd_integrated_qc/pipeline.py \
+  --config "$XCPD_CONFIG" pilot
+```
+
+No timing service is required for the new completion hooks. A working checkout may preserve legacy runner files without those hooks: check the source first using [Step 7.D's static check](02_custom/s7d_processing_timing/README.md#1-check-automatic-recording-without-running-the-pipeline). Such a copy needs an explicit timing collector or a separate timing-enabled checkout; merely having Step 7.D installed is insufficient. Preserve active deployment/cache identities.
+
+The 7.B YAML `runtime` determines its attempt-log root. S10 uses JSON `root` and published `<source_pair>/s10/<config_id>/runs/<run_key>/attempt-NNN/execution.json`. In the shared pair workflow, set `ADNI_RUNTIME_ROOT` to the common root containing `runs/`, `results/` and `continuous5/`; timing reports live there:
+
+```sh
+export ADNI_RUNTIME_ROOT="/ABSOLUTE/PATH/shared-pair-runtime"
+cat "$ADNI_RUNTIME_ROOT/timing/summary.json"
+head -n 6 "$ADNI_RUNTIME_ROOT/timing/attempts.display.tsv"
+head -n 6 "$ADNI_RUNTIME_ROOT/timing/cases.display.tsv"
+```
+
+`attempts.tsv` gives MRIQC/fMRIPrep/XCP-D start/end and seconds/hours per attempt. `cases.tsv` gives per-case stage totals; `summary.json` gives aggregate preprocessing, postprocessing and overall observed wall time. `stage_seconds_sum` counts processing intervals, including failures/retries; `observed_wall_seconds` spans the first start to latest finish and includes waiting/validation. It is not a final cohort total while work is pending. Standalone 7.B uses `<runtime>/timing/` unless the shared-root promotion condition applies; public imaging uses `<PUBLIC_ROOT>/timing/`. See [Step 7.D](02_custom/s7d_processing_timing/README.md) for exact paths, null/incomplete values and optional manual collection. Documentation/source inspection does not require running any imaging or collector command.
+
+The optional Docker event observer `04_workflow/processing_timing.py` has a separate measurement contract: container execution windows with observed pause/sleep subtracted, fMRIPrep + XCP-D combined and MRIQC separate. Both implementations share only the display formatter. Step 7.D adds `attempts.display.tsv` and `cases.display.tsv` while preserving numeric TSVs. The observer's human `processing_times.csv` displays explicit time units; numeric integrations read `processing_times.raw.csv`. These values must not be merged with Step 7.D's wall span or counted again as additional work. See [measurement and file-schema comparison](02_custom/s7d_processing_timing/README.md#5-separate-docker-execution-observer-and-display-formats) for provenance, S12 ownership and host-coverage limits.
 
 ## 🧠 Atlas library and BOLD extraction
 

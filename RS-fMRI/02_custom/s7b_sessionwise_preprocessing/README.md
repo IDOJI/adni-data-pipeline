@@ -68,8 +68,16 @@ See the [stage-specific host instructions](../../06_docs/platform_execution.md#s
 ## Processing-time records
 
 ```sh
-: "${ADNI_RUNTIME_ROOT:?Set the existing external pipeline runtime directory}"
-python 02_custom/s7d_processing_timing/run.py --root "$ADNI_RUNTIME_ROOT"
+export PREPROC_CONFIG="/ABSOLUTE/PATH/preprocessing.local.yaml"
+export ADNI_SUBJECT="ADNI999S9999"
+python 02_custom/s7b_sessionwise_preprocessing/run.py \
+  --config "$PREPROC_CONFIG" run --stage mriqc --subject "$ADNI_SUBJECT"
+python 02_custom/s7b_sessionwise_preprocessing/run.py \
+  --config "$PREPROC_CONFIG" run --stage fmriprep --subject "$ADNI_SUBJECT"
 ```
 
-Completed and failed attempts retain start/end times and a `timing` object; sidecar reports aggregate MRIQC, fMRIPrep, XCP-D and the overall observed elapsed time. Existing legacy receipts can be collected without replacing a running worker. See [Step 7.D](../s7d_processing_timing/README.md) for outputs, automatic collection, archive/retry handling and missing-time limits.
+These are future real-imaging commands for a prepared case. With the timing-enabled runner, each completion/failure calls `add_timing` and `refresh_safely` automatically; no extra timing watcher is required. First use [Step 7.D's source-only check](../s7d_processing_timing/README.md#1-check-automatic-recording-without-running-the-pipeline) to distinguish those runners from preserved legacy copies without hooks.
+
+For YAML `runtime=R7`, original records are `R7/logs/<timestamp>_<stage>_sub-<subject>_ses-<session>/run.json`; `timing.elapsed_seconds` holds the duration. Reports default to `R7/timing/{attempts.tsv,cases.tsv,summary.json,ledger.json}` (also `cases.json`). When `R7=<shared-root>/runs/<subject>` and `<shared-root>/continuous5/` exists, reports go to `<shared-root>/timing/` instead. See [Step 7.D](../s7d_processing_timing/README.md) for combined MRIQC/fMRIPrep/XCP-D totals, manual legacy collection and incomplete values.
+
+The timing object also exposes `timing.elapsed_display` with explicit hour/minute/second units; numeric `timing.elapsed_seconds` is preserved. Human TSV sidecars are separate from numeric files. See [the measurement contracts](../s7d_processing_timing/README.md#5-separate-docker-execution-observer-and-display-formats).
