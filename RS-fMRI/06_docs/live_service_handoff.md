@@ -1,5 +1,7 @@
 # Live-service handoff
 
+For a complete removal of the separate historical checkout dependency, use the [independent-runtime handoff](repository_independence.md). It preserves old scientific identities through an explicit effective-source binding and leaves services stopped after the captured cohort drains.
+
 The preprocessing queue, XCP-D controller and offloader can use this repository while existing calculations and results remain in place. The deployment manifest is private and records source hashes, legacy ownership, container identities and the exact historical XCP-D configuration hash.
 
 ## Execution boundaries
@@ -23,6 +25,9 @@ python 02_custom/s10_xcpd_integrated_qc/offload_completed.py --root /ABSOLUTE/PA
 
 The regular S10 constructor continues to require validated integrated protocol source and a new explicit configuration. Only this verified compatibility entry point preserves a historical configuration identity. It does not authorize changed images, thresholds, atlases, nuisance settings or previously unknown caches. Existing completed attempts and human-review fields are preserved.
 
+## Prospective iteration logging
+
+The queue wraps subsequent stage launches with Custom Step 7.C, including frozen-backend retries. Backend cache identities remain unchanged and the logging transport has separate provenance. For this logging upgrade, use Step 7.C deferred activation: hold only new admission, allow existing containers/workers to finish, gracefully restart the idle controller and restore the original admission policy after the new launcher is advertised. Host `docker run` clients proxy signals; do not terminate active execution trees to enable logging. Check the external activation receipt before reporting the logging transport as active.
 
 ## Source integration and active deployments
 

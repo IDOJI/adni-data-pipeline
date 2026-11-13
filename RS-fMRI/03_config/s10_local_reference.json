@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "preserved_on": "2026-11-13",
+  "purpose": "Historical source reference; use the active integrated S10 for execution.",
+  "files": [
+    {
+      "source": "s10_xcpd_integrated_qc/container_entry.py",
+      "source_sha256": "2df57b51b1fc4224fc81068e9e522eff2fe401ae29700e3dd6a5f4ed815e86db",
+      "export_path": "01_upstream/s10_local_reference/container_entry.py",
+      "export_sha256": "2df57b51b1fc4224fc81068e9e522eff2fe401ae29700e3dd6a5f4ed815e86db",
+      "changes": []
+    },
+    {
+      "source": "s10_xcpd_integrated_qc/pipeline.py",
+      "source_sha256": "7ba9895d85d2fd24998659ee4a894d51d0caad0dc1949a5e9fc9eaf871a6cefd",
+      "export_path": "01_upstream/s10_local_reference/pipeline.py",
+      "export_sha256": "7ba9895d85d2fd24998659ee4a894d51d0caad0dc1949a5e9fc9eaf871a6cefd",
+      "changes": []
+    },
+    {
+      "source": "s10_xcpd_integrated_qc/slurm_task.py",
+      "source_sha256": "5288953f6aa0e2b154a1aa98bfe90a379d29ffcad10da59a86bf01bcdd7fde90",
+      "export_path": "01_upstream/s10_local_reference/slurm_task.py",
+      "export_sha256": "5288953f6aa0e2b154a1aa98bfe90a379d29ffcad10da59a86bf01bcdd7fde90",
+      "changes": []
+    },
+    {
+      "source": "s10_xcpd_integrated_qc/tests/test_pipeline.py",
+      "source_sha256": "0e94d754d361854e181afafca18429d3e9e45a395743d2a23715bd64fd223ade",
+      "export_path": "01_upstream/s10_local_reference/tests/test_pipeline.py",
+      "export_sha256": "b5598e0a8b09dc27fb66e61af5b3e54973d5f37eeb91f47bb4ba01fc7c9da1fc",
+      "changes": [
+        "Replace participant and scan-date examples with synthetic values."
+      ]
+    }
+  ]
+}

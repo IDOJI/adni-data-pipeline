@@ -1,5 +1,7 @@
 # 🧠 RS-fMRI Pipeline
 
+For new local preprocessing batches, use the [fixed-seed profile](06_docs/seed_reproducibility.md) and `04_workflow/local_batch_seeded.py`. It covers MRIQC, fMRIPrep skull stripping, XCP-D and R cohort fitting. Existing source-locked services and historical commands retain their original execution identity.
+
 ## 🚀 Initial installation
 
 ```sh
@@ -23,6 +25,8 @@ Use the [offline/public walkthrough](07_reproducibility/README.md) when practici
 
 Contribution and maintenance rules: [Repository instructions.md](<Repository instructions.md>)
 
+For an existing live installation, use the [independent-runtime handoff](06_docs/repository_independence.md) to finish a captured cohort, move interpreters and executable source into this repository, verify the old checkout is no longer read, and leave admission stopped. CPU quotas are managed separately from scientific pipeline settings.
+
 This pipeline **includes statMINDlab-derived ADNI protocol code as ordinary editable source** under `01_upstream/ADNI_fMRI_protocol/` and maintains lab additions under `02_custom/`. See the [source integration and preserved history](06_docs/source_integration.md). This README describes the complete execution order across upstream and Custom Steps.
 
 - Upstream: [statMINDlab/ADNI_fMRI_protocol](https://github.com/statMINDlab/ADNI_fMRI_protocol/tree/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3)
@@ -39,13 +43,16 @@ RS-fMRI/
 ├── 02_custom/
 │   ├── s3a_source_qc/            # Source QC, NFQ, deletion and identity audits
 │   ├── s5c_validate_handoff/     # Step 5 TSV → Step 6/7 input handoff
+│   ├── s5d_bids_identity/        # Optional verified exact EPI–T1 dispatch
 │   ├── s7a_volume_workflow/     # Existing Docker volume profile, audit and recovery
 │   ├── s7b_sessionwise_preprocessing/ # Existing SB queue and surface/CIFTI adapter
+│   ├── s7c_ants_iteration_logging/ # Prospective ANTs iteration logs and idle activation
 │   ├── s8a_motion_duration_qc/    # Retained duration from actual FD and TR
 │   ├── s9a_validate_clinical/    # Scan dates, diagnostic ties and demographics
 │   ├── s9b_validate_inclusion/   # Source QC, clinical and confirmed-exclusion gate
 │   ├── s10_xcpd_integrated_qc/   # S8, XCP-D, ROI/FC, imaging QC and archival gates
-│   └── s11_atlas_bold/           # Pinned atlas library and audited ROI BOLD means
+│   ├── s11_atlas_bold/           # Pinned atlas library and audited ROI BOLD means
+│   └── s12_metrics_summary/      # One-row structural/function metrics and HTML report links
 ├── 03_config/                     # Public configuration examples and version locks
 ├── 04_workflow/                   # Version checks, external configuration and command plans
 ├── 05_tests/                      # Synthetic and upstream compatibility tests
@@ -55,7 +62,9 @@ RS-fMRI/
 
 Top-level numbers `01`–`07` classify directories. Actual execution follows the upstream and Custom Step positions in the table below.
 
-Run the [copy-and-paste reproducibility walkthrough](07_reproducibility/README.md) for a synthetic reference, pinned public T1w/BOLD inputs, actual Docker commands and peer comparison. The real CC0 NIfTI sample is bundled as ordinary Git files under [public_data](07_reproducibility/public_data/ds000030-1.0.0/README.md).
+For runnable stage-by-stage examples, start with the [reproducibility walkthrough](07_reproducibility/README.md). It includes an offline synthetic reference, pinned public T1w/BOLD inputs, actual imaging commands and peer comparison without private ADNI data.
+
+The real CC0 NIfTI sample is bundled as ordinary Git files under [public_data](07_reproducibility/public_data/ds000030-1.0.0/README.md).
 
 Use the [macOS/Linux execution guide](06_docs/platform_execution.md) for shared analysis settings, host setup, each upstream/custom stage, and the explicit publisher/controller/archival portability boundaries. The imported protocol is maintained in this repository; its original baseline remains recorded.
 
@@ -71,12 +80,12 @@ Use the [macOS/Linux execution guide](06_docs/platform_execution.md) for shared 
 | 4.B | Philips SliceTiming | [Protocol Step 4b](01_upstream/ADNI_fMRI_protocol/s4b_slice_timing/README.md) | Dry-run first; review actual image identity and slice-axis correspondence | [Run S4B](06_docs/platform_execution.md#s4b) |
 | 5.A–B | Post-Clinica QC | [Protocol Step 5](01_upstream/ADNI_fMRI_protocol/s5_post_clinica_qc/README.md) | Mastersheet → final_heuristics.tsv | [Run S5AB](06_docs/platform_execution.md#s5ab) |
 | **5.C** | **Input handoff validation** | [Custom](02_custom/s5c_validate_handoff/README.md) | Compare selected BOLD with 3.A evidence; block failures/conflicts, mark pending and generate 6/7 inputs | [Run S5C](06_docs/platform_execution.md#s5c) |
-| **5.D** | **Exact-pair BIDS identity** | [Custom](02_custom/s5d_bids_identity/README.md) | Hash/UID/header verification and guarded exact EPI–T1 dispatch; synthetic example included | [Run S5D](06_docs/platform_execution.md#s5d) |
+| **5.D** | **Optional BIDS identity and exact-pair dispatch** | [Custom](02_custom/s5d_bids_identity/README.md) | Preserve external EPI proposals, verify actual Image ID/UID/hash evidence, hold unresolved cases and pass exact verified pairs through a guarded 7.B entry point | [Run S5D](06_docs/platform_execution.md#s5d) |
 | 6 | MRIQC | [Protocol Step 6](01_upstream/ADNI_fMRI_protocol/s6_mriqc/README.md) | Generate IQMs/reports; verify IQM fitting scope against Step-5 survivors | [Run S6](06_docs/platform_execution.md#s6) |
 | 7 | fMRIPrep | [Protocol Step 7](01_upstream/ADNI_fMRI_protocol/s7_fmriprep/README.md) | Explicitly pass 5.C session CSVs; generate images, confounds and reports | [Run S7](06_docs/platform_execution.md#s7) |
 | **7.A** | **Separate Docker volume profile** | [Custom](02_custom/s7a_volume_workflow/README.md) | Existing aCompCor profile, independent audit and metadata repair; separate from upstream 7 and S10 | [Run S7A](06_docs/platform_execution.md#s7a) |
-| **7.B** | **Live sessionwise preprocessing** | [Custom](02_custom/s7b_sessionwise_preprocessing/README.md) | Existing queue compatibility; new subjects use integrated source, active jobs retain their original runner | [Run S7B](06_docs/platform_execution.md#s7b) |
-| **7.C** | **ANTs iteration logs** | [Custom](02_custom/s7c_ants_iteration_logging/README.md) | Optional logging transport before a new fMRIPrep launch; no queue or image-settings change | [Run S7C](06_docs/platform_execution.md#s7c) |
+| **7.B** | **Live sessionwise preprocessing** | [Custom](02_custom/s7b_sessionwise_preprocessing/README.md) | Existing queue compatibility; new subjects use integrated source, active jobs retain their original runner; transient controller errors are logged and retried; optional independent heartbeat watchdog | [Run S7B](06_docs/platform_execution.md#s7b) |
+| **7.C** | **Live ANTs iteration logging** | [Custom](02_custom/s7c_ants_iteration_logging/README.md) | Instrument future 7.B/frozen stage launches; preserve scientific/cache identity and log iterations live; defer controller activation until idle | [Run S7C](06_docs/platform_execution.md#s7c) |
 | **7.D** | **Processing-time records** | [Custom](02_custom/s7d_processing_timing/README.md) | Per-attempt MRIQC/fMRIPrep/XCP-D times, preprocessing/postprocessing totals and overall observed wall time | [Run S7D](02_custom/s7d_processing_timing/README.md) |
 | 8 | Final QC | [Protocol Step 8](01_upstream/ADNI_fMRI_protocol/s8_final_qc/README.md) | Motion, Euler, MRIQC and inclusion/exclusion reasons | [Run S8](06_docs/platform_execution.md#s8) |
 | **8.A** | **Motion retained-duration checks** | [Custom](02_custom/s8a_motion_duration_qc/README.md) | Actual TR × retained frames, FD proportion, initial-frame sensitivity and masks | [Run S8A](06_docs/platform_execution.md#s8a) |
@@ -85,7 +94,8 @@ Use the [macOS/Linux execution guide](06_docs/platform_execution.md) for shared 
 | **9.B** | **Final inclusion validation** | [Custom](02_custom/s9b_validate_inclusion/README.md) | Combine source QC, clinical validation and confirmed ST/conversion failures; retain pending under nearest/28-day policy | [Run S9B](06_docs/platform_execution.md#s9b) |
 | **10** | **XCP-D and integrated imaging QC** | [Custom](02_custom/s10_xcpd_integrated_qc/README.md) | Completed S7 pair → S8 metrics → provisional XCP-D → validation/human review → explicit cohort finalization; export 9.A links | [Run S10](06_docs/platform_execution.md#s10) |
 | **11** | **Atlas-based BOLD signals** | [Custom](02_custom/s11_atlas_bold/README.md) | Select a pinned matching-space atlas; audit labels/coverage and extract ROI means from reviewed BOLD | [Run S11](06_docs/platform_execution.md#s11) |
-| **12** | **One-row scalar results and HTML** | [Custom](02_custom/s12_metrics_summary/README.md) | Verified S10 archive → volume/thickness/ReHo/ALFF/QC table and native reports; independent of optional 11 | [Run S12](06_docs/platform_execution.md#s12) |
+| After 11 (planned) | Selected-atlas FC and cohort harmonization | [Design and evidence](06_docs/fc_harmonization.md) | ROI time series → Pearson FC → Fisher-z edges → reviewed batch/covariate model → ComBat baseline and evaluation; documentation only, no runnable adapter yet | [Mac/Linux](06_docs/platform_execution.md#cross-host-comparison) |
+| **12** | **Per-run scalar metrics and reports** | [Custom](02_custom/s12_metrics_summary/README.md) | Verified S10 archive → one-row structural/ReHo/ALFF/QC CSV and native-report HTML links; preserve NA and final-inclusion pending | [Run S12](06_docs/platform_execution.md#s12) |
 
 Steps 1.A/1.B have not been defined and are not created yet. Add them when needed using the [Custom Step guide](06_docs/pipeline_guide.md).
 
@@ -142,15 +152,25 @@ python 02_custom/s11_atlas_bold/run.py list --space MNI152NLin6Asym
 
 Use the [extraction command](02_custom/s11_atlas_bold/README.md#execution) with 9.B evidence and an actual image/run mapping. No space aliasing or cross-template registration is inferred. Masked/lost ROIs stay in the audit and expected columns; failed coverage produces a nonzero status. S10's existing atlas/FC products remain separate. See the [locking and space guide](06_docs/atlas_library.md).
 
+## 🔗 FC calculation and harmonization after atlas selection
+
+The [FC and harmonization guide](06_docs/fc_harmonization.md) documents the intended continuation from Step 11: **ROI time series → Pearson FC → Fisher-z edges → cohort-level harmonization → group/network analysis**. ComBat is the proposed first baseline to evaluate, supported by direct ADNI applications; it is not an automatic requirement or a claim of established usage frequency.
+
+The guide connects [neuroCombat (Python)](https://github.com/Jfortin1/neuroCombat), [neuroCombat (R)](https://github.com/Jfortin1/neuroCombat_Rpackage), [neuroHarmonize](https://github.com/rpomponio/neuroHarmonize) and [FCHarmony](https://github.com/andy1764/FCHarmony), with reviewed documentation revisions, primary papers, batch/phase confounding, covariate and train/test rules, and proposed input/output contracts. These are reference links; no new dependencies or submodules are installed. Selected-atlas FC and harmonization adapters remain planned. S10's existing FC and Step 12's scalar/report branch retain their separate roles.
+
 ## 🔎 Scope of ported Research rules
 
 The [validation-rule mapping](06_docs/research_validation_rules.md) distinguishes rules adapted from source QC/NFQ/clinical code from items requiring actual-image validation. Historical RDS files and download-ID lists do not become central inputs; independently compare upstream-selected images with external raw sources.
 
 Run 3.A with explicit Study Files paths using its [execution commands](02_custom/s3a_source_qc/README.md#execution). Pass the resulting `step3a` artifact to 5.C below. Files and Obsidian paths are not discovered automatically.
 
+## Exact-pair BIDS identity handoff
+
+[Step 5.D](02_custom/s5d_bids_identity/README.md) is an optional file-identity and execution gate for explicit external EPI–T1 proposals. It preserves every EPI row, verifies current BIDS files against unique source UIDs and independent Image ID/hash evidence, and keeps unresolved cases held. Its guarded entry point isolates one exact verified pair, rejects extra T1 images and rechecks fingerprints immediately before delegation to 7.B. For explicitly authorized continuation, an external registry can gate the existing queue: verify completed-stage evidence, observe current owners, and continue only missing stages with the original backend, configuration and cache signatures. Unregistered queue rows remain held, and existing maintenance holds and shared compute limits remain in force. It does not change upstream selection or launch calculations automatically.
+
 ## ⚙️ Configuration and handoffs
 
-Store private configuration in `03_config/lab_config.local.yaml` or outside the repository. Keep research inputs and generated results outside the repository; the explicitly approved CC0 public sample is included under `07_reproducibility/public_data/`.
+Store private configuration in `03_config/lab_config.local.yaml` or outside the repository. Keep all data and results outside the repository.
 
 ```sh
 cp 03_config/lab_config.example.yaml 03_config/lab_config.local.yaml
@@ -251,9 +271,34 @@ These commands update owned source. Review later original-repository changes thr
 
 Use the upstream [CITATION.cff](01_upstream/ADNI_fMRI_protocol/CITATION.cff) for authorship and citation. Added-code sources are recorded in [NOTICE](NOTICE.md); [LICENSE](../LICENSE) states the upstream-compatible GPL-3.0 terms. Original ADNI data is not redistributed.
 
+## External source-copy gate and continuous verified feeding
+
+An optional local timer can check an external source ZIP every three hours, then verify its full member CRCs before switching the existing private runtime to that resident copy. The verified feeder prepares and validates subsequent batches at idle boundaries and connects the existing MRIQC → fMRIPrep → S8/XCP-D → verified archival → S12 services. See the [7.B external-archive contract](02_custom/s7b_sessionwise_preprocessing/README.md#external-archive-readiness-and-verified-batch-feeding). Incomplete sources and identity/pairing conflicts remain held; source installation alone does not establish active computation.
+
+## Live ANTs iteration logging
+
+Execution order: **7.B/frozen backend → [7.C logging transport](02_custom/s7c_ants_iteration_logging/README.md) → MRIQC/fMRIPrep → S8/S10 → verified archive → S12**. Future queue stage launches record live `antsRegistration --verbose 1` raw channels and parsed iteration/stage/level evidence outside the repository. Computational arguments, images, seeds and original backend cache identities are retained; existing active containers are not retrofitted. See the 7.C input/output and validation contract before enabling a live controller handoff.
+
 ## Live automation
 
 See the [live-service handoff guide](06_docs/live_service_handoff.md) for switching existing preprocessing/XCP-D controllers to this repository while preserving running containers, historical configuration IDs, completed results, caches and the shared compute limit.
+
+## Per-run scalar export after archival
+
+Reporting branch: **S10 output validation → verified archive/local cleanup → S12 per-run scalar tables and HTML report browser**. It preserves pending scientific inclusion and can run before cohort-wide finalization. Optional Step 11 atlas extraction is independent.
+
+Use the integrated command from `RS-fMRI/`:
+
+```sh
+python 04_workflow/lab.py export-results --archive-root /ABS/PATH/archive --status /ABS/PATH/runtime/metrics-status.json
+# Explicit persistent watcher; no preprocessing or model/API calls:
+python 04_workflow/lab.py export-results --archive-root /ABS/PATH/archive --status /ABS/PATH/runtime/metrics-status.json --watch
+# Print a Step-12 command alongside the existing upstream plan, without exporting:
+python 04_workflow/lab.py plan --config /ABS/PATH/generated/upstream.yaml --archive-root /ABS/PATH/archive --metrics-status /ABS/PATH/runtime/metrics-status.json
+```
+
+
+[Custom Step 12](02_custom/s12_metrics_summary/README.md) reads verified S10 archives and writes one-row CSV/TSV summaries plus a native-report HTML browser under each pair's `results/`. Inputs, units, missing-data behavior, multi-run isolation and validation are specified in the step contract. The optional local watcher handles newly archived pairs without model calls; it does not establish final inclusion.
 
 ### Step 11 adapters and coverage investigation
 
@@ -261,8 +306,27 @@ Execution order: **9.B metadata inclusion → actual raw BIDS/derivative run lin
 
 Low-coverage investigation compares the unchanged EPI mask with BOLD reference, T1, GM probability and anatomical mask. It writes evidence for review and retains the original QC failures. Coverage 0.5, minimum one voxel, nearest/28-day clinical matching and pending preservation are unchanged; the adapters do not authorize final cohort inclusion or relax study-specific duration criteria.
 
-## Reproducible examples and scalar export
+## Idle relocation of an existing runtime
 
-[Step-by-step terminal blocks](07_reproducibility/README.md) cover actual source/handoff/clinical/QC/extraction/export code using labeled synthetic fixtures, plus MRIQC/fMRIPrep/XCP-D on a pinned CC0 public subject. The quick example has a committed analytical reference; a real public-subject imaging reference has not yet been computed. Comparison checks source/code/options and selected numerical products separately.
+After a current verified batch completes preprocessing, S8/XCP-D validation, archival and S12 export, the optional [7.B runtime relocation procedure](02_custom/s7b_sessionwise_preprocessing/README.md#idle-runtime-relocation) can pause idle services, move the runtime to an empty location on the same filesystem and resume after deployment/Docker checks. `04_workflow/runtime_relocation.py` preserves prior absolute paths through a compatibility symlink instead of rewriting historical scientific configuration or caches. New batch admission must be suspended before arming this external one-time watcher; active imaging calculations are never interrupted by it.
 
-After validated archival, run `python 04_workflow/lab.py export-results --archive-root /ABS/PATH/archive --status /ABS/PATH/runtime/metrics.json`. `--watch` opts into a plain 120-second scan loop; no imaging is launched. Optional Step 11 is not required by Step 12. Final research inclusion stays pending.
+## XCP-D execution-resource recovery
+
+The live compatibility workflow can apply a separately recorded [execution-resource override and terminal-worker monitor](02_custom/s10_xcpd_integrated_qc/README.md#execution-resources-and-terminal-worker-failures). Historical scientific configuration and completed results remain immutable; new attempt commands and `execution_environment.json` identify actual resource settings. Confirmed OOM or broken worker pools are treated as failed attempts rather than indefinitely running containers, and retries remain bounded. Inspect real retry output validation before considering recovery complete.
+
+## Rolling admission and individual QC retention
+
+The [7.B verified feeder](02_custom/s7b_sessionwise_preprocessing/README.md#external-archive-readiness-and-verified-batch-feeding) refills individual positions after verified external archival, maintaining a maximum five-subject rolling window instead of waiting for a whole batch. Existing active calculations remain intact through isolated subject workers and an idle-owner handoff. Each [S10 pair QC report](02_custom/s10_xcpd_integrated_qc/README.md#individual-qc-reports-and-retention-of-rejected-runs) records reasons, measured values and thresholds; rejected and skipped runs retain all available files in the verified external archive. Final research inclusion remains deferred.
+
+
+The optional rolling feeder retains active owners and completed deliveries until verified archival, but removes exhausted execution failures from admission counting. Failed records, original work caches and bounded retry budgets are preserved; repaired retries have explicit priority and cannot exceed the five-subject window. See the [7.B recovery contract](02_custom/s7b_sessionwise_preprocessing/README.md#bounded-failure-recovery).
+
+
+An optional, fingerprinted source-review skip policy takes precedence over retry priority and prior technical exceptions. It excludes pairs with existing unresolved source/protocol review flags or failed input verification before extraction, stage dispatch and automatic postprocessing. Skip reasons and per-pair JSON/HTML reports remain outside the repository; completed historical outputs are retained. Ordinary pending final-QC fields do not automatically exclude every pair. See the [7.B source-review skip contract](02_custom/s7b_sessionwise_preprocessing/README.md#automatic-source-review-skips).
+
+
+Processing durations can be recorded automatically by the independent [Docker lifecycle timing observer](06_docs/processing_timing.md). It captures terminal events, separates failed attempts and queue holds, preserves timing quality and adds per-pair result CSV/JSON after S12 output ownership is established. Active imaging workers and frozen backends remain intact.
+
+## Unattended host-local input batches
+
+For a reserved, hash-verified handoff that must retain results locally, use the [native local batch supervisor](06_docs/local_batch.md). It delegates to 5.D → strict 7.B/7.C → S8/S10, shares the host-wide five-subject limit, preserves review holds and failed caches, and exposes local status without model/API calls. This separate opt-in service does not resume an older admission queue or install an external offloader.

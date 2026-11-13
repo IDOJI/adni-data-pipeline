@@ -79,7 +79,8 @@ def test_public_fetch_with_pinned_cache_and_command_contract(tmp_path,monkeypatc
     cmd=public.docker_command(root,'fmriprep',license_file)
     assert cmd[cmd.index('--subject-anatomical-reference')+1]=='sessionwise'
     assert cmd[cmd.index('--use-syn-sdc')+1]=='error'
-    assert cmd[cmd.index('--omp-nthreads')+1]=='2'
+    assert cmd[cmd.index('--omp-nthreads')+1]=='1'
+    assert '--skull-strip-fixed-seed' in cmd
     assert cmd[cmd.index('--pull')+1]=='never'
     assert public.IMAGES['fmriprep'] in cmd and '--execute' not in cmd
     filt=root/'config/mriqc_filter.json';original=filt.read_bytes();filt.write_text('{}')

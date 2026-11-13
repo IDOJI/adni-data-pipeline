@@ -1,0 +1,73 @@
+{
+  "run_id": "fixed-seed-v1-xcpd262",
+  "pipeline_version": "1.0.0",
+  "root": "/ABSOLUTE/PATH/ADNI_DATA/pair_runtime",
+  "repo": null,
+  "image": "pennlinc/xcp_d@sha256:a919b121d1da8e090bfb3594f49ffeb5ddf2ab491327b04a7b8a1f304b64e7ca",
+  "xcpd_version": "26.2.0",
+  "license": "/ABSOLUTE/PATH/freesurfer/license.txt",
+  "templateflow": "/ABSOLUTE/PATH/templateflow",
+  "mode": "linc",
+  "input_type": "fmriprep",
+  "file_format": "nifti",
+  "space": "MNI152NLin6Asym",
+  "resolution": "2",
+  "density": "91k",
+  "task": "rest",
+  "combine_runs": false,
+  "fd_threshold": 0.3,
+  "min_time": 240,
+  "atlases": [
+    "4S256Parcels"
+  ],
+  "expected_rois": {
+    "4S256Parcels": 256
+  },
+  "linc_qc": true,
+  "abcc_qc": true,
+  "nuisance_regressors": "36P",
+  "global_signal_regression": true,
+  "bandpass": true,
+  "lower_bpf": 0.01,
+  "upper_bpf": 0.08,
+  "bpf_order": 2,
+  "smoothing": 6,
+  "dummy_scans": 0,
+  "despike": true,
+  "motion_filter_type": "none",
+  "head_radius": 50,
+  "censor_between": 0,
+  "min_coverage": 0.5,
+  "pre_fd_threshold": 0.5,
+  "pre_mean_fd_threshold": 0.5,
+  "pre_fd_proportion_threshold": 0.3,
+  "mriqc_flags_file": null,
+  "mriqc_flags_grain": "session",
+  "allow_deferred_cohort_candidates": true,
+  "defer_final_decision": true,
+  "review": {
+    "random_fraction": 0.1,
+    "near_threshold_fraction": 0.8,
+    "missing_roi_fraction_warning": 0.05,
+    "registration_dice_warning": 0.6
+  },
+  "random_seed": 357,
+  "resources": {
+    "cpus": 4,
+    "omp_nthreads": 1,
+    "mem_mb": 6000,
+    "docker_memory": "8g"
+  },
+  "slurm": {
+    "partition": "general",
+    "cpus": 4,
+    "mem_gb": 8,
+    "time": "08:00:00",
+    "image": "xcp_d-26.2.0.sif"
+  },
+  "max_attempts": 2,
+  "retry_delay_seconds": 300,
+  "poll_seconds": 30,
+  "local_reserve_gib": 12,
+  "seed_policy": "fixed-seed-v1"
+}

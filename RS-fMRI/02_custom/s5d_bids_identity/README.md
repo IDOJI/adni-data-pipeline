@@ -1,5 +1,7 @@
 # Step 5.D — BIDS identity and exact EPI–T1 dispatch
 
+For new fixed-seed runs, use `guarded_runner_seeded.py` with a new runtime and a marked seed configuration. It preserves every exact-pair gate while routing to seeded 7.B. See the [seed contract and configuration](../../06_docs/seed_reproducibility.md). Commands below using the original launcher describe the historical compatibility route.
+
 ## Execution
 
 ```sh
@@ -55,6 +57,25 @@ Hash evidence is either a conversion CSV (`SOURCE_PTID,STUDY_DATE,MODALITY,SOURC
 | `06.summary.json` | Identity and ready/held counts; scientific inclusion pending |
 | `07.binding-receipt.json` | Input/output fingerprints for revalidation at dispatch |
 
+## Reconcile and continue existing work
+
+`continuation.py` supports already prepared single-pair runtimes without copying inputs, replacing the original backend, changing scientific arguments or discarding work caches. An external registry pins its binding receipt, configuration, original backend, logging launcher and permitted missing stages for each subject. The queue pins the registry SHA-256 in `settings.verified_continuation = {"path": "/external/registry.json", "sha256": "..."}`. Registry schema `1` requires `hold_unregistered: true`, immutable `pinned_images`, and a `subjects` mapping. Each entry supplies `epi_key`, `allowed_stages`, and the paths and SHA-256 values named above.
+
+- Revalidate the pairing receipt, both source images and the exact four-file runtime/source BIDS views. Legacy configs may omit a T1 ID only when the actual T1 hash proves the verified pairing.
+- Reuse a completed stage only with matching recorded EPI/T1 fingerprints, unchanged final inputs and present nonempty MRIQC reports/IQMs or fMRIPrep anatomical/functional/confound/report outputs. This establishes execution evidence, not scientific QC.
+- Observe existing owners. Reject a runtime lock, an existing subject container or an unresolved running record before launching anything.
+- Continue only permitted missing stages, requiring MRIQC completion before fMRIPrep. Preserve the backend path/hash, config, image digest, input hashes, filter and cache signature. Logging uses the unchanged Step 7.C transport.
+- Run within the existing shared compute lease and admission policy. Unregistered queue rows stay retained and held. An explicitly renewed deferred retry is selected only while its one-attempt entitlement remains available.
+- Install prospective routing during an existing maintenance admission hold; allow the existing idle activator to reload it after all active workers finish. Do not restart busy workers or release a maintenance hold to force admission.
+
+```sh
+python 02_custom/s5d_bids_identity/continuation.py \
+  --registry /external/registry.json --registry-sha256 REGISTRY_SHA256 \
+  --subject SYNTHETIC_SUBJECT --check
+```
+
+The queue invokes the same gate with `--stage mriqc` or `--stage fmriprep` under its existing compute lease. Keep the registry, reconciliation evidence and retry authorization outside this public repository. A staged continuation awaiting idle activation must be reported as queued, not started or completed.
+
 ## Dependencies and tests
 
 Python 3.11+, NumPy, NiBabel, PyYAML and the installed 7.B runtime dependencies. Synthetic tests cover UID ambiguity, Image ID/hash/date conflicts, unavailable files, exact-pair isolation, post-validation mutation and refusal to dispatch pending material. Run the repository pytest suite and `04_workflow/lab.py doctor`.
@@ -64,3 +85,13 @@ Python 3.11+, NumPy, NiBabel, PyYAML and the installed 7.B runtime dependencies.
 Use host-correct BIDS roots and independent hash evidence in a new external configuration. Binding/guarded single-case delegation remains separate from the Mac-specific 7.B publisher and queue; do not claim the complete Linux dispatch/archive chain from a binding pass.
 
 See the [stage-specific host instructions](../../06_docs/platform_execution.md#s5d) for prerequisites, executable routes and validation limits. Shared analysis settings remain in this step's existing configuration; host compatibility is not a new scientific QC pass.
+
+
+## Explicit technical retries with pending source review
+
+`review_continuation.py` supports a narrow, separately recorded technical retry for an explicitly requested existing pair whose only remaining binding blocker is `pairing_review_pending` from `epi_source:protocol_status_review:2`. Its authorization records the exact EPI/T1 identifiers, original request/reference and retained flag. Same-day pairing, protocol scope, documented source QC, unique BIDS identity and independent input fingerprints remain mandatory; other blockers are rejected.
+
+The receipt pins the unchanged source manifests, upstream pairing evidence, authorization and verifier code. The continuation route names this receipt type explicitly. Its plan retains `preprocessing_ready=false`, `analysis_ready=false`, the original review flag and `technical_execution_authorized=true`; it never silently clears a source review condition or establishes final inclusion. Original routes continue to use the ordinary binding verifier. Synthetic authorization tests reject changed pairs, broader scope and additional blockers.
+
+
+When an external runtime enables the automatic source-review skip policy, it takes precedence over all technical-review continuation receipts, including previously issued ones. The guarded continuation checks that policy before loading the old exception. Historical receipts remain evidence; they cannot reactivate a skipped pair. See the [7.B contract](../s7b_sessionwise_preprocessing/README.md#automatic-source-review-skips).

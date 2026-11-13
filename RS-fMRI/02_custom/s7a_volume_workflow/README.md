@@ -1,5 +1,7 @@
 # Step 7.A — Docker volume workflow (aCompCor profile)
 
+For new fixed-seed runs, use `pipeline_seeded.py` and `config.seeded.example.json` with separate new output/work/log paths. This retains the volume/aCompCor profile and adds seed 357, OMP1 and fixed skull stripping. See the [seed contract](../../06_docs/seed_reproducibility.md). Original launcher commands below remain the historical compatibility route.
+
 ## Execution
 
 ```sh

@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "batch_id": "local-adni-fixed-seed-v1",
+  "root": "/ABS/NEW_fixed_seed_runtime",
+  "handoff": "/ABS/resident-handoff",
+  "max_subjects": 5,
+  "shared_compute_root": "/ABS/existing-shared-runtime",
+  "source_review_policy": "/ABS/source-review-policy.json",
+  "source_review_policy_sha256": "REPLACE_WITH_ACTUAL_SHA256",
+  "binding_inputs": {
+    "images": "/ABS/candidate-audit.csv",
+    "epi_manifest": "/ABS/04.epi-analysis-manifest.csv",
+    "pairing_receipt": "/ABS/pairing-run-manifest.json"
+  },
+  "pinned_images": {
+    "mriqc": "nipreps/mriqc@sha256:dabe930dd0d1180c565a42f2c6a34f2b23026d9642db5d110f05b427413b829f",
+    "fmriprep": "nipreps/fmriprep@sha256:bd222fba3a9f07d6ecaa680c412907945106b846a76cd4fbfd86e61667c435f8"
+  },
+  "preprocessing_template": {
+    "source_templateflow": "/ABS/resident-templateflow",
+    "freesurfer_license": "/ABS/license.txt",
+    "images": {
+      "mriqc": "nipreps/mriqc:24.0.2",
+      "fmriprep": "nipreps/fmriprep:25.2.7"
+    },
+    "resources": {
+      "cpus": 2,
+      "omp_nthreads": 1,
+      "workflow_memory_mb": 4000,
+      "docker_memory": "16g"
+    },
+    "output_spaces": [
+      "MNI152NLin6Asym:res-2",
+      "MNI152NLin2009cAsym",
+      "fsnative",
+      "fsaverage:den-10k",
+      "func"
+    ],
+    "random_seed": 357,
+    "work_revision": "fixed-seed-v1",
+    "seed_policy": "fixed-seed-v1"
+  },
+  "xcpd_template": "/ABS/adni-data-pipeline/RS-fMRI/03_config/xcpd_linc.seeded.example.json",
+  "xcpd_resources": {
+    "cpus": 2,
+    "omp_nthreads": 1,
+    "mem_mb": 4000,
+    "docker_memory": "16g"
+  },
+  "cpu_quota": 1.5,
+  "disk_floor_gib": 20,
+  "per_subject_reserve_gib": 12,
+  "new_attempts_per_stage": 2,
+  "retry_delay_seconds": 300,
+  "poll_seconds": 30
+}

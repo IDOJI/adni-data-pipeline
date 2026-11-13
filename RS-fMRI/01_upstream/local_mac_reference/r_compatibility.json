@@ -1,0 +1,7 @@
+{
+  "upstream_file": "s6_mriqc/adni_outlier_pipeline.R",
+  "upstream_sha256": "c9ade3c9c945761b89d6dd57fd27543ad74a7a13e49674d6aecb62a40ebf9cfe",
+  "installed_rrobot": "0.1.3",
+  "change": "Replace unsupported iso_seed argument with set.seed(123456) before SHASH_out; no IQM or cutoff change.",
+  "test_policy": "Use synthetic cohort for executable smoke test; do not estimate cohort thresholds from the two pilot visits."
+}

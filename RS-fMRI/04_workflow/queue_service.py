@@ -16,12 +16,14 @@ import subprocess
 import sys
 import threading
 import time
+import traceback
 import zipfile
 
 import nibabel as nib
 import numpy as np
 import yaml
 import compute_slots
+import source_review
 
 LAB=Path(__file__).resolve().parents[1]
 STEP=LAB/'02_custom/s7b_sessionwise_preprocessing'
@@ -65,6 +67,11 @@ def latest(subject, stage):
 def successful(record):
     return bool(record and record.get('status') == 'execution_completed_QC_required'
                 and record.get('exit_code') == 0 and record.get('input_unchanged'))
+
+def stage_command(script, config, stage, subject):
+    return [str(PY),str(LAB/'02_custom/s7c_ants_iteration_logging/run.py'),
+            '--runner',str(script),'--','--config',str(config),'run',
+            '--stage',stage,'--subject',subject]
 
 def admission(free_bytes, active, slots=5, floor_gib=20, per_slot_gib=12):
     # Reserve remaining temporary/output growth for every active subject as well.
@@ -124,6 +131,25 @@ class Queue:
         if subject in self.deployment['legacy_subjects']:
             return self.legacy_runner, Path(self.deployment['legacy_preprocessing'])/'run.py'
         return self.runner, STEP/'run.py'
+
+    def verified_continuations(self):
+        scope = self.settings.get('verified_continuation')
+        if not scope:
+            return None, None
+        adapter = load_module('verified_pair_continuation', LAB/'02_custom/s5d_bids_identity/continuation.py')
+        registry = adapter.load_registry(scope['path'], scope['sha256'])
+        return adapter, registry
+
+    def execution_command(self, script, config, stage, subject):
+        adapter, registry = self.verified_continuations()
+        if registry is None:
+            return stage_command(script, config, stage, subject)
+        if subject not in registry['subjects']:
+            raise ValueError('Unverified pair held outside continuation scope')
+        scope = self.settings['verified_continuation']
+        return [str(PY), str(LAB/'02_custom/s5d_bids_identity/continuation.py'),
+                '--registry', scope['path'], '--registry-sha256', scope['sha256'],
+                '--subject', subject, '--stage', stage]
 
     def check_sources(self):
         for p, digest in self.settings['source_hashes'].items():
@@ -240,10 +266,16 @@ class Queue:
         return True
 
     def pending_rows(self, futures):
+        _, registry = self.verified_continuations()
+        scoped = [r for r in self.plan if registry is None or r['subject'] in registry['subjects']]
         retry_busy=any(self.state.get(s,{}).get('retry_in_progress') for s in futures)
-        retries=[r for r in self.plan if self.state.get(r['subject'],{}).get('status')=='retry_queued']
-        resumed=[r for r in self.plan if self.state.get(r['subject'],{}).get('status')=='resume_queued']
-        fresh=[r for r in self.plan if r['subject'] not in self.state]
+        retries=[r for r in scoped if self.state.get(r['subject'],{}).get('status')=='retry_queued']
+        # One explicitly renewed retry can reactivate a previously deferred pair.
+        if registry is not None:
+            retries += [r for r in scoped if self.state.get(r['subject'],{}).get('status')=='deferred_or_failed'
+                        and any(self.retry_request(r['subject'], s) for s in registry['subjects'][r['subject']]['allowed_stages'])]
+        resumed=[r for r in scoped if self.state.get(r['subject'],{}).get('status')=='resume_queued']
+        fresh=[r for r in scoped if r['subject'] not in self.state]
         return ([] if retry_busy else retries)+resumed+fresh
 
     def publish_originals(self):
@@ -262,10 +294,17 @@ class Queue:
         sub = row['subject']
         runner, script = self.backend(sub)
         try:
+            source_review.enforce(ROOT, sub, row)
             self.update(sub,'preparing',runner_source=str(script),code_deployment_sha256=sha(DEPLOYMENT))
             config = self.prepare(row)
             cfg = yaml.safe_load(config.read_text())
+            adapter, registry = self.verified_continuations()
+            if registry is not None:
+                if sub not in registry['subjects']:
+                    raise ValueError('Unverified pair held outside continuation scope')
+                adapter.verify_route(registry, sub, config, script, row)
             for stage in ['mriqc','fmriprep']:
+                source_review.enforce(ROOT, sub, row)
                 if successful(latest(sub,stage)):
                     continue
                 existing = latest(sub,stage)
@@ -289,7 +328,7 @@ class Queue:
                     raise ValueError('Container image differs from frozen pipeline')
                 self.update(sub,'running_'+stage,retry_in_progress=(stage=='mriqc' and self.state.get(sub,{}).get('retry_kind')=='failed'))
                 with (HERE/'cases'/sub/(stage+'-controller.log')).open('a') as log:
-                    result = subprocess.run([str(PY),str(script),'--config',str(config),'run','--stage',stage,'--subject',sub],
+                    result = subprocess.run(self.execution_command(script,config,stage,sub),
                                             cwd=script.parent,stdout=log,stderr=subprocess.STDOUT)
                 if result.returncode or not successful(latest(sub,stage)):
                     raise RuntimeError(f'{stage} execution failed; see controller and run logs')
@@ -302,6 +341,16 @@ class Queue:
             published = self.final.publish(ROOT,[case])
             save(HERE/'cases'/sub/'delivery.json',published)
             self.update(sub,'completed_QC_pending',result_path=case['target'])
+        except source_review.ReviewSkip as exc:
+            record=source_review.record_skip(ROOT,row,exc.record['skip_reasons'],exc.record.get('evidence'))
+            self.update(sub,'skipped_source_review',skip_reasons=record['skip_reasons'],retry_in_progress=False,error=None)
+        except ValueError as exc:
+            if source_review.policy(ROOT) is not None:
+                record=source_review.record_skip(ROOT,row,['input_verification_failed:'+str(exc)])
+                self.update(sub,'skipped_source_review',skip_reasons=record['skip_reasons'],retry_in_progress=False,error=None)
+            else:
+                if 'stage' in locals() and self.enqueue_failed_stage(sub,stage):return
+                self.update(sub,'deferred_or_failed',retry_in_progress=False,error=f'{type(exc).__name__}: {exc}')
         except Exception as exc:
             if 'stage' in locals() and self.enqueue_failed_stage(sub,stage):return
             self.update(sub,'deferred_or_failed',retry_in_progress=False,error=f'{type(exc).__name__}: {exc}')
@@ -310,6 +359,18 @@ class Queue:
         p = subprocess.run(['docker','ps','--format','{{.Names}}'],capture_output=True,text=True,timeout=25,check=True)
         subjects=ORIGINAL | {row['subject'] for row in self.plan}
         return [s for s in sorted(subjects) if any(name.startswith('statmind-') and f'-{s}-' in name for name in p.stdout.splitlines())]
+
+    def finish_futures(self, futures):
+        for sub, future in list(futures.items()):
+            if not future.done():continue
+            try:
+                future.result()
+            except Exception as exc:
+                # Controller/lease errors must not block every other worker at pool shutdown.
+                self.update(sub,'resume_queued',error='Controller worker interrupted: '+str(exc))
+                event('controller_worker_error',subject=sub,error=repr(exc),traceback=traceback.format_exc())
+            finally:
+                del futures[sub]
 
     def run(self):
         with (HERE/'queue.lock').open('w') as lock:
@@ -326,48 +387,50 @@ class Queue:
                 for row in resumable:
                     futures[row['subject']]=pool.submit(self.work,row)
                 while True:
-                    updated=json.loads((HERE/'settings.json').read_text())
-                    target=int(updated['target_concurrency'])
-                    if not 1<=target<=32 or int(updated['admission']['slots'])!=target:
-                        raise ValueError('Invalid configured concurrency')
-                    self.settings['target_concurrency']=target
-                    self.settings['admission']=updated['admission']
-                    for sub, future in list(futures.items()):
-                        if future.done():
-                            future.result()
-                            del futures[sub]
-                    # A restarted controller may encounter a still-running container.
-                    # It never recreates that execution; original run records remain the authority.
-                    self.publish_originals()
-                    all_running=compute_slots.running_subjects()
-                    external=[s for s in all_running if s not in futures]
-                    active=len(set(external)|set(futures))
-                    pending=self.pending_rows(futures)
-                    free = shutil.disk_usage(ROOT).free
-                    mode = 'running'
-                    if pending and admission(free,active,**self.settings['admission']):
-                        row=pending[0]
-                        self.update(row['subject'],'reserved',retry_in_progress=(self.state.get(row['subject'],{}).get('status')=='retry_queued'))
-                        futures[row['subject']]=pool.submit(self.work,row)
-                        continue
-                    if pending and active<target:
-                        mode='waiting_for_disk_capacity'
-                    if not pending and not futures and not external:
-                        mode='queue_exhausted'
-                    prep_running=compute_slots.running_subjects(include_xcpd=False)
-                    snapshot={'controller_source':__file__,'new_subject_runner':str(STEP/'run.py'),'code_deployment_sha256':sha(DEPLOYMENT),'updated_at':now(),'mode':mode,'target_concurrency':target,
-                              'active_subjects':sorted(prep_running),'active_count':len(prep_running),
-                              'global_compute_limit':5,'global_active_subjects':sorted(all_running),'global_active_count':len(all_running),
-                              'original_subjects_active':sorted(prep_running & ORIGINAL),'pending':len(pending),
-                              'retry_queued':sum(v['status']=='retry_queued' for v in self.state.values()),
-                              'resume_queued':sum(v['status']=='resume_queued' for v in self.state.values()),
-                              'completed_new':sum(v['status']=='completed_QC_pending' for v in self.state.values()),
-                              'deferred_or_failed':sum(v['status']=='deferred_or_failed' for v in self.state.values()),
-                              'disk_free_GiB':round(free/1024**3,2),'disk_policy':self.settings['admission'],
-                              'scope':'S6 + S7; scientific inclusion and S8 QC remain pending','LLM_calls':0}
-                    save(HERE/'status.json',snapshot)
-                    if mode=='queue_exhausted':
-                        break
+                    try:
+                        updated=json.loads((HERE/'settings.json').read_text())
+                        target=int(updated['target_concurrency'])
+                        if not 1<=target<=32 or int(updated['admission']['slots'])!=target:
+                            raise ValueError('Invalid configured concurrency')
+                        self.settings['target_concurrency']=target
+                        self.settings['admission']=updated['admission']
+                        self.finish_futures(futures)
+                        # A restarted controller may encounter a still-running container.
+                        # It never recreates that execution; original run records remain the authority.
+                        self.publish_originals()
+                        all_running=compute_slots.running_subjects()
+                        external=[s for s in all_running if s not in futures]
+                        active=len(set(external)|set(futures))
+                        pending=self.pending_rows(futures)
+                        free = shutil.disk_usage(ROOT).free
+                        mode = 'running'
+                        if pending and admission(free,active,**self.settings['admission']):
+                            row=pending[0]
+                            self.update(row['subject'],'reserved',retry_in_progress=(self.state.get(row['subject'],{}).get('retry_in_progress',False) or self.state.get(row['subject'],{}).get('status')=='retry_queued'))
+                            futures[row['subject']]=pool.submit(self.work,row)
+                            continue
+                        if pending and active<target:
+                            mode='waiting_for_disk_capacity'
+                        if not pending and not futures and not external:
+                            mode='verified_scope_finished' if self.settings.get('verified_continuation') else 'queue_exhausted'
+                        prep_running=compute_slots.running_subjects(include_xcpd=False)
+                        snapshot={'controller_source':__file__,'controller_pid':os.getpid(),'ants_iteration_logging_launcher':str(LAB/'02_custom/s7c_ants_iteration_logging/run.py'),'new_subject_runner':str(STEP/'run.py'),'code_deployment_sha256':sha(DEPLOYMENT),'updated_at':now(),'mode':mode,'target_concurrency':target,
+                                  'active_subjects':sorted(prep_running),'active_count':len(prep_running),
+                                  'global_compute_limit':5,'global_active_subjects':sorted(all_running),'global_active_count':len(all_running),
+                                  'original_subjects_active':sorted(prep_running & ORIGINAL),'pending':len(pending),
+                                  'retry_queued':sum(v['status']=='retry_queued' for v in self.state.values()),
+                                  'resume_queued':sum(v['status']=='resume_queued' for v in self.state.values()),
+                                  'completed_new':sum(v['status']=='completed_QC_pending' for v in self.state.values()),
+                                  'deferred_or_failed':sum(v['status']=='deferred_or_failed' for v in self.state.values()),
+                                  'disk_free_GiB':round(free/1024**3,2),'disk_policy':self.settings['admission'],
+                                  'scope':'S6 + S7; scientific inclusion and S8 QC remain pending','LLM_calls':0}
+                        save(HERE/'status.json',snapshot)
+                        if mode in ('queue_exhausted', 'verified_scope_finished'):
+                            break
+                    except Exception as exc:
+                        event('controller_loop_error',error=repr(exc),traceback=traceback.format_exc())
+                        save(HERE/'status.json',{'updated_at':now(),'mode':'controller_retrying',
+                             'target_concurrency':self.settings['target_concurrency'],'error':repr(exc),'LLM_calls':0})
                     time.sleep(15)
 
 if __name__=='__main__':
@@ -377,7 +440,7 @@ if __name__=='__main__':
     p.add_argument('--root',type=Path,required=True)
     p.add_argument('--deployment',type=Path,required=True)
     args=p.parse_args()
-    ROOT=args.root.resolve();HERE=ROOT/'continuous5';DEPLOYMENT=args.deployment.resolve()
+    ROOT=args.root.absolute();HERE=ROOT/'continuous5';DEPLOYMENT=args.deployment.resolve()
     dep=json.loads(DEPLOYMENT.read_text());ORIGINAL=set(dep['original_subjects'])
     compute_slots.configure(ROOT)
     q=Queue()

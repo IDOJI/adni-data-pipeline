@@ -755,10 +755,32 @@ class Pipeline:
             if not (self.hub / 'pilot_success.json').exists():
                 save(self.hub / 'pilot_success.json', {'at': now(), 'config_id': self.config_id, 'run': run_key(row), 'attempt': str(attempt), 'validation': qc})
 
+    def detect_terminal_worker_failure(self, name, row):
+        info = load_json_command(['docker', 'inspect', name])[0]
+        labels = info['Config'].get('Labels', {})
+        if labels.get('adni.config_id') != self.config_id or labels.get('adni.run_key') != run_key(row):
+            raise ValueError('Container identity differs during failure monitoring')
+        if not info['State'].get('Running'):
+            return None
+        reason = 'container_oom' if info['State'].get('OOMKilled') else None
+        logs = subprocess.run(['docker', 'logs', '--tail', '120', name], capture_output=True, text=True, timeout=25)
+        tail = logs.stdout + logs.stderr
+        if 'concurrent.futures.process.BrokenProcessPool:' in tail:
+            reason = reason or 'broken_process_pool'
+        if reason:
+            attempt, record = self.latest(row)
+            save(attempt / 'runtime_failure.json', {'at': now(), 'reason': reason, 'container': name,
+                'container_id': info.get('Id'), 'state': info['State'], 'tail': tail[-16000:],
+                'action': 'stop failed container, validate outputs as failure and allow bounded retry'})
+            self.event('terminal_worker_failure', container=name, reason=reason)
+            subprocess.run(['docker', 'stop', '--time', '10', name], check=True, capture_output=True, text=True, timeout=30)
+        return reason
+
     def wait_container(self,name,row):
         observer=subprocess.Popen(['docker','wait',name],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
         while observer.poll() is None:
             time.sleep(self.cfg['poll_seconds'])
+            self.detect_terminal_worker_failure(name, row)
             changed=False
             for pair in self.pairs():
                 if (self.stage_dir(pair)/'pre_qc.json').exists():continue
@@ -968,10 +990,13 @@ class Pipeline:
         if not complete:
             return False
         sd = self.stage_dir(pair)
+        report_spec = importlib.util.spec_from_file_location('individual_qc_report', Path(__file__).with_name('qc_report.py'))
+        reports = importlib.util.module_from_spec(report_spec); report_spec.loader.exec_module(reports)
+        report_paths = reports.write(Path(pair), clean(merged), self.cfg, self.config_id)
         receipt = {'status': 'postprocessing_complete_final_QC_pending', 'config_id': self.config_id,
                    'completed_at': now(), 'subject': load(Path(pair) / 'pair_metadata.json')['subject'],
                    'runs': [{k: r.get(k) for k in list(KEYS) + ['pre_xcpd_qc_status', 'xcpd_status', 'xcpd_attempt', 'functional_outputs_valid']} for r in merged]}
-        receipt['evidence'] = {}
+        receipt['evidence'] = {str(path.relative_to(pair)): sha(path) for path in report_paths}
         for r in merged:
             if r.get('xcpd_status') in ('success', 'skipped_insufficient_time'):
                 names = ('execution.json', 'output_validation.json', 'output_manifest.json') if r['xcpd_status']=='success' else ('execution.json','output_validation.json','duration_gate.json')

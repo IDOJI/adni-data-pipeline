@@ -98,3 +98,43 @@ def test_running_legacy_attempt_delegates_only_to_frozen_completion_source(tmp_p
     assert calls==[(row,False)] and (attempt/'execution.json').read_bytes()==before
     record['pipeline_sha256']='wrong-code';(attempt/'execution.json').write_text(json.dumps(record))
     with pytest.raises(ValueError,match='identity changed'):app.run_one(row)
+
+
+def test_controller_transient_error_keeps_admission_loop_alive(tmp_path,monkeypatch):
+    from types import SimpleNamespace
+    here=tmp_path/'continuous5';here.mkdir()
+    settings={'target_concurrency':5,'admission':{'slots':5,'floor_gib':20,'per_slot_gib':12}}
+    (here/'settings.json').write_text(json.dumps(settings))
+    app=queue.Queue.__new__(queue.Queue);app.settings=settings;app.plan=[];app.state={}
+    app.check_sources=lambda:None
+    calls=[]
+    def publish():
+        calls.append('publish')
+        if len(calls)==1:raise TimeoutError('transient controller I/O')
+    app.publish_originals=publish
+    monkeypatch.setattr(queue,'HERE',here);monkeypatch.setattr(queue,'ROOT',tmp_path)
+    deployment=tmp_path/'deployment.json';deployment.write_text('{}');monkeypatch.setattr(queue,'DEPLOYMENT',deployment)
+    monkeypatch.setattr(queue.subprocess,'Popen',lambda *a,**k:SimpleNamespace())
+    monkeypatch.setattr(queue.compute_slots,'running_subjects',lambda **kw:set())
+    sleeps=[]
+    def pause(seconds):
+        sleeps.append(seconds)
+        if len(sleeps)>1:raise AssertionError('Controller did not recover after the transient failure')
+    monkeypatch.setattr(queue.time,'sleep',pause)
+    app.run()
+    assert calls==['publish','publish'] and sleeps==[15]
+    assert json.loads((here/'status.json').read_text())['mode']=='queue_exhausted'
+    assert 'controller_loop_error' in (here/'events.jsonl').read_text()
+
+
+def test_failed_controller_future_does_not_block_other_workers(monkeypatch):
+    from concurrent.futures import Future
+    app=queue.Queue.__new__(queue.Queue);updates=[];app.update=lambda *a,**k:updates.append((a,k))
+    failed=Future();failed.set_exception(RuntimeError('lost observer connection'))
+    running=Future();done=Future();done.set_result(None)
+    futures={'ADNI999S9999':failed,'ADNI998S9998':running,'ADNI997S9997':done}
+    events=[];monkeypatch.setattr(queue,'event',lambda *a,**k:events.append(a))
+    app.finish_futures(futures)
+    assert list(futures)==['ADNI998S9998']
+    assert updates[0][0]==('ADNI999S9999','resume_queued')
+    assert events==[('controller_worker_error',)]

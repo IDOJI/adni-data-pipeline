@@ -90,3 +90,29 @@ def test_handoff_config_and_actual_upstream_mriqc_dry_run(tmp_path):
     (handoff_dir / 'mriqc_subjects.csv').write_text('changed')
     with pytest.raises(ValueError, match='changed'):
         lab.render_config(configuration(tmp_path), tmp_path / 'bad-config', handoff_dir)
+
+
+def test_metrics_summary_plan_is_explicit_and_shell_safe(tmp_path):
+    import shlex
+    archive=tmp_path/'archive with spaces';archive.mkdir()
+    state=tmp_path/'runtime'/'metrics status.json'
+    argv=lab.metrics_summary_command(archive,state,watch=True)
+    assert argv[-1]=='--watch'
+    assert argv[argv.index('--archive-root')+1]==str(archive)
+    result=lab.render_config(configuration(tmp_path),tmp_path/'configured')
+    default=lab.commands(result['config'])
+    assert '12' not in default['commands']
+    planned=lab.commands(result['config'],archive_root=archive,metrics_status=state)
+    command=shlex.split(planned['commands']['12'])
+    assert command==lab.metrics_summary_command(archive,state)
+    assert planned['mode']=='print_only' and not state.exists()
+
+
+def test_metrics_summary_rejects_repository_and_missing_paths(tmp_path):
+    with pytest.raises(ValueError,match='outside'):
+        lab.metrics_summary_command(ROOT)
+    with pytest.raises(ValueError,match='existing external archive'):
+        lab.metrics_summary_command(tmp_path/'missing')
+    archive=tmp_path/'archive';archive.mkdir()
+    with pytest.raises(ValueError,match='file path'):
+        lab.metrics_summary_command(archive,archive)

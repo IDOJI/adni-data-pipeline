@@ -351,8 +351,8 @@ def main():
         raise ValueError('S8/XCP-D validation gate is required')
     if not settings.get('remove_local_copy_only_after_sha256_verification'):
         raise ValueError('Verified copy policy is required')
-    HERE=args.root.resolve()/'continuous5';HERE.mkdir(parents=True,exist_ok=True)
-    archiver=Offloader(args.root.resolve(),settings)
+    HERE=args.root.absolute()/'continuous5';HERE.mkdir(parents=True,exist_ok=True)
+    archiver=Offloader(args.root.absolute(),settings)
     with (HERE/'offload.lock').open('w') as lock:
         fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
         while True:
