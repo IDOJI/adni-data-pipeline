@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import sys
 
 LAB = Path(__file__).resolve().parents[1]
 
@@ -21,7 +22,19 @@ def command(config, output, seed=357):
     # from the explicit cwd. Its scientific thresholds and fixed internal seeds remain intact.
     expression = 'if (!("iso_seed" %in% names(formals(rrobot::SHASH_out)))) stop("Use rrobot with explicit iso_seed support; R set.seed alone does not seed isotree");' + \
         'set.seed('+str(seed)+');source('+json.dumps(str(original))+', chdir=FALSE)'
-    return ['Rscript', '--vanilla', '-e', expression, '--config', str(config), '--out-dir', str(output)]
+    return ['Rscript', '--vanilla', '-e', expression, '--config', str(Path(config).resolve()), '--out-dir', str(output)]
+
+
+def environment():
+    # The upstream R script invokes `python -m utils.config_tools`. Use this
+    # launcher's interpreter environment even when its venv was not activated.
+    env = os.environ.copy()
+    env['PATH'] = str(Path(sys.executable).parent) + os.pathsep + env.get('PATH', '')
+    libraries = [str(LAB/'.R-library/seeded'), str(LAB/'.R-library')]
+    if env.get('R_LIBS_USER'):
+        libraries.append(env['R_LIBS_USER'])
+    env['R_LIBS_USER'] = os.pathsep.join(libraries)
+    return env
 
 
 def main():
@@ -31,6 +44,7 @@ def main():
     parser.add_argument('--seed', type=int, default=357)
     parser.add_argument('--execute', action='store_true')
     args = parser.parse_args()
+    args.config, args.out_dir = args.config.resolve(), args.out_dir.resolve()
     argv = command(args.config, args.out_dir, args.seed)
     print(json.dumps(argv))
     if args.execute:
@@ -40,8 +54,7 @@ def main():
                  'status': 'running', 'command': argv}
         receipt = args.out_dir/'seed-policy.json'
         receipt.write_text(json.dumps(proof, indent=2)+'\n')
-        result = subprocess.run(argv, cwd=LAB/'01_upstream/ADNI_fMRI_protocol',
-                                env={**os.environ, 'R_LIBS_USER': os.pathsep.join([str(LAB/'.R-library/seeded'), str(LAB/'.R-library')])})
+        result = subprocess.run(argv, cwd=LAB/'01_upstream/ADNI_fMRI_protocol', env=environment())
         proof.update(status='completed' if result.returncode == 0 else 'failed', returncode=result.returncode)
         receipt.write_text(json.dumps(proof, indent=2)+'\n')
         raise SystemExit(result.returncode)
