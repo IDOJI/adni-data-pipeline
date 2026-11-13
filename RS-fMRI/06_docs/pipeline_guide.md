@@ -2,9 +2,9 @@
 
 ## Where to add a step
 
-Create only the additional steps needed after an upstream stage: for example, `02_custom/s3a_*` after s3, `02_custom/s5c_*` after s5's 5a/5b, and `02_custom/s7a_*` after s7. Update the execution table in the root RS-fMRI README in the same change.
+Create only the additional steps needed after an upstream stage: for example, `pipeline/s3a_*` after s3, `pipeline/s5c_*` after s5's 5a/5b, and `pipeline/s7a_*` after s7. Update the execution table in the root RS-fMRI README in the same change.
 
-## Required content for each Custom Step
+## Required content for each Stage
 
 Start the README with an Execution (or Integrated execution) section containing a complete terminal command block. Explain its action, required working directory, replaceable input paths and expected result location immediately below. Follow with Purpose, Input, Processing, Output, Validation and Dependencies. Label previews, real computation, manual review and optional persistent services explicitly; keep existing section anchors stable. Maintain code, scientific criteria and synthetic tests together. Write results to an external directory disjoint from the input trees.
 
@@ -20,7 +20,7 @@ Independent reporting steps create new outputs only. Steps that alter participan
 - 9.B: combine 3.A, corrected 9.A v2 and explicitly confirmed ST absence; fix nearest/28-day matching and retain pending. Optionally apply reviewed conversion failures and preserve S10 imaging decisions.
 - S10: S8 collection, 36P/LINC XCP-D, integrated imaging QC and validated archival gates for completed pairs; export actual image dates/IDs to 9.A. See [input and transition boundaries](xcpd_consolidation.md).
 - 11: optional pinned atlas library and streaming volumetric ROI extraction after 9.B; exact spaces, labels, brain-mask coverage and frame identities audited. No temporal re-cleaning or FC calculation.
-- 12: read completed S10 archives and create one-row scalar CSV/TSV, units/source dictionaries and native MRIQC/fMRIPrep/XCP-D HTML links. Use `lab.py export-results`; `--watch` explicitly opts into repeated scans. It is independent of Step 11 and retains pending inclusion. See [Step 12](../02_custom/s12_metrics_summary/README.md).
+- 12: read completed S10 archives and create one-row scalar CSV/TSV, units/source dictionaries and native MRIQC/fMRIPrep/XCP-D HTML links. Use `lab.py export-results`; `--watch` explicitly opts into repeated scans. It is independent of Step 11 and retains pending inclusion. See [Step 12](../pipeline/s12_metrics_summary/README.md).
 - `04_workflow/lab.py plan`: print commands for known entry points. It is not an orchestration engine for automatic stage execution, scheduler submission or error recovery.
 
 ## Unresolved upstream boundaries
@@ -29,7 +29,7 @@ Session-restricted MRIQC execution, fitting-population limits, upstream s8 missi
 
 ## Connecting the scalar/report export
 
-`lab.py plan --config /ABS/PATH/generated/upstream.yaml --archive-root /ABS/PATH/archive --metrics-status /ABS/PATH/runtime/metrics.json` adds command `12` to the printed plan. Omitting `--archive-root` leaves existing plans unchanged. Run `lab.py export-results` explicitly for a one-shot scan, or add `--watch` for the lightweight 120-second loop. The loop consumes verified archives rather than launching MRIQC/fMRIPrep/XCP-D jobs. Keep private service arguments and status/log files outside the repository.
+`lab.py plan --config /ABS/PATH/generated/pipeline.yaml --archive-root /ABS/PATH/archive --metrics-status /ABS/PATH/runtime/metrics.json` adds command `12` to the printed plan. Omitting `--archive-root` leaves existing plans unchanged. Run `lab.py export-results` explicitly for a one-shot scan, or add `--watch` for the lightweight 120-second loop. The loop consumes verified archives rather than launching MRIQC/fMRIPrep/XCP-D jobs. Keep private service arguments and status/log files outside the repository.
 
 ## Planned connection from selected-atlas signals to harmonized FC
 
@@ -39,10 +39,10 @@ This connection is documentation only. It does not install software, add workflo
 
 ## Host-specific stage instructions
 
-The [macOS/Linux guide](platform_execution.md) documents every upstream/custom position using the owned protocol and Custom Steps. Each Custom Step links to its own host section. Preserve the scientific profile and provenance when changing hosts; document and validate service/publication/volume adapters separately from imaging algorithms.
+The [macOS/Linux guide](platform_execution.md) documents every pipeline position using the owned protocol and Stages. Each Stage links to its own host section. Preserve the scientific profile and provenance when changing hosts; document and validate service/publication/volume adapters separately from imaging algorithms.
 
 ## Processing-time records
 
-[Step 7.D](../02_custom/s7d_processing_timing/README.md) runs alongside 7.B and S10. Keep timing reports outside source/verified pair payloads, count retries explicitly, and distinguish stage-time sums from the elapsed pipeline wall span. An independent collector can record legacy completions without changing active deployment hashes.
+[Step 7.D](../pipeline/s7d_processing_timing/README.md) runs alongside 7.B and S10. Keep timing reports outside source/verified pair payloads, count retries explicitly, and distinguish stage-time sums from the elapsed pipeline wall span. An independent collector can record legacy completions without changing active deployment hashes.
 
 The [independent Docker observer](processing_timing.md) is a separate entry point. It shares only the display helper with Step 7.D, preserves raw numeric CSVs, and does not change the receipt/wall-span definition. S12 pair timing files require exporter ownership and an unambiguous single published pair.

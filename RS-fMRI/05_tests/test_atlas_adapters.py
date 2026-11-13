@@ -10,7 +10,7 @@ import numpy as np
 import pytest
 from test_atlas_bold import a, fixture, save
 
-STEP = Path(__file__).resolve().parents[1] / '02_custom/s11_atlas_bold'
+STEP = Path(__file__).resolve().parents[1] / 'pipeline/s11_atlas_bold'
 spec = importlib.util.spec_from_file_location('atlas_adapters', STEP / 'adapters.py')
 ad = importlib.util.module_from_spec(spec); spec.loader.exec_module(ad)
 

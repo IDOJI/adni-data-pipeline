@@ -5,7 +5,7 @@ import json,sys,importlib.util,hashlib,csv,subprocess,time,datetime,fcntl
 LAB=Path(__file__).resolve().parents[1]
 R=H=D=OUT=GATE=None
 PY=sys.executable
-sys.path.insert(0,str(LAB/'04_workflow'));sys.path.insert(0,str(LAB/'02_custom/s5d_bids_identity'))
+sys.path.insert(0,str(LAB/'04_workflow'));sys.path.insert(0,str(LAB/'pipeline/s5d_bids_identity'))
 import queue_service as qmod
 import binding,continuation,rolling,source_review
 
@@ -65,7 +65,7 @@ def main():
     for row,config in chosen:
      plan=next((x for x in plans if x['subject']==row['subject'] and x['epi_image_id']==row['epi_image_id'] and x['t1_image_id']==row['t1_image_id']),None)
      if not plan:held[row['subject']]='Binding held pair; see batch evidence';continue
-     runner,script=q.backend(row['subject']);launcher=settings.get('execution_launcher',{});launcher_path=launcher.get('path',str(LAB/'02_custom/s7c_ants_iteration_logging/run.py'))
+     runner,script=q.backend(row['subject']);launcher=settings.get('execution_launcher',{});launcher_path=launcher.get('path',str(LAB/'pipeline/s7c_ants_iteration_logging/run.py'))
      if launcher and sha(launcher_path)!=launcher['sha256']:raise ValueError('Execution launcher fingerprint changed')
      paths={'config':str(config),'backend':str(script),'receipt':str(batch/'07.binding-receipt.json'),'launcher':launcher_path};route={**paths,**{k+'_sha256':sha(p) for k,p in paths.items()},'runtime':str(R/'runs'/row['subject']),'epi_key':plan['epi_key'],'allowed_stages':['mriqc','fmriprep']};reg['subjects'][row['subject']]=route
      continuation.verify_route(reg,row['subject'],config,script,row);added.append(row['subject'])

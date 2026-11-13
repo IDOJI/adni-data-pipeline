@@ -10,7 +10,7 @@ import shutil
 import sys
 
 POLICY = 'fixed-seed-v1'
-DEFAULT_SEED = 357
+DEFAULT_SEED = 1123
 HERE = Path(__file__).resolve().parent
 MRIQC_IMAGE = 'nipreps/mriqc@sha256:dabe930dd0d1180c565a42f2c6a34f2b23026d9642db5d110f05b427413b829f'
 

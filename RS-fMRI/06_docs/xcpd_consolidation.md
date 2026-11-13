@@ -4,9 +4,9 @@
 
 | Original implementation | Consolidated location | Treatment |
 |---|---|---|
-| Volume execution/recovery/audit/image QA in adni-rsfmri-pipeline | 02_custom/s7a_volume_workflow | Preserve as a separate aCompCor profile |
+| Volume execution/recovery/audit/image QA in adni-rsfmri-pipeline | pipeline/s7a_volume_workflow | Preserve as a separate aCompCor profile |
 | Tests, METHODS and literature in that directory | 05_tests/volume_workflow and 7.A documentation | Replace examples with synthetic IDs/external paths |
-| Local S10 from the referenced task | 02_custom/s10_xcpd_integrated_qc | Newer 36P/LINC postprocessing and integrated imaging QC |
+| Local S10 from the referenced task | pipeline/s10_xcpd_integrated_qc | Newer 36P/LINC postprocessing and integrated imaging QC |
 | Validated external offloader in continuous5 | S10/offload_completed.py | Separate code from runtime settings; retain config_id/hash gates |
 | Actual configuration, participant execution results, validation logs and single-case staging/migration | Private local source archive | Excluded from public source; preserved for restoration |
 
@@ -18,7 +18,7 @@ At consolidation, the existing XCP-D worker uses S10 code in the separate local 
 
 The consolidated workflow resolves `repo=null` to the repository-owned integrated protocol source and requires explicit external configuration. The path change also changes config_id; do not treat the old worker's configuration/cache as identical. To transition to a new study runtime, complete existing attempts and preserve evidence, then validate preflight → dry-run → pilot with a new root/configuration. Do not start a second watch on a root still managed by the original worker.
 
-On 2026-11-01, the former adni-rsfmri-pipeline path became a compatibility symlink to 7.A after all original files were archived locally and hash-verified. That redundant link was retired on 2026-11-13; use `RS-fMRI/02_custom/s7a_volume_workflow/` directly. Actual source configuration and dedicated staging/migration locations remain in private migration records, not the public repository. See the [retirement record](repository_cleanup.md).
+On 2026-11-01, the former adni-rsfmri-pipeline path became a compatibility symlink to 7.A after all original files were archived locally and hash-verified. That redundant link was retired on 2026-11-13; use `RS-fMRI/pipeline/s7a_volume_workflow/` directly. Actual source configuration and dedicated staging/migration locations remain in private migration records, not the public repository. See the [retirement record](repository_cleanup.md).
 
 ## Execution order and research decisions
 
@@ -29,7 +29,7 @@ S10 can start independently for pairs completed by S7. S9 clinical linkage can a
 Select both files in the 9.A handoff example from the same S10 finalization directory:
 
 ```sh
-python 02_custom/s9a_validate_clinical/run.py \
+python pipeline/s9a_validate_clinical/run.py \
   --included /ABSOLUTE/PATH/finalization/final_included_runs.tsv \
   --scan-links /ABSOLUTE/PATH/finalization/clinical_scan_links.tsv \
   --dxsum /ABSOLUTE/PATH/DXSUM.csv --ptdemog /ABSOLUTE/PATH/PTDEMOG.csv \

@@ -22,7 +22,7 @@
     "images": {"mriqc": "nipreps/mriqc:24.0.2", "fmriprep": "nipreps/fmriprep:25.2.7"},
     "resources": {"cpus": 2, "omp_nthreads": 2, "workflow_memory_mb": 4000, "docker_memory": "16g"},
     "output_spaces": ["MNI152NLin6Asym:res-2", "MNI152NLin2009cAsym", "fsnative", "fsaverage:den-10k", "func"],
-    "random_seed": 357,
+    "random_seed": 1123,
     "work_revision": "local-v1"
   },
   "xcpd_template": "/ABS/adni-data-pipeline/RS-fMRI/03_config/xcpd_linc.example.json",

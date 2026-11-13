@@ -9,7 +9,7 @@ import pytest
 LAB = Path(__file__).resolve().parents[1]
 SOURCE = LAB/'04_workflow'
 sys.path.insert(0, str(SOURCE))
-sys.path.insert(0, str(LAB/'02_custom/s5d_bids_identity'))
+sys.path.insert(0, str(LAB/'pipeline/s5d_bids_identity'))
 def module(name):
     spec = importlib.util.spec_from_file_location('recovery_test_'+name, SOURCE/(name+'.py'))
     m = importlib.util.module_from_spec(spec);spec.loader.exec_module(m);return m

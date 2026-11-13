@@ -6,7 +6,7 @@
       "original_path": "s3_organize/dicom_download_qc.ipynb",
       "original_blob": "017978d70e1178d1691ab5eff5d68d2e7bf9740f",
       "original_sha256": "0c90dc37ff848e9f0b38df9dbba7d461beec17ad8f548b5f947c044553be2ba9",
-      "export_path": "01_upstream/notebook_sources/s3_organize/dicom_download_qc.ipynb",
+      "export_path": "provenance/notebook_sources/s3_organize/dicom_download_qc.ipynb",
       "export_sha256": "8c41fcf08f1085eabf30e8f2d08814c8a235e36a85e5e6a73478f64c929a747b",
       "source_cells_sha256": "06fe11e9568c76be54540bbad5c44ea5556bb69f01a3cf4ad23f28e560e45067",
       "synthetic_example_replacements": 0
@@ -15,7 +15,7 @@
       "original_path": "s5_post_clinica_qc/create_report/main.ipynb",
       "original_blob": "9ee4454cf62460aea98ec1dad1be3733b14d5f28",
       "original_sha256": "3b51ed2a51e450b98eb50baad1d75142ec8bfc44ffc5e4ef374a003c2810c3ef",
-      "export_path": "01_upstream/notebook_sources/s5_post_clinica_qc/create_report/main.ipynb",
+      "export_path": "provenance/notebook_sources/s5_post_clinica_qc/create_report/main.ipynb",
       "export_sha256": "e6a9a42dbf5a32764957a1051d50c9ca74e3c1568209aade4e78758461677d78",
       "source_cells_sha256": "ce7b89711b25a65d6a176002c773455efc660d7762cc0a175791ddce4aaf99a7",
       "synthetic_example_replacements": 0
@@ -24,7 +24,7 @@
       "original_path": "s5_post_clinica_qc/post_clinica_qc.ipynb",
       "original_blob": "8309f730e5d5c0d365e7105c951eb777b9397cf7",
       "original_sha256": "b725eca9105b95fec278fabd99763a2b3a6ebc4cbeb96b7d07caf84edef76bb1",
-      "export_path": "01_upstream/notebook_sources/s5_post_clinica_qc/post_clinica_qc.ipynb",
+      "export_path": "provenance/notebook_sources/s5_post_clinica_qc/post_clinica_qc.ipynb",
       "export_sha256": "1564ed94ce9a961ae6853f9afc2780d04da22a2e177da5f2d5b17757b9b6403b",
       "source_cells_sha256": "fa6d002b979f71884ced0d5a0513d30aea63c627ff8591bbe3e1981b73194eb3",
       "synthetic_example_replacements": 0
@@ -33,7 +33,7 @@
       "original_path": "s6_mriqc/per_site_IQMs_viz.ipynb",
       "original_blob": "4062cf1ff797576d287aceb2f1a540baf7399149",
       "original_sha256": "748d419e38e69de676e224bc181e3a267426bea8d5bd9c221862cd156ba115fe",
-      "export_path": "01_upstream/notebook_sources/s6_mriqc/per_site_IQMs_viz.ipynb",
+      "export_path": "provenance/notebook_sources/s6_mriqc/per_site_IQMs_viz.ipynb",
       "export_sha256": "0e85d4b3376fb2bb6788ce6bf771ea70441a3994d809e0139003252e7a5480d8",
       "source_cells_sha256": "18ac9505c416c054a652d2f52778b27a6fc6557de761704b04b2c81273aed650",
       "synthetic_example_replacements": 0
@@ -42,7 +42,7 @@
       "original_path": "s7_fmriprep/explore_fmriprep_errors.ipynb",
       "original_blob": "f72ae0c1f0019f14db37831e8202ca2c07af1660",
       "original_sha256": "1ff9cadf45eb6c69ceb247f99ef98b9325dc4f6ce6f17a788f516f62bc79c9aa",
-      "export_path": "01_upstream/notebook_sources/s7_fmriprep/explore_fmriprep_errors.ipynb",
+      "export_path": "provenance/notebook_sources/s7_fmriprep/explore_fmriprep_errors.ipynb",
       "export_sha256": "fb61ab301183196202a7a69da1a85f032ccc928fe699ef51a73b6fd066f3a32c",
       "source_cells_sha256": "cd36a0d9c244d1f3757fc16f8b41fdbb4a92b430896d3b3a8a1834e03efcb28b",
       "synthetic_example_replacements": 1

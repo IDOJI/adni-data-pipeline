@@ -83,7 +83,7 @@ def fetch(root, cache=None, source='bundled'):
         'sha256':{str(p.relative_to(root)):sha(p) for folder in (bids,root/'config') for p in sorted(folder.rglob('*')) if p.is_file()}})
     cfg = xcp_config()
     write_json(root/'comparison_identity.json', {'source_files':{e['path']:e['sha256'] for e in spec['files']}, 'adapted_inputs':json.loads((root/'input_manifest.json').read_text())['sha256'],
-        'images':IMAGES, 'seed_policy':seed_policy.identity(), 'fmriprep':dict(output_spaces=SPACES, cifti_output='91k', task='rest', anatomical_reference='sessionwise', force=['syn-sdc'], ignore=['fieldmaps'], use_syn_sdc='error', random_seed=357, skull_strip_fixed_seed=True, nprocs=4, omp_nthreads=1, mem_mb=6000),
+        'images':IMAGES, 'seed_policy':seed_policy.identity(), 'fmriprep':dict(output_spaces=SPACES, cifti_output='91k', task='rest', anatomical_reference='sessionwise', force=['syn-sdc'], ignore=['fieldmaps'], use_syn_sdc='error', random_seed=1123, skull_strip_fixed_seed=True, nprocs=4, omp_nthreads=1, mem_mb=6000),
         'xcpd':{k:v for k,v in cfg.items() if k not in ('root','repo','license','templateflow','slurm','run_id')},
         'code_sha256':fingerprint()['code_sha256'], 'upstream':fingerprint()['upstream']})
     write_json(root/'environment.json', fingerprint())
@@ -136,7 +136,7 @@ def docker_command(root, stage, license_file=None):
     args += mount(root/'templateflow', '/templateflow')
     args += ['--env','TEMPLATEFLOW_HOME=/templateflow','--env','OMP_NUM_THREADS='+str(omp)]
     if stage == 'xcpd':
-        pipeline = load_module('02_custom/s10_xcpd_integrated_qc/pipeline.py')
+        pipeline = load_module('pipeline/s10_xcpd_integrated_qc/pipeline.py')
         cfg = xcp_config(); row = public_row(root, True)
         job = root/'xcpd'; (job/'derivatives').mkdir(parents=True, exist_ok=True); (job/'work').mkdir(exist_ok=True)
         write_json(job/'bids_filter.json', pipeline.bids_filter(row, cfg))
@@ -150,15 +150,15 @@ def docker_command(root, stage, license_file=None):
             args += mount(fs,'/fsdir')
         args += [IMAGES[stage],'/data','/out','participant','--participant-label','toy001','--bids-filter-file','/config/filter.json','--nprocs',str(cpus),'--omp-nthreads',str(omp),'--notrack','-w','/work']
         if stage == 'mriqc': args += ['--modalities','T1w','bold','--session-id','M000','--no-sub','--mem-gb','6']
-        else: args += ['--task-id','rest','--subject-anatomical-reference','sessionwise','--force','syn-sdc','--ignore','fieldmaps','--use-syn-sdc','error','--output-spaces',*SPACES,'--cifti-output','91k','--fs-license-file','/license.txt','--fs-subjects-dir','/fsdir','--mem-mb','6000','--random-seed','357','--stop-on-first-crash']
-    return seed_policy.docker(args, stage, 357, root, [Path(__file__)])
+        else: args += ['--task-id','rest','--subject-anatomical-reference','sessionwise','--force','syn-sdc','--ignore','fieldmaps','--use-syn-sdc','error','--output-spaces',*SPACES,'--cifti-output','91k','--fs-license-file','/license.txt','--fs-subjects-dir','/fsdir','--mem-mb','6000','--random-seed','1123','--stop-on-first-crash']
+    return seed_policy.docker(args, stage, 1123, root, [Path(__file__)])
 
 
 def execute(root, stage, license_file, ants_verbose=False):
     command = docker_command(root, stage, license_file)
     if ants_verbose:
         if stage != 'fmriprep': raise ValueError('--ants-verbose is only valid for fmriprep')
-        command = load_module('02_custom/s7c_ants_iteration_logging/run.py').augment(command, root/'logs/fmriprep')
+        command = load_module('pipeline/s7c_ants_iteration_logging/run.py').augment(command, root/'logs/fmriprep')
     subprocess.run(['docker','info','--format','{{.OSType}}'], check=True, stdout=subprocess.DEVNULL)
     image = json.loads(subprocess.check_output(['docker','image','inspect',IMAGES[stage]], text=True))[0]
     if IMAGES[stage] not in image.get('RepoDigests',[]): raise ValueError('Pulled image does not match pinned digest')
@@ -186,7 +186,7 @@ def execute(root, stage, license_file, ants_verbose=False):
 def validate(root):
     receipt = json.loads((root/'logs/xcpd_execution.json').read_text())
     if receipt.get('status') != 'success': raise ValueError('XCP-D execution did not succeed')
-    pipeline = load_module('02_custom/s10_xcpd_integrated_qc/pipeline.py')
+    pipeline = load_module('pipeline/s10_xcpd_integrated_qc/pipeline.py')
     result = pipeline.validate_outputs(root/'xcpd', public_row(root, True), xcp_config(), 0)
     write_json(root/'xcpd/output_validation.json', result)
     print(json.dumps(result, indent=2))
@@ -211,8 +211,8 @@ def main():
     elif args.stage == 'validate': check_inputs(root); validate(root)
     elif args.stage == 'motion':
         check_inputs(root)
-        commands = [[os.sys.executable,str(ROOT/'01_upstream/ADNI_fMRI_protocol/s8_final_qc/summarize_motion_from_confounds.py'),'--derivatives-dir',str(root/'derivatives/fmriprep'),'--output-dir',str(root/'qc/8')],
-            [os.sys.executable,str(ROOT/'02_custom/s8a_motion_duration_qc/run.py'),'--bids-root',str(root/'bids'),'--derivatives-root',str(root/'derivatives/fmriprep'),'--output-dir',str(root/'qc/8a')]]
+        commands = [[os.sys.executable,str(ROOT/'pipeline/s8_final_qc/summarize_motion_from_confounds.py'),'--derivatives-dir',str(root/'derivatives/fmriprep'),'--output-dir',str(root/'qc/8')],
+            [os.sys.executable,str(ROOT/'pipeline/s8a_motion_duration_qc/run.py'),'--bids-root',str(root/'bids'),'--derivatives-root',str(root/'derivatives/fmriprep'),'--output-dir',str(root/'qc/8a')]]
         for command in commands:
             print(shlex.join(command),flush=True)
             if args.execute: subprocess.run(command,check=True)

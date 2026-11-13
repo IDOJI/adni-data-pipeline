@@ -2,7 +2,7 @@ import importlib.util,json,sys
 from pathlib import Path
 import pandas as pd
 import pytest
-spec=importlib.util.spec_from_file_location('metrics_export',Path(__file__).resolve().parents[1]/'02_custom/s12_metrics_summary/run.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+spec=importlib.util.spec_from_file_location('metrics_export',Path(__file__).resolve().parents[1]/'pipeline/s12_metrics_summary/run.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
 
 def fixture(tmp):
  p=tmp/'example';p.mkdir();(p/'relocation_receipt.json').write_text(json.dumps({'status':'archived_and_local_space_reclaimed'}))

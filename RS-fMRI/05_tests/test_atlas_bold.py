@@ -11,7 +11,7 @@ import numpy as np
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-STEP = ROOT / '02_custom/s11_atlas_bold'
+STEP = ROOT / 'pipeline/s11_atlas_bold'
 spec = importlib.util.spec_from_file_location('atlas_bold_step', STEP / 'run.py')
 a = importlib.util.module_from_spec(spec); spec.loader.exec_module(a)
 

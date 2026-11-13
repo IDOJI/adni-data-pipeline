@@ -11,7 +11,7 @@ from types import SimpleNamespace
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-STEP = ROOT / '02_custom/s7c_ants_iteration_logging'
+STEP = ROOT / 'pipeline/s7c_ants_iteration_logging'
 spec = importlib.util.spec_from_file_location('ants_log_transport', STEP / 'run.py')
 transport = importlib.util.module_from_spec(spec); spec.loader.exec_module(transport)
 

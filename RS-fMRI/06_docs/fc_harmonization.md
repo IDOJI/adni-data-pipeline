@@ -21,8 +21,8 @@ Reviewed denoised BOLD + a pinned atlas in the correct space
 
 | Component | Current repository status |
 |---|---|
-| [Step 11 atlas selection and BOLD extraction](../02_custom/s11_atlas_bold/README.md) | Implemented; produces time series and spatial/temporal audits, without computing FC |
-| [S10 XCP-D products](../02_custom/s10_xcpd_integrated_qc/README.md) | Separate existing atlas/FC products and validation; their atlas, preprocessing and provenance must be checked before reuse |
+| [Step 11 atlas selection and BOLD extraction](../pipeline/s11_atlas_bold/README.md) | Implemented; produces time series and spatial/temporal audits, without computing FC |
+| [S10 XCP-D products](../pipeline/s10_xcpd_integrated_qc/README.md) | Separate existing atlas/FC products and validation; their atlas, preprocessing and provenance must be checked before reuse |
 | Selected-atlas Step 11 FC adapter | Proposed downstream connection; no runnable adapter or workflow command is introduced by this document |
 | Cohort FC harmonization | Proposed design and external software references; no ComBat fitting, package installation or cohort validation has been performed here |
 | Step 12 scalar/report export | An independent reporting branch; its position after Step 11 in the README does not make it an FC or harmonization step |

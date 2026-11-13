@@ -21,10 +21,10 @@ def config(path):
 
 
 def module(name, relative):
-    if relative == '02_custom/s5d_bids_identity/guarded_runner.py':
-        relative = '02_custom/s5d_bids_identity/guarded_runner_seeded.py'
-    if relative == '02_custom/s10_xcpd_integrated_qc/pipeline.py':
-        relative = '02_custom/s10_xcpd_integrated_qc/pipeline_seeded.py'
+    if relative == 'pipeline/s5d_bids_identity/guarded_runner.py':
+        relative = 'pipeline/s5d_bids_identity/guarded_runner_seeded.py'
+    if relative == 'pipeline/s10_xcpd_integrated_qc/pipeline.py':
+        relative = 'pipeline/s10_xcpd_integrated_qc/pipeline_seeded.py'
     return original_module(name, relative)
 
 
@@ -36,7 +36,7 @@ def bind_prepared_routes(root):
     for route in registry['subjects'].values():
         if list(Path(route['runtime']).glob('logs/**/run.json')):
             raise ValueError('Cannot rebind a previously executed route')
-        backend = base.LAB/'02_custom/s7b_sessionwise_preprocessing/run_seeded.py'
+        backend = base.LAB/'pipeline/s7b_sessionwise_preprocessing/run_seeded.py'
         route.update(backend=str(backend), backend_sha256=base.sha(backend))
     base.save(registry_path, registry)
     manifest_path = root/'control/manifest.json'

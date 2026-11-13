@@ -1,6 +1,6 @@
 # Independent local runtime
 
-The owned repository contains the protocol sources, Custom Steps, controllers, timing observer and CPU quota tool. Docker, the host Python/R installations, source data, TemplateFlow payloads and the FreeSurfer license remain explicit external prerequisites. Removing a separate historical protocol checkout requires a verified handoff; copying source files alone does not migrate an active Python environment or service configuration.
+The owned repository contains the protocol sources, Stages, controllers, timing observer and CPU quota tool. Docker, the host Python/R installations, source data, TemplateFlow payloads and the FreeSurfer license remain explicit external prerequisites. Removing a separate historical protocol checkout requires a verified handoff; copying source files alone does not migrate an active Python environment or service configuration.
 
 ## Execution commands
 

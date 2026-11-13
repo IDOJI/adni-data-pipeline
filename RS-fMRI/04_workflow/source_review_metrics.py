@@ -21,7 +21,7 @@ def main():
     parser.add_argument('--watch',action='store_true')
     args = parser.parse_args()
     if not (args.root/'continuous5/settings.json').is_file():raise ValueError('Managed runtime required')
-    path = Path(__file__).resolve().parents[1]/'02_custom/s12_metrics_summary/run.py'
+    path = Path(__file__).resolve().parents[1]/'pipeline/s12_metrics_summary/run.py'
     spec = importlib.util.spec_from_file_location('source_review_unchanged_s12',path)
     exporter = importlib.util.module_from_spec(spec);spec.loader.exec_module(exporter)
     while True:

@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-source = Path(__file__).parents[1] / '02_custom/s8a_motion_duration_qc/run.py'
+source = Path(__file__).parents[1] / 'pipeline/s8a_motion_duration_qc/run.py'
 spec = importlib.util.spec_from_file_location('paper_motion_qc', source)
 paper = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(paper)

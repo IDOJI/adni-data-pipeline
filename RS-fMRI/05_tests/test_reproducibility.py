@@ -96,7 +96,7 @@ def test_public_fetch_with_pinned_cache_and_command_contract(tmp_path,monkeypatc
 
 
 def test_public_xcpd_uses_existing_analysis_argument_builder(tmp_path):
-    public=mod('public');pipeline=public.load_module('02_custom/s10_xcpd_integrated_qc/pipeline.py')
+    public=mod('public');pipeline=public.load_module('pipeline/s10_xcpd_integrated_qc/pipeline.py')
     cfg=public.xcp_config();row=public.public_row(tmp_path)
     args=pipeline.xcp_args(cfg,row)
     assert args[args.index('--nuisance-regressors')+1]=='36P'

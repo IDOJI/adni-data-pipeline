@@ -217,8 +217,8 @@ cat "$PUBLIC_ROOT/comparison_identity.json"
 
 | Component | Fixed analysis/runtime settings |
 |---|---|
-| fMRIPrep | sessionwise; forced SyN-SDC; ignore fieldmaps; `--use-syn-sdc error`; MNI6 res-2, MNI2009c, fsnative, fsaverage10k, func; CIFTI91k; FreeSurfer enabled; seed357; fixed skull-strip initialization; 4 processes / OMP1 / 6000 MB; Docker8g |
-| XCP-D | LINC; volumetric NIfTI; 36P including GSR; no run combination; censored output; FD0.3; min240s; 4S256; dummy0; smoothing6mm; despike; no motion filtering; head50mm; bandpass0.01–0.08Hz/order2; mincoverage0.5; LINC/ABCC QC; seed357; 2 processes / OMP1 / 12000MB; Docker16g |
+| fMRIPrep | sessionwise; forced SyN-SDC; ignore fieldmaps; `--use-syn-sdc error`; MNI6 res-2, MNI2009c, fsnative, fsaverage10k, func; CIFTI91k; FreeSurfer enabled; seed1123; fixed skull-strip initialization; 4 processes / OMP1 / 6000 MB; Docker8g |
+| XCP-D | LINC; volumetric NIfTI; 36P including GSR; no run combination; censored output; FD0.3; min240s; 4S256; dummy0; smoothing6mm; despike; no motion filtering; head50mm; bandpass0.01–0.08Hz/order2; mincoverage0.5; LINC/ABCC QC; seed1123; 2 processes / OMP1 / 12000MB; Docker16g |
 | Logging | Existing 7.C wrapper adds ANTs verbosity, mounts and PATH; it does not change registration iteration schedules |
 
 `environment.json`, per-stage execution records and `comparison_identity.json` record package/code hashes, source hashes, upstream pin, image digests, seeds, threads and settings. License contents are never recorded. New roots use the versioned `fixed-seed-v1` profile: MRIQC internal enhancement/Atropos controls, explicit fixed skull stripping and OMP1. Old comparison identities are rejected. This does not change existing private live batches. See the [seed controls and evidence](../06_docs/seed_reproducibility.md). See the versioned [fMRIPrep usage](https://fmriprep.org/en/25.2.7/usage.html) and [changes](https://fmriprep.org/en/25.2.7/changes.html).
@@ -250,20 +250,20 @@ The tool reports **byte-identical**, **exact decoded values**, **within toleranc
 | 5.A–B | Synthetic handoff input supplied by `init` | Upstream mastersheet and post-Clinica selection; the demo does not run these R selection scripts |
 | 3.A/5.C/5.D | Actual code, synthetic source/selection evidence | Original selected image IDs, QC, pairing proposals and verified file hashes |
 | 6/7/7.B scientific profile/7.C | Actual public images and pinned Docker execution | Reviewed ADNI BIDS pairs and live deployment; the toy starts no queue service |
-| 7.A alternative volume/aCompCor profile | Separate profile, **not** run by section B | Follow its [own guide](../02_custom/s7a_volume_workflow/README.md); it omits FreeSurfer and uses different space/regressors/FD. Never mix it with the main reference |
+| 7.A alternative volume/aCompCor profile | Separate profile, **not** run by section B | Follow its [own guide](../pipeline/s7a_volume_workflow/README.md); it omits FreeSurfer and uses different space/regressors/FD. Never mix it with the main reference |
 | 8/8.A | Synthetic reference and actual-public motion commands | Full MRIQC/Euler/visual/cohort inclusion checks remain separate |
 | 9/9.A/9.B | Actual validation code, synthetic clinical rows | Licensed clinical tables; upstream cognitive-score merge is not reproduced by the public subject |
 | 10 | Real public XCP-D core; synthetic QC-report example | Source/cohort gates, visual review, explicit final inclusion and verified archival |
-| 11 | Exact ROI means from a synthetic matching atlas/grid | Matching-space real atlas and reviewed denoised BOLD; see [atlas guide](../02_custom/s11_atlas_bold/README.md) |
+| 11 | Exact ROI means from a synthetic matching atlas/grid | Matching-space real atlas and reviewed denoised BOLD; see [atlas guide](../pipeline/s11_atlas_bold/README.md) |
 | 12 | Actual exporter on labeled synthetic archive/FreeSurfer/XCP-D records | Actual verified archives for real scalar values and native HTML |
 
 For **existing verified ADNI archives**, stage 12 remains directly executable using your external archive root; no new imaging computation is needed. Set `ADNI_ARCHIVE_ROOT` to the real archive directory before running:
 
 ```sh
 : "${ADNI_ARCHIVE_ROOT:?Set the directory containing subject/EPI_YYYYMMDD_MT1_YYYYMMDD archives}"
-python 02_custom/s12_metrics_summary/run.py \
+python pipeline/s12_metrics_summary/run.py \
   --archive-root "$ADNI_ARCHIVE_ROOT" \
   --status "$HOME/adni-s12-export-status.json"
 ```
 
-For private upstream preparation and cohort operations, use the [complete execution table](../README.md), [lab command planner](../04_workflow/lab.py), [S10 contract](../02_custom/s10_xcpd_integrated_qc/README.md) and reviewed external configurations. Their data-dependent gates and manual research decisions are not replaced by a public toy or represented as completed execution.
+For private upstream preparation and cohort operations, use the [complete execution table](../README.md), [lab command planner](../04_workflow/lab.py), [S10 contract](../pipeline/s10_xcpd_integrated_qc/README.md) and reviewed external configurations. Their data-dependent gates and manual research decisions are not replaced by a public toy or represented as completed execution.

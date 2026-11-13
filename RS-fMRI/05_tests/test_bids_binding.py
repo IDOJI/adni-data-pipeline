@@ -11,7 +11,7 @@ import pytest
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-STEP = ROOT / '02_custom/s5d_bids_identity'
+STEP = ROOT / 'pipeline/s5d_bids_identity'
 sys.path.insert(0, str(STEP))
 import binding as b
 import guarded_runner as g

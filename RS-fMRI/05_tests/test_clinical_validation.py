@@ -9,7 +9,7 @@ import sys
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-spec = importlib.util.spec_from_file_location('clinical_step', ROOT / '02_custom/s9a_validate_clinical/run.py')
+spec = importlib.util.spec_from_file_location('clinical_step', ROOT / 'pipeline/s9a_validate_clinical/run.py')
 clinical = importlib.util.module_from_spec(spec); spec.loader.exec_module(clinical)
 
 
@@ -174,7 +174,7 @@ def test_scan_link_subject_and_rid_conflict_is_rejected(tmp_path):
 
 def test_clinical_cli_matches_direct_function_and_has_reproducible_artifacts(tmp_path):
     included, links, dx, pt = fixture(tmp_path)
-    result = subprocess.run([sys.executable, str(ROOT / '02_custom/s9a_validate_clinical/run.py'),
+    result = subprocess.run([sys.executable, str(ROOT / 'pipeline/s9a_validate_clinical/run.py'),
                              '--included', str(included), '--scan-links', str(links), '--dxsum', str(dx),
                              '--ptdemog', str(pt), '--output-dir', str(tmp_path / 'cli')], capture_output=True, text=True)
     assert result.returncode == 0, result.stderr

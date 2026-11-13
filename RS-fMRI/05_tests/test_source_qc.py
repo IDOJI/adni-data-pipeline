@@ -11,10 +11,10 @@ import yaml
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / '02_custom/s3a_source_qc'))
-spec = importlib.util.spec_from_file_location('source_qc_step', ROOT / '02_custom/s3a_source_qc/run.py')
+sys.path.insert(0, str(ROOT / 'pipeline/s3a_source_qc'))
+spec = importlib.util.spec_from_file_location('source_qc_step', ROOT / 'pipeline/s3a_source_qc/run.py')
 step = importlib.util.module_from_spec(spec); spec.loader.exec_module(step)
-handoff_spec = importlib.util.spec_from_file_location('source_handoff', ROOT / '02_custom/s5c_validate_handoff/run.py')
+handoff_spec = importlib.util.spec_from_file_location('source_handoff', ROOT / 'pipeline/s5c_validate_handoff/run.py')
 handoff = importlib.util.module_from_spec(handoff_spec); handoff_spec.loader.exec_module(handoff)
 
 
@@ -167,7 +167,7 @@ def test_all_blocked_handoff_cli_fails_closed_with_an_audit(tmp_path):
     sources, nfq = fixture(tmp_path, ('4',))
     q = tmp_path / 'qc'; step.process(sources, nfq, q)
     source = write(tmp_path / 'step5.tsv', [dict(Subject_ID='999_S_9999', VISCODE='bl', Image_ID='101', Scan_Date='2020-01-01')])
-    result = subprocess.run([sys.executable, str(ROOT / '02_custom/s5c_validate_handoff/run.py'),
+    result = subprocess.run([sys.executable, str(ROOT / 'pipeline/s5c_validate_handoff/run.py'),
                              '--input', str(source), '--source-qc', str(q), '--output-dir', str(tmp_path / 'out')], capture_output=True, text=True)
     assert result.returncode == 2
     assert (tmp_path / 'out/source_qc_audit.tsv').is_file()
@@ -175,7 +175,7 @@ def test_all_blocked_handoff_cli_fails_closed_with_an_audit(tmp_path):
 
 def test_native_source_qc_cli_accepts_explicit_raw_files(tmp_path):
     sources, nfq = fixture(tmp_path)
-    result = subprocess.run([sys.executable, str(ROOT / '02_custom/s3a_source_qc/run.py'), '--mriqc-table', str(sources['MRIQC']),
+    result = subprocess.run([sys.executable, str(ROOT / 'pipeline/s3a_source_qc/run.py'), '--mriqc-table', str(sources['MRIQC']),
                              '--adni3-qc', str(sources['ADNI3_QC']), '--nfq', 'synthetic=' + str(next(iter(nfq.values()))),
                              '--output-dir', str(tmp_path / 'cli')], capture_output=True, text=True)
     assert result.returncode == 0, result.stderr

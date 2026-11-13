@@ -51,7 +51,7 @@
     "missing_roi_fraction_warning": 0.05,
     "registration_dice_warning": 0.6
   },
-  "random_seed": 357,
+  "random_seed": 1123,
   "resources": {
     "cpus": 4,
     "omp_nthreads": 2,

@@ -15,8 +15,8 @@ def module(name, relative):
     value = importlib.util.module_from_spec(spec); spec.loader.exec_module(value)
     return value
 
-p = module('consolidated_xcpd', '02_custom/s10_xcpd_integrated_qc/pipeline.py')
-clinical = module('consolidated_clinical', '02_custom/s9a_validate_clinical/run.py')
+p = module('consolidated_xcpd', 'pipeline/s10_xcpd_integrated_qc/pipeline.py')
+clinical = module('consolidated_clinical', 'pipeline/s9a_validate_clinical/run.py')
 
 
 def config(tmp_path):
@@ -47,21 +47,21 @@ def test_unreviewed_upstream_checkout_cannot_be_substituted(tmp_path):
 
 def test_config_must_be_explicit_for_both_execution_paths():
     for name in ('s7a_volume_workflow', 's10_xcpd_integrated_qc'):
-        command = [sys.executable, str(ROOT / '02_custom' / name / 'pipeline.py')]
+        command = [sys.executable, str(ROOT / 'pipeline' / name / 'pipeline.py')]
         result = subprocess.run(command, text=True, capture_output=True)
         assert result.returncode == 2 and '--config' in result.stderr
 
 
 def test_two_profiles_keep_distinct_processing_choices(tmp_path):
-    legacy = module('volume_profile_for_test', '02_custom/s7a_volume_workflow/pipeline.py')
-    old = p.load(ROOT / '02_custom/s7a_volume_workflow/config.example.json')
+    legacy = module('volume_profile_for_test', 'pipeline/s7a_volume_workflow/pipeline.py')
+    old = p.load(ROOT / 'pipeline/s7a_volume_workflow/config.example.json')
     new = p.load(ROOT / '03_config/xcpd_linc.example.json')
     cmd = legacy.build_command(old, 'xcpd', old['runs'][0])
     assert cmd[cmd.index('--nuisance-regressors')+1] == 'acompcor'
     assert cmd[cmd.index('--fd-thresh')+1] == '0.5'
     assert new['nuisance_regressors'] == '36P' and new['global_signal_regression'] is True
     assert new['fd_threshold'] == 0.3 and new['min_time'] == 240
-    assert '--config' in (ROOT / '02_custom/s10_xcpd_integrated_qc/pipeline.py').read_text()
+    assert '--config' in (ROOT / 'pipeline/s10_xcpd_integrated_qc/pipeline.py').read_text()
 
 
 def write(path, rows):

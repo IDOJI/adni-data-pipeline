@@ -19,7 +19,7 @@ if str(WORKFLOW) not in sys.path:
     sys.path.insert(0, str(WORKFLOW))
 
 ROOT = Path(__file__).resolve().parents[1]
-UPSTREAM = ROOT / '01_upstream/ADNI_fMRI_protocol'
+PIPELINE = ROOT / 'pipeline'
 LOCK = ROOT / '03_config/upstream.lock.json'
 
 
@@ -33,7 +33,7 @@ def doctor():
     for step in ['s1_setup_account', 's2_download', 's3_organize', 's4_clinica',
                  's4b_slice_timing', 's5_post_clinica_qc', 's6_mriqc', 's7_fmriprep',
                  's8_final_qc', 's9_clinical_imaging_merge']:
-        if not (UPSTREAM / step / 'README.md').is_file():
+        if not (PIPELINE / step / 'README.md').is_file():
             raise ValueError('Missing integrated protocol step: ' + step)
     return result
 
@@ -92,7 +92,7 @@ def render_config(config_path, output_dir, handoff=None):
             raise ValueError('Output must not contain the entire data or scratch tree')
     if out.exists():
         raise ValueError('Use a new output directory')
-    template = yaml.safe_load((UPSTREAM / 'config/config_adni.yaml').read_text())
+    template = yaml.safe_load((PIPELINE / 'config/config_adni.yaml').read_text())
     data = str(values['data_root'])
     merge(template, {
         'slice_timing': {'report_tsv': data + '/qc/step4b/slice_timing_report.tsv'},
@@ -111,12 +111,12 @@ def render_config(config_path, output_dir, handoff=None):
                         'mriqc_iqms_table': data + '/results/mriqc/all_IQMs_with_QC_flags_clean.csv',
                         'fmriprep_sessions_table': data + '/qc/step8/motion_summary.tsv',
                         'final_inclusion_table': data + '/qc/step8/included_sessions.tsv'}})
-    overrides = raw.get('upstream_overrides', {})
+    overrides = raw.get('pipeline_overrides', raw.get('upstream_overrides', {}))
     if not isinstance(overrides, dict):
-        raise ValueError('upstream_overrides must be a mapping')
+        raise ValueError('pipeline_overrides must be a mapping')
     merge(template, overrides)
     variables = {'ADNI_BASE': str(values['data_root']), 'SCRATCH': str(values['scratch_root']),
-                 'CONTAINERS_DIR': str(values['containers_root']), 'REPO_ROOT': str(UPSTREAM),
+                 'CONTAINERS_DIR': str(values['containers_root']), 'REPO_ROOT': str(PIPELINE),
                  'FREESURFER_LICENSE': str(values['freesurfer_license'])}
     template = expand(template, variables)
     for group, keys in {
@@ -167,12 +167,12 @@ def render_config(config_path, output_dir, handoff=None):
         template['qc']['heuristics_final_table'] = str(directory / 'mriqc_subjects.csv')
         template['paths']['fmriprep_heuristics_csv'] = str(directory / 'post_clinica.csv')
     out.mkdir(parents=True)
-    (out / 'upstream.yaml').write_text(yaml.safe_dump(template, sort_keys=False))
+    (out / 'pipeline.yaml').write_text(yaml.safe_dump(template, sort_keys=False))
     record = {'upstream_commit': json.loads(LOCK.read_text())['commit'],
               'handoff': str(Path(handoff).resolve()) if handoff else None,
               'config_source': str(Path(config_path).resolve()), 'jobs_submitted': False}
     (out / 'configuration.json').write_text(json.dumps(record, indent=2) + '\n')
-    return {'config': str(out / 'upstream.yaml'), **record}
+    return {'config': str(out / 'pipeline.yaml'), **record}
 
 
 def metrics_summary_command(archive_root, status=None, watch=False):
@@ -180,7 +180,7 @@ def metrics_summary_command(archive_root, status=None, watch=False):
     archive = external(archive_root)
     if not archive.is_dir():
         raise ValueError('Use an existing external archive root')
-    argv = [sys.executable, str(ROOT / '02_custom/s12_metrics_summary/run.py'),
+    argv = [sys.executable, str(ROOT / 'pipeline/s12_metrics_summary/run.py'),
             '--archive-root', str(archive)]
     if status:
         state = external(status)
@@ -197,7 +197,7 @@ def commands(config, session_handoff=None, archive_root=None, metrics_status=Non
     cfg = external(config)
     if not cfg.is_file():
         raise ValueError('Render an external config first')
-    root = shlex.quote(str(UPSTREAM))
+    root = shlex.quote(str(PIPELINE))
     c = shlex.quote(str(cfg))
     env = f'ADNI_CONFIG={c} PYTHONPATH={root}'
     base = f'cd {root} && {env}'

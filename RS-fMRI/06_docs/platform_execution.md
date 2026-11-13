@@ -8,7 +8,7 @@ cd "$HOME/adni-platform-source/RS-fMRI"
 python3 -m venv "$HOME/.venvs/adni-platform"
 source "$HOME/.venvs/adni-platform/bin/activate"
 python -m pip install -r 07_reproducibility/requirements.lock.txt
-python -m pip install -r 01_upstream/ADNI_fMRI_protocol/s5_post_clinica_qc/requirements.txt
+python -m pip install -r pipeline/s5_post_clinica_qc/requirements.txt
 python 04_workflow/lab.py doctor
 export PUBLIC_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/adni-public.XXXXXX")/run"
 python 07_reproducibility/public.py fetch --root "$PUBLIC_ROOT"
@@ -24,13 +24,13 @@ The following stages apply to both hosts unless a host-specific boundary is stat
 
 ```sh
 export RSFMRI_ROOT="$PWD"
-export ADNI_UPSTREAM="$RSFMRI_ROOT/01_upstream/ADNI_fMRI_protocol"
+export ADNI_PIPELINE="$RSFMRI_ROOT/pipeline"
 export ADNI_DATA_ROOT=/ABSOLUTE/PATH/ADNI_DATA
-export UPSTREAM_CONFIG=/ABSOLUTE/PATH/ADNI_DATA/config/run-001/upstream.yaml
-export ADNI_CONFIG="$UPSTREAM_CONFIG"
-export PYTHONPATH="$ADNI_UPSTREAM${PYTHONPATH:+:$PYTHONPATH}"
+export PIPELINE_CONFIG=/ABSOLUTE/PATH/ADNI_DATA/config/run-001/pipeline.yaml
+export ADNI_CONFIG="$PIPELINE_CONFIG"
+export PYTHONPATH="$ADNI_PIPELINE${PYTHONPATH:+:$PYTHONPATH}"
 test -d "$ADNI_DATA_ROOT"
-test -f "$UPSTREAM_CONFIG"
+test -f "$PIPELINE_CONFIG"
 ```
 
 Run this block from `RS-fMRI/` after activating the environment. Replace `/ABSOLUTE/PATH` with this host's actual paths and use an existing rendered external YAML. To create it first, follow [configuration and handoffs](../README.md#-configuration-and-handoffs). `ADNI_CONFIG` and `PYTHONPATH` let upstream scripts load that configuration and their pinned utilities; they do not change scientific settings. Commands below using `ADNI_DATA_ROOT` are ADNI commands. Commands using `PUBLIC_ROOT` are the separate public-image example.
@@ -108,8 +108,8 @@ A Linux notebook does not provide Slurm simply because it runs Linux. Use the Do
 ## S3
 
 ```sh
-bash "$ADNI_UPSTREAM/s3_organize/create_dicom_dir_csv.sh" \
-  --config "$UPSTREAM_CONFIG"
+bash "$ADNI_PIPELINE/s3_organize/create_dicom_dir_csv.sh" \
+  --config "$PIPELINE_CONFIG"
 ```
 
 **What this does:** Builds the actual downloaded-DICOM inventory from the configured DICOM root.
@@ -123,8 +123,8 @@ bash "$ADNI_UPSTREAM/s3_organize/create_dicom_dir_csv.sh" \
 For the private upstream route, supply an existing rendered configuration:
 
 ```sh
-: "${UPSTREAM_CONFIG:?Set the absolute external upstream YAML path}"
-python 04_workflow/lab.py plan --config "$UPSTREAM_CONFIG"
+: "${PIPELINE_CONFIG:?Set the absolute external pipeline YAML path}"
+python 04_workflow/lab.py plan --config "$PIPELINE_CONFIG"
 ```
 
 This prints plans for the supported entry points, including dry-run Slurm commands. Review working directories and cluster assumptions before running a printed command. The planner is not a general Mac/Linux scheduler.
@@ -132,7 +132,7 @@ This prints plans for the supported entry points, including dry-run Slurm comman
 ## S3A
 
 ```sh
-python 02_custom/s3a_source_qc/run.py \
+python pipeline/s3a_source_qc/run.py \
   --mriqc-table /ABSOLUTE/PATH/ADNI_DATA/LONI_download/clindata/MRIQC.csv \
   --adni3-qc /ABSOLUTE/PATH/ADNI_DATA/LONI_download/clindata/MAYO_ADNI3.csv \
   --go2-qc /ABSOLUTE/PATH/ADNI_DATA/LONI_download/clindata/MAYO_GO2.csv \
@@ -147,14 +147,14 @@ python 02_custom/s3a_source_qc/run.py \
 
 ### How it works and host requirements
 
-**Source QC/NFQ.** Run the same Python CLI on macOS and Linux with host-correct Study Files paths. Preserve source hashes, quality rules, pending status and identity/deletion conflicts. The [3.A execution example](../02_custom/s3a_source_qc/README.md#execution) and offline `toy.py --step 3a` use the same implementation. No Docker, Slurm or service manager is required by this step.
+**Source QC/NFQ.** Run the same Python CLI on macOS and Linux with host-correct Study Files paths. Preserve source hashes, quality rules, pending status and identity/deletion conflicts. The [3.A execution example](../pipeline/s3a_source_qc/README.md#execution) and offline `toy.py --step 3a` use the same implementation. No Docker, Slurm or service manager is required by this step.
 
 ## S4
 
 ```sh
-mkdir -p "$(python -m utils.config_tools paths.slurm_jobs_dir --config "$UPSTREAM_CONFIG")"
-bash "$ADNI_UPSTREAM/s4_clinica/create_slurm_script_per_sub.sh" \
-  --config "$UPSTREAM_CONFIG"
+mkdir -p "$(python -m utils.config_tools paths.slurm_jobs_dir --config "$PIPELINE_CONFIG")"
+bash "$ADNI_PIPELINE/s4_clinica/create_slurm_script_per_sub.sh" \
+  --config "$PIPELINE_CONFIG"
 ```
 
 **What this does:** Generates per-subject Clinica Slurm scripts from the configured subject list and reviewed template. This block creates jobs, not converted images.
@@ -170,8 +170,8 @@ Keep the converter version and conversion records when comparing hosts. Already 
 ### Submit only on the reviewed Slurm host
 
 ```sh
-bash "$ADNI_UPSTREAM/s4_clinica/adni_submit_slurm.sh" \
-  --config "$UPSTREAM_CONFIG"
+bash "$ADNI_PIPELINE/s4_clinica/adni_submit_slurm.sh" \
+  --config "$PIPELINE_CONFIG"
 ```
 
 This submits the generated jobs and starts actual conversion through the configured template. It requires real Slurm/Clinica dependencies. After completion, review the pinned merge utility and its conversion-info handling before merging outputs; do not treat job generation as successful conversion.
@@ -179,8 +179,8 @@ This submits the generated jobs and starts actual conversion through the configu
 ## S4B
 
 ```sh
-python "$ADNI_UPSTREAM/s4b_slice_timing/insert_philips_slicetiming.py" \
-  --config "$UPSTREAM_CONFIG" --dry-run
+python "$ADNI_PIPELINE/s4b_slice_timing/insert_philips_slicetiming.py" \
+  --config "$PIPELINE_CONFIG" --dry-run
 ```
 
 **What this does:** Previews Philips SliceTiming updates using the configured metadata and BIDS files.
@@ -197,10 +197,10 @@ python "$ADNI_UPSTREAM/s4b_slice_timing/insert_philips_slicetiming.py" \
 mkdir -p "$ADNI_DATA_ROOT/qc/step5a"
 (
   cd "$ADNI_DATA_ROOT/qc/step5a"
-  python "$ADNI_UPSTREAM/s5_post_clinica_qc/create_mastersheet/main.py" \
-    --config "$UPSTREAM_CONFIG"
+  python "$ADNI_PIPELINE/s5_post_clinica_qc/create_mastersheet/main.py" \
+    --config "$PIPELINE_CONFIG"
 )
-python "$ADNI_UPSTREAM/s5_post_clinica_qc/create_report/run_session_heuristics.py" \
+python "$ADNI_PIPELINE/s5_post_clinica_qc/create_report/run_session_heuristics.py" \
   --input-csv "$ADNI_DATA_ROOT/qc/step5a/data/anchor_plus_dicom_nifti_struct.csv" \
   --output-dir "$ADNI_DATA_ROOT/qc/step5"
 ```
@@ -216,7 +216,7 @@ python "$ADNI_UPSTREAM/s5_post_clinica_qc/create_report/run_session_heuristics.p
 ## S5C
 
 ```sh
-python 02_custom/s5c_validate_handoff/run.py \
+python pipeline/s5c_validate_handoff/run.py \
   --input /ABSOLUTE/PATH/ADNI_DATA/qc/step5/final_heuristics.tsv \
   --source-qc /ABSOLUTE/PATH/ADNI_DATA/qc/step3a \
   --output-dir /ABSOLUTE/PATH/ADNI_DATA/qc/step5c
@@ -233,14 +233,14 @@ python 02_custom/s5c_validate_handoff/run.py \
 ## S5D
 
 ```sh
-python 02_custom/s5d_bids_identity/binding.py --config /external/binding-config.json
-python 02_custom/s5d_bids_identity/guarded_runner.py verify-pair \
+python pipeline/s5d_bids_identity/binding.py --config /external/binding-config.json
+python pipeline/s5d_bids_identity/guarded_runner.py verify-pair \
   --receipt /external/binding/07.binding-receipt.json --epi-key EXTERNAL_EPI_KEY
-python 02_custom/s5d_bids_identity/guarded_runner.py prepare \
+python pipeline/s5d_bids_identity/guarded_runner.py prepare \
   --receipt /external/binding/07.binding-receipt.json --epi-key EXTERNAL_EPI_KEY \
   --runtime /external/NEW_ISOLATED_PAIR --template /external/step7b-template.yaml
-python 02_custom/s5d_bids_identity/guarded_runner.py intake --config /external/NEW_ISOLATED_PAIR/verified-config.yaml
-python 02_custom/s5d_bids_identity/guarded_runner.py dry-run --stage fmriprep --config /external/NEW_ISOLATED_PAIR/verified-config.yaml
+python pipeline/s5d_bids_identity/guarded_runner.py intake --config /external/NEW_ISOLATED_PAIR/verified-config.yaml
+python pipeline/s5d_bids_identity/guarded_runner.py dry-run --stage fmriprep --config /external/NEW_ISOLATED_PAIR/verified-config.yaml
 ```
 
 **What this does:** Checks the proposed EPI–T1 pair against source UIDs, Image IDs, dates and independent file hashes, then prepares an isolated verified input view.
@@ -255,8 +255,8 @@ python 02_custom/s5d_bids_identity/guarded_runner.py dry-run --stage fmriprep --
 
 ```sh
 (
-  cd "$ADNI_UPSTREAM"
-  bash s6_mriqc/adni_mriqc.slurm --config "$UPSTREAM_CONFIG" --dry-run
+  cd "$ADNI_PIPELINE"
+  bash s6_mriqc/adni_mriqc.slurm --config "$PIPELINE_CONFIG" --dry-run
 )
 ```
 
@@ -268,12 +268,12 @@ python 02_custom/s5d_bids_identity/guarded_runner.py dry-run --stage fmriprep --
 
 ```sh
 (
-  cd "$ADNI_UPSTREAM"
-  bash s6_mriqc/adni_mriqc.slurm --config "$UPSTREAM_CONFIG"
+  cd "$ADNI_PIPELINE"
+  bash s6_mriqc/adni_mriqc.slurm --config "$PIPELINE_CONFIG"
 )
 ```
 
-This submits real jobs. It requires configured Slurm/Apptainer infrastructure; a local Mac/Linux notebook needs the prepared single-case Docker route in [7.B](../02_custom/s7b_sessionwise_preprocessing/README.md#execution) instead. Use the guarded runner when inputs came from 5.D. Preserve the selected route's analysis profile.
+This submits real jobs. It requires configured Slurm/Apptainer infrastructure; a local Mac/Linux notebook needs the prepared single-case Docker route in [7.B](../pipeline/s7b_sessionwise_preprocessing/README.md#execution) instead. Use the guarded runner when inputs came from 5.D. Preserve the selected route's analysis profile.
 
 ### Standalone public-image Docker example
 
@@ -297,9 +297,9 @@ Within the public block, the middle command prints the actual Docker argv and th
 
 ```sh
 (
-  cd "$ADNI_UPSTREAM"
+  cd "$ADNI_PIPELINE"
   bash s7_fmriprep/run_fmriprep_bids_filter_array_all.sh \
-    --config "$UPSTREAM_CONFIG" \
+    --config "$PIPELINE_CONFIG" \
     --sessions-csv "$ADNI_DATA_ROOT/qc/step5c/mriqc_sessions.csv" --dry-run
 )
 ```
@@ -312,14 +312,14 @@ Within the public block, the middle command prints the actual Docker argv and th
 
 ```sh
 (
-  cd "$ADNI_UPSTREAM"
+  cd "$ADNI_PIPELINE"
   bash s7_fmriprep/run_fmriprep_bids_filter_array_all.sh \
-    --config "$UPSTREAM_CONFIG" \
+    --config "$PIPELINE_CONFIG" \
     --sessions-csv "$ADNI_DATA_ROOT/qc/step5c/mriqc_sessions.csv"
 )
 ```
 
-This submits real jobs. It requires configured Slurm/Apptainer infrastructure; a local Mac/Linux notebook needs the prepared single-case Docker route in [7.B](../02_custom/s7b_sessionwise_preprocessing/README.md#execution) instead. Use the guarded runner when inputs came from 5.D. Preserve the selected route's analysis profile.
+This submits real jobs. It requires configured Slurm/Apptainer infrastructure; a local Mac/Linux notebook needs the prepared single-case Docker route in [7.B](../pipeline/s7b_sessionwise_preprocessing/README.md#execution) instead. Use the guarded runner when inputs came from 5.D. Preserve the selected route's analysis profile.
 
 ### Standalone public-image Docker example
 
@@ -343,7 +343,7 @@ The upstream Step-7 launcher is a separate Slurm/Apptainer route, and 7.B is the
 ## S7A
 
 ```sh
-python 02_custom/s7a_volume_workflow/pipeline.py --config /ABSOLUTE/PATH/volume.local.json dry-run --stage fmriprep --subject 999S9999
+python pipeline/s7a_volume_workflow/pipeline.py --config /ABSOLUTE/PATH/volume.local.json dry-run --stage fmriprep --subject 999S9999
 ```
 
 **What this does:** First prints the Docker command for the separate volume/aCompCor profile. The explicitly selected `run` commands below perform the imaging calculations.
@@ -352,16 +352,16 @@ python 02_custom/s7a_volume_workflow/pipeline.py --config /ABSOLUTE/PATH/volume.
 
 ### How it works and host requirements
 
-**Alternative volume/aCompCor profile.** Its single-case Docker command/audit tools use external paths on both hosts. Preserve this profile's own MNI2009c, aCompCor/no-GSR, FD0.5 and surface-disabled settings and separate caches. It is not the S7/S10 surface-enabled 36P-LINC reference. Follow its [execution contract](../02_custom/s7a_volume_workflow/README.md#execution); no new Linux full-imaging validation is claimed.
+**Alternative volume/aCompCor profile.** Its single-case Docker command/audit tools use external paths on both hosts. Preserve this profile's own MNI2009c, aCompCor/no-GSR, FD0.5 and surface-disabled settings and separate caches. It is not the S7/S10 surface-enabled 36P-LINC reference. Follow its [execution contract](../pipeline/s7a_volume_workflow/README.md#execution); no new Linux full-imaging validation is claimed.
 
-For real processing, use the separate [7.A execution commands](../02_custom/s7a_volume_workflow/README.md#execute-the-selected-profile) after checking the preview.
+For real processing, use the separate [7.A execution commands](../pipeline/s7a_volume_workflow/README.md#execute-the-selected-profile) after checking the preview.
 
 ## S7B
 
 ```sh
 : "${STEP7B_CONFIG:?Set the external verified 7.B YAML path}"
 : "${ADNI_SUBJECT:?Set the bare subject label recorded in that configuration}"
-python 02_custom/s7b_sessionwise_preprocessing/run.py --config "$STEP7B_CONFIG" dry-run --stage fmriprep --subject "$ADNI_SUBJECT"
+python pipeline/s7b_sessionwise_preprocessing/run.py --config "$STEP7B_CONFIG" dry-run --stage fmriprep --subject "$ADNI_SUBJECT"
 ```
 
 **What this does:** First inspects the configured single-case fMRIPrep command. The explicit `run` form below launches the selected case with the sessionwise surface-enabled profile.
@@ -383,11 +383,11 @@ This may create external filter/work directories and requires the pinned image t
 ### Run one already prepared case
 
 ```sh
-python 02_custom/s7b_sessionwise_preprocessing/run.py \
+python pipeline/s7b_sessionwise_preprocessing/run.py \
   --config "$STEP7B_CONFIG" run --stage fmriprep --subject "$ADNI_SUBJECT"
 ```
 
-This launches real fMRIPrep; use the guarded 5.D entry point for receipt-bound pairs. See the [7.B execution contract](../02_custom/s7b_sessionwise_preprocessing/README.md#execution) for MRIQC intake and the separate Mac queue.
+This launches real fMRIPrep; use the guarded 5.D entry point for receipt-bound pairs. See the [7.B execution contract](../pipeline/s7b_sessionwise_preprocessing/README.md#execution) for MRIQC intake and the separate Mac queue.
 
 ## S7C
 
@@ -409,10 +409,10 @@ python 07_reproducibility/public.py fmriprep \
 ## S8
 
 ```sh
-python "$ADNI_UPSTREAM/s8_final_qc/summarize_motion_from_confounds.py" \
+python "$ADNI_PIPELINE/s8_final_qc/summarize_motion_from_confounds.py" \
   --derivatives-dir "$ADNI_DATA_ROOT/derivatives/fmriprep" \
   --output-dir "$ADNI_DATA_ROOT/qc/step8"
-python "$ADNI_UPSTREAM/s8_final_qc/extract_euler_from_freesurfer.py" \
+python "$ADNI_PIPELINE/s8_final_qc/extract_euler_from_freesurfer.py" \
   --freesurfer-dir "$ADNI_DATA_ROOT/derivatives/sourcedata/freesurfer" \
   --output-tsv "$ADNI_DATA_ROOT/qc/step8/euler_summary.tsv"
 ```
@@ -438,7 +438,7 @@ This writes S8 motion and 8.A duration outputs, not a full research-inclusion de
 ## S8A
 
 ```sh
-python 02_custom/s8a_motion_duration_qc/run.py \
+python pipeline/s8a_motion_duration_qc/run.py \
   --bids-root "$ADNI_DATA_ROOT/rawdata" \
   --derivatives-root "$ADNI_DATA_ROOT/derivatives/fmriprep" \
   --output-dir "$ADNI_DATA_ROOT/qc/motion-duration-run-001"
@@ -456,13 +456,13 @@ python 02_custom/s8a_motion_duration_qc/run.py \
 
 ```sh
 mkdir -p "$ADNI_DATA_ROOT/qc/step9"
-python "$ADNI_UPSTREAM/s9_clinical_imaging_merge/build_imaging_input.py" \
+python "$ADNI_PIPELINE/s9_clinical_imaging_merge/build_imaging_input.py" \
   --included "$ADNI_DATA_ROOT/qc/final/included_reviewed_sessions.tsv" \
   --mastersheet "$ADNI_DATA_ROOT/qc/step5a/data/anchor_plus_dicom_nifti_struct.csv" \
   --dxsum "$ADNI_DATA_ROOT/LONI_download/clindata/DXSUM.csv" \
   --max-dx-days 28 \
   --output "$ADNI_DATA_ROOT/qc/step9/included_sessions_merged.csv"
-python "$ADNI_UPSTREAM/s9_clinical_imaging_merge/adni_swimlane_clinical.py" \
+python "$ADNI_PIPELINE/s9_clinical_imaging_merge/adni_swimlane_clinical.py" \
   --imaging "$ADNI_DATA_ROOT/qc/step9/included_sessions_merged.csv" \
   --dxsum "$ADNI_DATA_ROOT/LONI_download/clindata/DXSUM.csv" \
   --max-days 28 \
@@ -483,7 +483,7 @@ python "$ADNI_UPSTREAM/s9_clinical_imaging_merge/adni_swimlane_clinical.py" \
 ## S9A
 
 ```sh
-python 02_custom/s9a_validate_clinical/run.py \
+python pipeline/s9a_validate_clinical/run.py \
   --included /ABSOLUTE/PATH/ADNI_DATA/qc/final/included_reviewed_sessions.tsv \
   --scan-links /ABSOLUTE/PATH/ADNI_DATA/qc/step5a/data/anchor_plus_dicom_nifti_struct.csv \
   --dxsum /ABSOLUTE/PATH/ADNI_DATA/LONI_download/clindata/DXSUM.csv \
@@ -503,7 +503,7 @@ python 02_custom/s9a_validate_clinical/run.py \
 ## S9B
 
 ```sh
-python 02_custom/s9b_validate_inclusion/run.py \
+python pipeline/s9b_validate_inclusion/run.py \
   --source-qc /ABSOLUTE/PATH/ADNI_DATA/qc/step3a \
   --clinical /ABSOLUTE/PATH/ADNI_DATA/qc/step9a \
   --confirmed-st-absence /ABSOLUTE/PATH/ADNI_DATA/qc/confirmed-st-absence.csv \
@@ -522,15 +522,15 @@ python 02_custom/s9b_validate_inclusion/run.py \
 ## S10
 
 ```sh
-python 02_custom/s10_xcpd_integrated_qc/pipeline.py \
+python pipeline/s10_xcpd_integrated_qc/pipeline.py \
   --config /ABSOLUTE/PATH/xcpd.local.json preflight
-python 02_custom/s10_xcpd_integrated_qc/pipeline.py \
+python pipeline/s10_xcpd_integrated_qc/pipeline.py \
   --config /ABSOLUTE/PATH/xcpd.local.json dry-run
 ```
 
 **What this does:** Checks the private ADNI completed-pair configuration and prints its XCP-D plan. These commands do not start the imaging calculation.
 
-**Results:** Preflight/plan evidence for the configured runtime. Run the separately documented [pilot or watch command](../02_custom/s10_xcpd_integrated_qc/README.md#execution) after checking those inputs; they create the real denoised BOLD, ROI/FC, reports and QC outputs.
+**Results:** Preflight/plan evidence for the configured runtime. Run the separately documented [pilot or watch command](../pipeline/s10_xcpd_integrated_qc/README.md#execution) after checking those inputs; they create the real denoised BOLD, ROI/FC, reports and QC outputs.
 
 ### Standalone public-image XCP-D calculation
 
@@ -554,8 +554,8 @@ The integrated ADNI `pipeline.py` requires its completed-pair layout **and** aut
 ## S11
 
 ```sh
-python 02_custom/s11_atlas_bold/sources.py status
-python 02_custom/s11_atlas_bold/run.py list --space MNI152NLin6Asym
+python pipeline/s11_atlas_bold/sources.py status
+python pipeline/s11_atlas_bold/run.py list --space MNI152NLin6Asym
 ```
 
 **What this does:** Checks which pinned atlas sources are present and lists atlas choices for the declared BOLD space; this inspection does not extract signals.
@@ -564,12 +564,12 @@ python 02_custom/s11_atlas_bold/run.py list --space MNI152NLin6Asym
 
 ### How it works and host requirements
 
-**Atlas BOLD extraction.** Use the same pinned atlas, exact space/grid/labels and reviewed run/frame mapping on both hosts. Install/fetch atlas sources explicitly through the source manager; source downloads can be large. Run `sources.py status` and the extraction CLI from this step's [guide](../02_custom/s11_atlas_bold/README.md#execution). Keep source hashes and any changed host paths in new evidence; never use resampling as a substitute for cross-template registration. Extraction performs no new denoising or final inclusion.
+**Atlas BOLD extraction.** Use the same pinned atlas, exact space/grid/labels and reviewed run/frame mapping on both hosts. Install/fetch atlas sources explicitly through the source manager; source downloads can be large. Run `sources.py status` and the extraction CLI from this step's [guide](../pipeline/s11_atlas_bold/README.md#execution). Keep source hashes and any changed host paths in new evidence; never use resampling as a substitute for cross-template registration. Extraction performs no new denoising or final inclusion.
 
 ### Extract the selected atlas
 
 ```sh
-python 02_custom/s11_atlas_bold/run.py extract \
+python pipeline/s11_atlas_bold/run.py extract \
   --bold /ABSOLUTE/PATH/ADNI_DATA/derivatives/sub-ADNI999S9999_ses-M000_task-rest_run-1_space-MNI152NLin6Asym_desc-denoised_bold.nii.gz \
   --mask /ABSOLUTE/PATH/ADNI_DATA/derivatives/sub-ADNI999S9999_ses-M000_task-rest_run-1_space-MNI152NLin6Asym_desc-brain_mask.nii.gz \
   --atlas cbig_Schaefer2018_400Parcels_7Networks_order_FSLMNI152_2mm \
@@ -579,7 +579,7 @@ python 02_custom/s11_atlas_bold/run.py extract \
   --output-dir /ABSOLUTE/PATH/ADNI_DATA/atlas-signals/run-001/Schaefer400
 ```
 
-Replace the synthetic identity and paths with the reviewed run. Install missing atlas sources using the [Step 11 source commands](../02_custom/s11_atlas_bold/README.md#execution) first. This example produces the time-series/labels/frames/coverage artifact bundle; extraction is distinct from FC estimation.
+Replace the synthetic identity and paths with the reviewed run. Install missing atlas sources using the [Step 11 source commands](../pipeline/s11_atlas_bold/README.md#execution) first. This example produces the time-series/labels/frames/coverage artifact bundle; extraction is distinct from FC estimation.
 
 ## S12
 

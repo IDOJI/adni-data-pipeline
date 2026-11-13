@@ -30,6 +30,19 @@ def test_invalid_seed_fails_closed(seed):
         policy.require({'seed_policy':policy.POLICY, 'random_seed':seed, 'resources':{'omp_nthreads':1}})
 
 
+def test_new_run_examples_use_master_seed_1123():
+    assert policy.DEFAULT_SEED == 1123
+    for name in ('03_config/local_batch.example.json', '03_config/local_batch.seeded.example.json',
+                 '03_config/xcpd_linc.example.json', '03_config/xcpd_linc.seeded.example.json',
+                 'pipeline/s7a_volume_workflow/config.example.json',
+                 'pipeline/s7a_volume_workflow/config.seeded.example.json'):
+        cfg = json.loads((LAB / name).read_text())
+        cfg = cfg.get('preprocessing_template', cfg)
+        if isinstance(cfg, str):
+            cfg = json.loads((LAB / cfg).read_text())
+        assert cfg['random_seed'] == policy.DEFAULT_SEED, name
+
+
 def test_fmriprep_skullstripping_and_thread_environment(tmp_path):
     base = arguments('fmriprep')
     command = policy.docker(base, 'fmriprep', 357, tmp_path/'fresh')
@@ -83,8 +96,8 @@ def session_config(root):
 
 
 def test_session_wrapper_and_legacy_builder_stay_separate(tmp_path):
-    seeded = load('02_custom/s7b_sessionwise_preprocessing/run_seeded.py', 'seed_test_session')
-    legacy = load('02_custom/s7b_sessionwise_preprocessing/run.py', 'seed_test_legacy')
+    seeded = load('pipeline/s7b_sessionwise_preprocessing/run_seeded.py', 'seed_test_session')
+    legacy = load('pipeline/s7b_sessionwise_preprocessing/run.py', 'seed_test_legacy')
     cfg = session_config(tmp_path/'new')
     case = {'subject':'ADNI999S9999', 'session':'20000101'}
     seeded_cmd, _ = seeded.command(cfg, 'fmriprep', case, 'example@sha256:test')
@@ -109,7 +122,7 @@ def test_batch_rebinds_only_unexecuted_routes_and_selects_seeded_postprocessing(
     new = batch.base.read(root/'config/continuation.json')
     assert new['subjects']['ADNI999S9999']['backend'].endswith('/run_seeded.py')
     assert batch.base.read(root/'control/manifest.json')['registry_sha256'] == batch.base.sha(root/'config/continuation.json')
-    post = batch.module('test_post', '02_custom/s10_xcpd_integrated_qc/pipeline.py')
+    post = batch.module('test_post', 'pipeline/s10_xcpd_integrated_qc/pipeline.py')
     assert Path(post.__file__).name == 'pipeline_seeded.py'
     log = root/'case/logs/old/run.json'
     log.parent.mkdir(parents=True)
@@ -122,7 +135,7 @@ def test_r_wrapper_requires_isotree_seed_support_and_new_output(tmp_path):
     r = load('04_workflow/iqm_seeded.py', 'seed_test_r')
     cmd = r.command('/external/config.yaml', tmp_path/'new')
     expression = cmd[cmd.index('-e')+1]
-    assert 'set.seed(357)' in expression and 'iso_seed' in expression
+    assert 'set.seed(1123)' in expression and 'iso_seed' in expression
     assert 'compat.R' not in expression
     (tmp_path/'existing').mkdir()
     (tmp_path/'existing/result.tsv').write_text('preserve')
@@ -132,7 +145,7 @@ def test_r_wrapper_requires_isotree_seed_support_and_new_output(tmp_path):
 
 def test_actual_session_receipt_cache_and_transport_include_seed_controls(tmp_path, monkeypatch):
     from types import SimpleNamespace
-    seeded = load('02_custom/s7b_sessionwise_preprocessing/run_seeded.py', 'seed_receipt_session')
+    seeded = load('pipeline/s7b_sessionwise_preprocessing/run_seeded.py', 'seed_receipt_session')
     cfg = session_config(tmp_path/'run')
     case = {'subject':'ADNI999S9999', 'session':'20000101'}
     intake = Path(cfg['runtime'])/'results/step5/intake_decisions.tsv'
@@ -164,10 +177,11 @@ def test_actual_session_receipt_cache_and_transport_include_seed_controls(tmp_pa
 
 
 def test_volume_and_xcpd_real_builders_propagate_fixed_seed(tmp_path):
-    volume = load('02_custom/s7a_volume_workflow/pipeline_seeded.py', 'seed_volume')
-    cfg = json.loads((LAB/'02_custom/s7a_volume_workflow/config.seeded.example.json').read_text())
+    volume = load('pipeline/s7a_volume_workflow/pipeline_seeded.py', 'seed_volume')
+    cfg = json.loads((LAB/'pipeline/s7a_volume_workflow/config.seeded.example.json').read_text())
     cfg['paths'] = {key:str(tmp_path/key) for key in volume.PATH_KEYS}
     cfg['fs_license'] = str(tmp_path/'license.txt')
+    cfg['random_seed'] = 357
     run = {'subject':'999S9999', 'session':'M000'}
     config_path = tmp_path/'volume.json'
     config_path.write_text(json.dumps(cfg))
@@ -180,9 +194,9 @@ def test_volume_and_xcpd_real_builders_propagate_fixed_seed(tmp_path):
     assert '--skull-strip-fixed-seed' in args and 'ANTS_RANDOM_SEED=357' in args
     args = volume.build_command(cfg, 'xcpd', run, 'example@sha256:synthetic')
     assert '--skull-strip-fixed-seed' not in args and 'PYTHONHASHSEED=357' in args
-    post = load('02_custom/s10_xcpd_integrated_qc/pipeline_seeded.py', 'seed_xcpd')
+    post = load('pipeline/s10_xcpd_integrated_qc/pipeline_seeded.py', 'seed_xcpd')
     cfg = json.loads((LAB/'03_config/xcpd_linc.seeded.example.json').read_text())
-    cfg.update(root=str(tmp_path/'post'), _config_id='synthetic', license='/external/license.txt', templateflow='/external/templateflow')
+    cfg.update(random_seed=357, root=str(tmp_path/'post'), _config_id='synthetic', license='/external/license.txt', templateflow='/external/templateflow')
     row = {'sub':'sub-ADNI999S9999', 'ses':'ses-M000', 'task':'task-rest', 'source_pair':str(tmp_path/'pair')}
     args = post.command(cfg, row, tmp_path/'attempt', 'synthetic')
     assert args[args.index('--random-seed')+1] == '357'
@@ -191,10 +205,11 @@ def test_volume_and_xcpd_real_builders_propagate_fixed_seed(tmp_path):
 
 
 def test_volume_refuses_historical_log_root_before_initializing_policy(tmp_path):
-    volume = load('02_custom/s7a_volume_workflow/pipeline_seeded.py', 'seed_old_volume')
-    cfg = json.loads((LAB/'02_custom/s7a_volume_workflow/config.seeded.example.json').read_text())
+    volume = load('pipeline/s7a_volume_workflow/pipeline_seeded.py', 'seed_old_volume')
+    cfg = json.loads((LAB/'pipeline/s7a_volume_workflow/config.seeded.example.json').read_text())
     cfg['paths'] = {key:str(tmp_path/key) for key in volume.PATH_KEYS}
     cfg['fs_license'] = str(tmp_path/'license.txt')
+    cfg['random_seed'] = 357
     old = Path(cfg['paths']['logs'])/'old/run.json'
     old.parent.mkdir(parents=True)
     old.write_text('{}')
@@ -206,7 +221,7 @@ def test_volume_refuses_historical_log_root_before_initializing_policy(tmp_path)
 
 
 def test_guarded_entry_preserves_gates_and_selects_seeded_backend(tmp_path):
-    gate = load('02_custom/s5d_bids_identity/guarded_runner_seeded.py', 'seed_guard')
+    gate = load('pipeline/s5d_bids_identity/guarded_runner_seeded.py', 'seed_guard')
     assert Path(gate.backend().__file__).name == 'run_seeded.py'
     template = tmp_path/'template.yaml'
     template.write_text('random_seed: 357\nresources:\n  omp_nthreads: 1\n')

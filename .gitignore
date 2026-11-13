@@ -53,7 +53,7 @@ license.txt
 # Private execution configs and generated imaging artifacts
 **/*.local.json
 **/*.local.yaml
-RS-fMRI/02_custom/**/config.json
+RS-fMRI/pipeline/**/config.json
 *.nii
 *.nii.gz
 *.dtseries.nii
@@ -64,14 +64,14 @@ RS-fMRI/02_custom/**/config.json
 !/RS-fMRI/07_reproducibility/public_data/ds000030-1.0.0/sub-10159/func/sub-10159_task-rest_bold.nii.gz
 
 # Original result/assets may remain in an initialized live clone, never as imported source.
-/RS-fMRI/01_upstream/ADNI_fMRI_protocol/.claude/
-/RS-fMRI/01_upstream/ADNI_fMRI_protocol/.github/
-/RS-fMRI/01_upstream/ADNI_fMRI_protocol/WARP.md
-/RS-fMRI/01_upstream/ADNI_fMRI_protocol/**/*.png
-/RS-fMRI/01_upstream/ADNI_fMRI_protocol/**/*.svg
-/RS-fMRI/01_upstream/ADNI_fMRI_protocol/**/*.html
-/RS-fMRI/01_upstream/ADNI_fMRI_protocol/**/*.ipynb
-/RS-fMRI/01_upstream/ADNI_fMRI_protocol/s4_clinica/adni_subs.txt
+/RS-fMRI/pipeline/.claude/
+/RS-fMRI/pipeline/.github/
+/RS-fMRI/pipeline/WARP.md
+/RS-fMRI/pipeline/**/*.png
+/RS-fMRI/pipeline/**/*.svg
+/RS-fMRI/pipeline/**/*.html
+/RS-fMRI/pipeline/**/*.ipynb
+/RS-fMRI/pipeline/s4_clinica/adni_subs.txt
 
 # Local R dependency libraries; never publish installed packages.
 .R-library/

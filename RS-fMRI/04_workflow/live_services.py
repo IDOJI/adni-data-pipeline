@@ -38,7 +38,7 @@ def verify_deployment(path, config_path):
     if sha(config_path) != dep['xcpd_config_sha256']:
         raise ValueError('Historical scientific configuration changed')
     cfg = load(config_path)
-    pinned = LAB / '01_upstream/ADNI_fMRI_protocol'
+    pinned = LAB / 'pipeline'
     inspect_protocol(LAB)
     binding = dep.get('repository_binding')
     if binding:
@@ -86,7 +86,7 @@ def execution_command_builder(original_command, override, config_id):
 
 def pipeline(config_path, deployment):
     dep, original = verify_deployment(deployment, config_path)
-    p = module('live_integrated_xcpd', LAB / '02_custom/s10_xcpd_integrated_qc/pipeline.py')
+    p = module('live_integrated_xcpd', LAB / 'pipeline/s10_xcpd_integrated_qc/pipeline.py')
     if dep.get('xcpd_execution_override'):
         p.command = execution_command_builder(p.command, dep['xcpd_execution_override'], dep['xcpd_config_id'])
     original_upstream = p.upstream

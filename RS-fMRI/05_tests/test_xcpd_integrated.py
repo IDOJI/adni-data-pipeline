@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-spec = importlib.util.spec_from_file_location('integrated_pipeline', Path(__file__).resolve().parents[1] / '02_custom/s10_xcpd_integrated_qc/pipeline.py')
+spec = importlib.util.spec_from_file_location('integrated_pipeline', Path(__file__).resolve().parents[1] / 'pipeline/s10_xcpd_integrated_qc/pipeline.py')
 p = importlib.util.module_from_spec(spec); spec.loader.exec_module(p)
 
 @pytest.fixture

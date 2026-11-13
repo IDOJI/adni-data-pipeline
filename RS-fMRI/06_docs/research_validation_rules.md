@@ -1,4 +1,4 @@
-# Mapping Research rules to Custom Steps
+# Mapping Research rules to Stages
 
 The current baseline is Research's `2026-10-30-preserve-all-v1`. Publish processing rules and source-code hashes only; do not copy original data, RDS files, real participant examples or private paths into the public repository.
 

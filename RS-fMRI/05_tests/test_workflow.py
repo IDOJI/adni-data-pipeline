@@ -31,7 +31,7 @@ def test_integrated_protocol_identity_and_origin():
 
 
 def test_config_does_not_mutate_source_and_uses_external_outputs(tmp_path):
-    source = ROOT / '01_upstream/ADNI_fMRI_protocol/config/config_adni.yaml'
+    source = ROOT / 'pipeline/config/config_adni.yaml'
     before = source.read_bytes()
     result = lab.render_config(configuration(tmp_path), tmp_path / 'new-config')
     cfg = yaml.safe_load(Path(result['config']).read_text())
@@ -63,7 +63,7 @@ def test_overrides_cannot_send_outputs_back_into_source(tmp_path):
 
 
 def test_handoff_config_and_actual_upstream_mriqc_dry_run(tmp_path):
-    custom_spec = importlib.util.spec_from_file_location('handoff_integration', ROOT / '02_custom/s5c_validate_handoff/run.py')
+    custom_spec = importlib.util.spec_from_file_location('handoff_integration', ROOT / 'pipeline/s5c_validate_handoff/run.py')
     custom = importlib.util.module_from_spec(custom_spec); custom_spec.loader.exec_module(custom)
     source = tmp_path / 'final.tsv'
     source.write_text('Subject_ID\tVISCODE\n999_S_9999\tbl\n999_S_9999\tm12\n')
@@ -74,8 +74,8 @@ def test_handoff_config_and_actual_upstream_mriqc_dry_run(tmp_path):
     assert config['qc']['heuristics_final_table'] == str(handoff_dir / 'mriqc_subjects.csv')
     assert config['paths']['fmriprep_heuristics_csv'] == str(handoff_dir / 'post_clinica.csv')
     Path(config['mriqc']['bids_dir']).mkdir(parents=True)
-    env = dict(os.environ, PYTHONPATH=str(lab.UPSTREAM), PATH=str(Path(sys.executable).parent) + os.pathsep + os.environ['PATH'])
-    child = subprocess.run(['bash', str(lab.UPSTREAM / 's6_mriqc/adni_mriqc.slurm'), '--config', result['config'], '--dry-run'],
+    env = dict(os.environ, PYTHONPATH=str(lab.PIPELINE), PATH=str(Path(sys.executable).parent) + os.pathsep + os.environ['PATH'])
+    child = subprocess.run(['bash', str(lab.PIPELINE / 's6_mriqc/adni_mriqc.slurm'), '--config', result['config'], '--dry-run'],
                            cwd=tmp_path, env=env, capture_output=True, text=True)
     assert child.returncode == 0, child.stdout + child.stderr
     assert '1 array entries' in child.stderr

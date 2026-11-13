@@ -154,13 +154,13 @@ def fingerprint():
 
 def commands(root):
     i = root / 'inputs'; o = root / 'outputs'
-    custom = ROOT / '02_custom'
+    custom = ROOT / 'pipeline'
     def cmd(path, *args): return [sys.executable, str(path), *map(str, args)]
     return {
         '3a': cmd(custom / 's3a_source_qc/run.py', '--mriqc-table', i/'MRIQC.csv', '--adni3-qc', i/'MAYO.csv', '--nfq', 'toy='+str(i/'NFQ.csv'), '--output-dir', o/'3a'),
         '5c': cmd(custom / 's5c_validate_handoff/run.py', '--input', i/'final_heuristics.tsv', '--source-qc', o/'3a', '--output-dir', o/'5c'),
         '5d': cmd(custom / 's5d_bids_identity/binding.py', '--config', i/'binding.json'),
-        '8': cmd(ROOT / '01_upstream/ADNI_fMRI_protocol/s8_final_qc/summarize_motion_from_confounds.py', '--derivatives-dir', i/'derivative_fixture', '--output-dir', o/'8'),
+        '8': cmd(ROOT / 'pipeline/s8_final_qc/summarize_motion_from_confounds.py', '--derivatives-dir', i/'derivative_fixture', '--output-dir', o/'8'),
         '8a': cmd(custom / 's8a_motion_duration_qc/run.py', '--bids-root', i/'bids', '--derivatives-root', i/'derivative_fixture', '--output-dir', o/'8a'),
         '9a': cmd(custom / 's9a_validate_clinical/run.py', '--included', i/'included.tsv', '--scan-links', i/'scan_links.csv', '--dxsum', i/'DXSUM.csv', '--ptdemog', i/'PTDEMOG.csv', '--output-dir', o/'9a'),
         '9b': cmd(custom / 's9b_validate_inclusion/run.py', '--source-qc', o/'3a', '--clinical', o/'9a', '--confirmed-st-absence', i/'confirmed_st_absence.csv', '--output-dir', o/'9b'),
@@ -183,7 +183,7 @@ def run(root, step):
     receipt = root / 'outputs' / ('done-' + step + '.json')
     if receipt.exists(): raise FileExistsError('Step already run; use a new toy root to repeat: ' + step)
     if step == '10':
-        qc = load_module('02_custom/s10_xcpd_integrated_qc/qc_report.py')
+        qc = load_module('pipeline/s10_xcpd_integrated_qc/qc_report.py')
         pair = root / PAIR
         row = json.loads((pair / 's10/toy-fixture/pre_qc.json').read_text())['rows'][0]
         row.update(xcpd_status='synthetic_fixture', xcpd_qc_status='review_required', xcpd_warnings=[WARNING])

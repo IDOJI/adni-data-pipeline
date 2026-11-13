@@ -20,7 +20,7 @@ def test_new_and_existing_subjects_use_distinct_runner_sources():
     assert q.backend('ADNI998S9998')==(q.runner,queue.STEP/'run.py')
 
 def test_sessionwise_command_preserves_surface_cifti_and_scientific_settings(tmp_path):
-    runner=load('sessionwise_adapter',ROOT/'02_custom/s7b_sessionwise_preprocessing/run.py')
+    runner=load('sessionwise_adapter',ROOT/'pipeline/s7b_sessionwise_preprocessing/run.py')
     cfg={'runtime':str(tmp_path),'resources':{'cpus':4,'docker_memory':'8g','omp_nthreads':2,'workflow_memory_mb':6000},
          'output_spaces':['MNI152NLin6Asym:res-2','MNI152NLin2009cAsym','fsnative','fsaverage:den-10k','func'],
          'random_seed':357,'freesurfer_license':'/private/license.txt','work_revision':'existing-revision'}
@@ -37,7 +37,7 @@ def test_common_compute_limit_remains_five(tmp_path):
         with compute_slots.lease('ADNI999S9999','xcpd'):pass
 
 def test_preexisting_exit_receipt_completes_without_relaunch(tmp_path,monkeypatch):
-    observer=load('handoff_observer',ROOT/'02_custom/s7b_sessionwise_preprocessing/observe.py')
+    observer=load('handoff_observer',ROOT/'pipeline/s7b_sessionwise_preprocessing/observe.py')
     runtime=tmp_path/'runtime';bids=runtime/'bids';bids.mkdir(parents=True);(bids/'input').write_bytes(b'original')
     folder=runtime/'logs/attempt';folder.mkdir(parents=True);p=folder/'run.json';case={'subject':'ADNI999S9999','session':'M000'}
     rec={'stage':'fmriprep','case':case,'image':{'resolved':'image@digest'},'config':{'runtime':str(runtime)},'status':'running',
@@ -49,7 +49,7 @@ def test_preexisting_exit_receipt_completes_without_relaunch(tmp_path,monkeypatc
     assert json.loads(p.read_text())['input_unchanged'] is True
 
 def test_receipt_with_wrong_identity_is_rejected(tmp_path):
-    observer=load('handoff_observer_conflict',ROOT/'02_custom/s7b_sessionwise_preprocessing/observe.py')
+    observer=load('handoff_observer_conflict',ROOT/'pipeline/s7b_sessionwise_preprocessing/observe.py')
     p=tmp_path/'run.json';p.write_text(json.dumps({'stage':'fmriprep','case':{'subject':'ADNI999S9999','session':'M000'},'image':{'resolved':'original'}}))
     (tmp_path/'handoff-container-exit.json').write_text(json.dumps({'case':{'subject':'ADNI998S9998'},'image':'other'}))
     with pytest.raises(ValueError,match='identity'):observer.adopt(p)
@@ -60,7 +60,7 @@ def test_compatibility_deployment_rejects_changed_scientific_config(tmp_path):
 
 
 def compatibility_fixture(tmp_path):
-    p=load('fixture_pipeline',ROOT/'02_custom/s10_xcpd_integrated_qc/pipeline.py')
+    p=load('fixture_pipeline',ROOT/'pipeline/s10_xcpd_integrated_qc/pipeline.py')
     cfg=p.load(ROOT/'03_config/xcpd_linc.example.json');cfg.update(root=str(tmp_path),repo=str(p.DEFAULT_UPSTREAM))
     cp=tmp_path/'cfg.json';p.save(cp,cfg);cid=cfg['run_id']+'-'+p.digest(cfg)[:12]
     hub=tmp_path/'postprocessing'/cid;p.save(hub/'configuration.json',{**cfg,'_config_id':cid})

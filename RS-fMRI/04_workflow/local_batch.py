@@ -185,7 +185,7 @@ def prepare(path):
     bcfg = {**cfg['binding_inputs'], 'hash_evidence': [str(root / 'source_mapping.json')],
             'bids_roots': [str(root / 'inputs/bids')], 'output_dir': str(root / 'validation/binding')}
     save(root / 'config/binding.json', bcfg)
-    binding = module('binding', '02_custom/s5d_bids_identity/binding.py')
+    binding = module('binding', 'pipeline/s5d_bids_identity/binding.py')
     binding.run(root / 'config/binding.json')
     receipt = root / 'validation/binding/07.binding-receipt.json'
     plans = {p['subject']: p for p in read(root / 'validation/binding/05.execution-plans.json')}
@@ -195,7 +195,7 @@ def prepare(path):
     # Prepare only after both the existing scientific policy and exact-pair gate agree.
     template = {**cfg['preprocessing_template'], 'runtime': '/unused', 'runs': []}
     (root / 'config/preprocessing-template.yaml').write_text(yaml.safe_dump(template, sort_keys=False))
-    guarded = module('guarded', '02_custom/s5d_bids_identity/guarded_runner.py')
+    guarded = module('guarded', 'pipeline/s5d_bids_identity/guarded_runner.py')
     routes = {}
     for case in cases:
         sub = case['subject']
@@ -217,8 +217,8 @@ def prepare(path):
         if not bool(decision['strict_upstream_eligible'].all()):
             case.update(status='held_intake', reasons=decision['failed_checks'].fillna('').tolist())
         else:
-            route = {'runtime': c['runtime'], 'config': str(cp), 'backend': str(LAB / '02_custom/s7b_sessionwise_preprocessing/run.py'),
-                     'launcher': str(LAB / '02_custom/s7c_ants_iteration_logging/run.py'),
+            route = {'runtime': c['runtime'], 'config': str(cp), 'backend': str(LAB / 'pipeline/s7b_sessionwise_preprocessing/run.py'),
+                     'launcher': str(LAB / 'pipeline/s7c_ants_iteration_logging/run.py'),
                      'receipt': str(receipt), 'epi_key': plan['epi_key'], 'allowed_stages': list(STAGES)}
             for k in ('config', 'backend', 'launcher', 'receipt'):
                 route[k + '_sha256'] = sha(route[k])
@@ -227,8 +227,8 @@ def prepare(path):
     save(root / 'config/continuation.json', {'schema': 1, 'hold_unregistered': True, 'subjects': routes,
                                           'pinned_images': cfg['pinned_images'], 'scope': 'This reserved Mac batch only'})
     # Pin all owned Python execution modules; a future source edit holds new dispatch.
-    sources = {str(p): sha(p) for d in ('04_workflow', '02_custom') for p in (LAB / d).rglob('*.py')}
-    wrapper = LAB / '02_custom/s7c_ants_iteration_logging/antsRegistration'
+    sources = {str(p): sha(p) for d in ('04_workflow', 'pipeline') for p in (LAB / d).rglob('*.py')}
+    wrapper = LAB / 'pipeline/s7c_ants_iteration_logging/antsRegistration'
     sources[str(wrapper)] = sha(wrapper)
     save(root / 'config/source-lock.json', sources)
     xc = read(cfg['xcpd_template'])
@@ -322,7 +322,7 @@ class Batch:
         self.slot.configure(self.cfg['shared_compute_root'])
         self.post_lock = threading.Lock()
         self.event_lock = threading.Lock()
-        self.continuation = module('continuation', '02_custom/s5d_bids_identity/continuation.py')
+        self.continuation = module('continuation', 'pipeline/s5d_bids_identity/continuation.py')
         self.source_review = module('source_review', '04_workflow/source_review.py')
 
     def state(self, sub):
@@ -411,7 +411,7 @@ class Batch:
                     image = backend.image_record(cfg['images'][stage])
                     if image['resolved'] != self.registry['pinned_images'][stage]:
                         raise ValueError('Installed image differs from the pinned handoff method')
-                    logging = module('logging', '02_custom/s7c_ants_iteration_logging/run.py')
+                    logging = module('logging', 'pipeline/s7c_ants_iteration_logging/run.py')
                     backend.subprocess = LocalTransport(logging, self.cfg['cpu_quota'])
                     original_dump = backend.dump
                     def dump_with_local_receipt(destination, value):
@@ -440,7 +440,7 @@ class Batch:
                  'epi_image_id': case['epi_image_id'], 'mt1_image_id': case['t1_image_id'],
                  'execution_session_label': case['session'], 'pairing_basis': 'Verified handoff IDs, dates, UIDs and hashes',
                  'target': str(self.root / 'results' / case['ptid'] / case['pair_id'])}]
-        publisher = module('publish', '02_custom/s7b_sessionwise_preprocessing/publish_pairs.py')
+        publisher = module('publish', 'pipeline/s7b_sessionwise_preprocessing/publish_pairs.py')
         result = publisher.publish(self.root, plan)
         if result[0]['delivery_status'] not in ('processing_complete_QC_pending', 'previously_published'):
             raise ValueError('Preprocessing delivery is incomplete')
@@ -448,7 +448,7 @@ class Batch:
         # One S10 owner protects the shared pilot gate and manual-review table.
         with self.post_lock:
             self.check_sources()
-            s10 = module('s10', '02_custom/s10_xcpd_integrated_qc/pipeline.py')
+            s10 = module('s10', 'pipeline/s10_xcpd_integrated_qc/pipeline.py')
             pipeline = s10.Pipeline(self.root / 'config/xcpd.json')
             with (pipeline.hub / 'worker.lock').open('a') as lock:
                 fcntl.flock(lock, fcntl.LOCK_EX)
