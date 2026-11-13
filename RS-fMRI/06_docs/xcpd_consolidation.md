@@ -18,7 +18,7 @@ At consolidation, the existing XCP-D worker uses S10 code in the separate local 
 
 The consolidated workflow resolves `repo=null` to the repository-owned integrated protocol source and requires explicit external configuration. The path change also changes config_id; do not treat the old worker's configuration/cache as identical. To transition to a new study runtime, complete existing attempts and preserve evidence, then validate preflight → dry-run → pilot with a new root/configuration. Do not start a second watch on a root still managed by the original worker.
 
-The former adni-rsfmri-pipeline path becomes a compatibility symlink to 7.A after all original files are archived locally and hash-verified. Actual source configuration and dedicated staging/migration locations are recorded in the private migration manifest, not the public repository. The symlink preserves source-path compatibility; automatic selection of the old private configuration has been removed.
+On 2026-11-01, the former adni-rsfmri-pipeline path became a compatibility symlink to 7.A after all original files were archived locally and hash-verified. That redundant link was retired on 2026-11-13; use `RS-fMRI/02_custom/s7a_volume_workflow/` directly. Actual source configuration and dedicated staging/migration locations remain in private migration records, not the public repository. See the [retirement record](repository_cleanup.md).
 
 ## Execution order and research decisions
 

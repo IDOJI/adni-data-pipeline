@@ -20,15 +20,22 @@ Independent reporting steps create new outputs only. Steps that alter participan
 - 9.B: combine 3.A, corrected 9.A v2 and explicitly confirmed ST absence; fix nearest/28-day matching and retain pending. Optionally apply reviewed conversion failures and preserve S10 imaging decisions.
 - S10: S8 collection, 36P/LINC XCP-D, integrated imaging QC and validated archival gates for completed pairs; export actual image dates/IDs to 9.A. See [input and transition boundaries](xcpd_consolidation.md).
 - 11: optional pinned atlas library and streaming volumetric ROI extraction after 9.B; exact spaces, labels, brain-mask coverage and frame identities audited. No temporal re-cleaning or FC calculation.
+- 12: read completed S10 archives and create one-row scalar CSV/TSV, units/source dictionaries and native MRIQC/fMRIPrep/XCP-D HTML links. Use `lab.py export-results`; `--watch` explicitly opts into repeated scans. It is independent of Step 11 and retains pending inclusion. See [Step 12](../02_custom/s12_metrics_summary/README.md).
 - `04_workflow/lab.py plan`: print commands for known entry points. It is not an orchestration engine for automatic stage execution, scheduler submission or error recovery.
 
 ## Unresolved upstream boundaries
 
 Session-restricted MRIQC execution, fitting-population limits, upstream s8 missing-value handling/TSV inputs and a complete Mac adapter remain future work. Step 9.A validates diagnostic mapping, date windows and ties; it does not remerge every cognitive score or replace research inclusion decisions. Passing current code tests does not establish those capabilities.
 
-## Reproducibility and standalone reporting
+## Connecting the scalar/report export
 
-Use the [public/offline walkthrough](../07_reproducibility/README.md) for copied terminal commands and reviewed reference values. Optional 5.D verifies an explicit pair before dispatch, 7.C adds prospective ANTs iteration logs, and 12 exports existing validated archive scalars/reports after S10. See each step README for its input/output/validation contract. The examples do not install live services or determine cohort inclusion.
+`lab.py plan --config /ABS/PATH/generated/upstream.yaml --archive-root /ABS/PATH/archive --metrics-status /ABS/PATH/runtime/metrics.json` adds command `12` to the printed plan. Omitting `--archive-root` leaves existing plans unchanged. Run `lab.py export-results` explicitly for a one-shot scan, or add `--watch` for the lightweight 120-second loop. The loop consumes verified archives rather than launching MRIQC/fMRIPrep/XCP-D jobs. Keep private service arguments and status/log files outside the repository.
+
+## Planned connection from selected-atlas signals to harmonized FC
+
+After Step 11, the [FC and harmonization guide](fc_harmonization.md) defines the proposed signal → Pearson FC → Fisher-z edge → cohort harmonization → analysis handoff. It includes direct ADNI ComBat evidence, repository links and reviewed source revisions for neuroCombat, neuroCombat R, neuroHarmonize and FCHarmony. FC feature order, observation/run policy, batch/phase confounding, covariates, repeated visits and train/test fitting must be resolved before implementing runnable adapters.
+
+This connection is documentation only. It does not install software, add workflow commands, fit ComBat or alter inclusion/QC settings. S10's existing FC products and Step 12's independent scalar/report export remain separate.
 
 ## Host-specific stage instructions
 

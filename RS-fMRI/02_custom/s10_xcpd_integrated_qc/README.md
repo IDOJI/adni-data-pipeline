@@ -1,5 +1,7 @@
 # Step 10 — S8 metrics, XCP-D and integrated imaging QC
 
+For new fixed-seed Docker runs, use `pipeline_seeded.py` and `03_config/xcpd_linc.seeded.example.json` with a new root. It preserves the 36P/LINC scientific profile and uses seed 357 plus OMP1. The seeded launcher rejects legacy Slurm exports. See the [seed contract](../../06_docs/seed_reproducibility.md); original commands below remain available for historical workers.
+
 ## Execution
 
 ```sh
@@ -97,11 +99,34 @@ Python 3.11+, [requirements](../../requirements.txt), integrated protocol S8, Do
 
 Pass finalized `final_included_runs.tsv` and `clinical_scan_links.tsv` to 9.A, then pass the corrected v2 artifact to [9.B](../s9b_validate_inclusion/README.md). The gate combines source QC, nearest/28-day clinical conditions and confirmed ST absence while preserving source-QC pending and imaging-review decisions. S10 imaging QC alone does not establish research inclusion.
 
+## Execution resources and terminal worker failures
+
+The compatibility entry point `04_workflow/live_services.py` accepts an optional private deployment `xcpd_execution_override` with a complete `resources` object (`cpus`, `omp_nthreads`, `mem_mb`, `docker_memory`), approval timestamp and reason. Only those execution fields can be overridden. It keeps the historical configuration bytes, analysis parameters and config ID intact, while each new attempt records its historical/effective resources in `execution_environment.json` and its exact effective Docker/XCP-D command in `execution.json`. Existing successful attempts are reused and existing running command records are not rewritten. Do not infer that the original configuration snapshot alone describes overridden attempt resources.
+
+An optional private `xcpd_recovery_priority` subject list orders recovery before other pairs without changing candidate/QC gates. A failed attempt under a different Docker memory limit can receive an immediate resource-revision retry only while the existing maximum attempt count permits it; all failed attempt data remain preserved. Thread count changes may affect floating-point ordering and runtime, so report effective execution resources with provenance.
+
+During Docker waits, the integrated pipeline checks exact config/run container labels, Docker OOM state and the recent log for a terminal `BrokenProcessPool` exception. A confirmed internal terminal failure writes `runtime_failure.json`, stops only that matching failed container and follows ordinary failed-output validation and bounded retry. CPU silence alone is never a stop condition. A live container or fresh scheduler heartbeat does not establish imaging progress. Docker VM memory and its Linux swap are separate from the macOS host's memory/swap; change VM-wide settings only at an authorized idle maintenance boundary.
+
+Synthetic tests cover resource-only command differences, unchanged historical configuration, rejected analysis overrides, terminal failure/healthy-container discrimination, container identity checks and bounded resource-revision retries. These checks establish orchestration behavior, not completion of a real XCP-D retry or research inclusion.
+
+## Individual QC reports and retention of rejected runs
+
+`qc_report.py` writes `qc_report.html` and `qc_report.json` at each completed pair root. Reports identify the subject/pair/configuration, per-run QC and execution statuses, exact measured motion/duration values, applied thresholds and explicit exclusion/skip reasons. Provisional cohort/research inclusion remains pending. A QC rejection is a documented processing decision, not an instruction to delete the subject's files.
+
+`mark_ready` includes these reports in the archival evidence hashes before future S8/XCP-D-complete or QC-rejected pairs are copied. Existing verified offload gates preserve available images, intermediate work and execution records, verify the copy before local cleanup and release the rolling admission position only after completed archival. Failed or integrity-invalid executions do not acquire a false success receipt.
+
+For already archived pairs, run `python 02_custom/s10_xcpd_integrated_qc/qc_report.py --archive-root /ABS/archive --config /ABS/private-config.json`. This appends reports and `qc_report_addendum.json` without rewriting the original payload manifest or existing complete reports. The addendum pins report hashes and the original archive-manifest hash. No images are reprocessed or deleted. Synthetic tests cover reason/metric/threshold accuracy, skipped-duration explanations, HTML escaping and preservation of image bytes and completed reports.
+
 ## macOS and Linux
 
 The core XCP-D Linux container and validator can use the same scientific configuration on Mac Docker Desktop and Linux Docker Engine. The strict ADNI input layout still needs valid 7.B publication evidence. The external offloader calls macOS `diskutil info -plist`; native Linux needs a mounted-volume/copy-validation adapter before automatic archival and local cleanup. A systemd timer alone is not that port.
 
 See the [stage-specific host instructions](../../06_docs/platform_execution.md#s10) for prerequisites, executable routes and validation limits. Shared analysis settings remain in this step's existing configuration; host compatibility is not a new scientific QC pass.
+
+
+The live compatibility service honors the optional [source-review skip policy](../s7b_sessionwise_preprocessing/README.md#automatic-source-review-skips) when listing pairs and immediately before XCP-D dispatch. Skipped pairs retain their original files, QC values and historical receipts; the runtime's separate JSON/HTML exclusion report records why no further automatic computation is admitted. This does not alter the immutable XCP-D analysis configuration or turn routine pending final QC into a source exclusion.
+
+Source exclusions also update the active cohort visual-review table before aggregation: the complete original table and excluded annotations are preserved under the external hub `source_review_excluded/`. Only explicitly excluded known subjects are removed from the active table. Unknown identities remain for the original scope guard, and concurrent manual edits abort the update. Historical per-pair QC files remain unchanged.
 
 ## Processing-time records
 

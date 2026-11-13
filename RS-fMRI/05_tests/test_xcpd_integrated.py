@@ -297,5 +297,6 @@ def test_s8_harvest_continues_while_xcpd_runs(tmp_path,cfg,monkeypatch):
     polls=iter([None,0])
     fake=SimpleNamespace(poll=lambda:next(polls),communicate=lambda:('0\n',''),returncode=0)
     monkeypatch.setattr(p.subprocess,'Popen',lambda *a,**k:fake)
+    monkeypatch.setattr(app,'detect_terminal_worker_failure',lambda name,row:seen.append('monitored'))
     assert app.wait_container('fixture',row())==0
-    assert seen==[pair,'aggregated']
+    assert seen==['monitored',pair,'aggregated']

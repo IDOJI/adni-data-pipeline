@@ -1,0 +1,256 @@
+{
+  "schema_version": 1,
+  "preserved_on": "2026-11-13",
+  "purpose": "Historical source reference, not an active preprocessing entry point.",
+  "originals": "Exact originals, private configuration, validation results, environments and Git history are retained in a separately verified local backup outside this repository.",
+  "files": [
+    {
+      "source": "local_mac/adni_outlier_pipeline.compat.R",
+      "source_sha256": "a6e742ba1b982b39979971ab2e9a80a3cd149913ffb0b06adbfdfe4df22e29a9",
+      "export_path": "01_upstream/local_mac_reference/adni_outlier_pipeline.compat.R",
+      "export_sha256": "a6e742ba1b982b39979971ab2e9a80a3cd149913ffb0b06adbfdfe4df22e29a9",
+      "changes": []
+    },
+    {
+      "source": "local_mac/adopt_orphan.py",
+      "source_sha256": "be181eafd97e21ff07de31deab4dafc91dad58a4a35e739ee5c57b9f6ff64426",
+      "export_path": "01_upstream/local_mac_reference/adopt_orphan.py",
+      "export_sha256": "be181eafd97e21ff07de31deab4dafc91dad58a4a35e739ee5c57b9f6ff64426",
+      "changes": []
+    },
+    {
+      "source": "local_mac/audit_mriqc_numbers.py",
+      "source_sha256": "63e8120b626d11518eec5c72c59191fef63a152634fc61b1ddcfbc25bdd282df",
+      "export_path": "01_upstream/local_mac_reference/audit_mriqc_numbers.py",
+      "export_sha256": "63e8120b626d11518eec5c72c59191fef63a152634fc61b1ddcfbc25bdd282df",
+      "changes": []
+    },
+    {
+      "source": "local_mac/check_fsnative.py",
+      "source_sha256": "facadf65e99789c90eab025acd8b634b2538d2c79c98752282c9270ea4d2a774",
+      "export_path": "01_upstream/local_mac_reference/check_fsnative.py",
+      "export_sha256": "facadf65e99789c90eab025acd8b634b2538d2c79c98752282c9270ea4d2a774",
+      "changes": []
+    },
+    {
+      "source": "local_mac/check_reports.py",
+      "source_sha256": "53bfe3c2b14523e68885ee101ff5d2d601acbdce47cb18526ad39ff9c419732c",
+      "export_path": "01_upstream/local_mac_reference/check_reports.py",
+      "export_sha256": "53bfe3c2b14523e68885ee101ff5d2d601acbdce47cb18526ad39ff9c419732c",
+      "changes": []
+    },
+    {
+      "source": "local_mac/cifti_mask_qc.py",
+      "source_sha256": "5f4b9dde75dd4c57201eef1ecaad3a3fc94b40dee7cc1c6592e1ba56bb34f3ee",
+      "export_path": "01_upstream/local_mac_reference/cifti_mask_qc.py",
+      "export_sha256": "5f4b9dde75dd4c57201eef1ecaad3a3fc94b40dee7cc1c6592e1ba56bb34f3ee",
+      "changes": []
+    },
+    {
+      "source": "local_mac/clinica.sh",
+      "source_sha256": "79866213b783bff3bda1a43f483c9341f9f66a58b1bf1ec91c9881d687393549",
+      "export_path": "01_upstream/local_mac_reference/clinica.sh",
+      "export_sha256": "79866213b783bff3bda1a43f483c9341f9f66a58b1bf1ec91c9881d687393549",
+      "changes": []
+    },
+    {
+      "source": "local_mac/continue_pilot.py",
+      "source_sha256": "4a8a1cc7c1002ccc855bb486e276cf3e1824e084124ae1fab95abe1aca3280ae",
+      "export_path": "01_upstream/local_mac_reference/continue_pilot.py",
+      "export_sha256": "4a8a1cc7c1002ccc855bb486e276cf3e1824e084124ae1fab95abe1aca3280ae",
+      "changes": []
+    },
+    {
+      "source": "local_mac/image_tools.py",
+      "source_sha256": "1ce7ac92ae1530ab0d4e45b881735a64391de6261ba15d9878b7f6198455c258",
+      "export_path": "01_upstream/local_mac_reference/image_tools.py",
+      "export_sha256": "1ce7ac92ae1530ab0d4e45b881735a64391de6261ba15d9878b7f6198455c258",
+      "changes": []
+    },
+    {
+      "source": "local_mac/make_source_manifest.py",
+      "source_sha256": "707a175bd000e0b422e6a2135a9d336cd9bdd3f8e7844c15ebfb908e3582823a",
+      "export_path": "01_upstream/local_mac_reference/make_source_manifest.py",
+      "export_sha256": "707a175bd000e0b422e6a2135a9d336cd9bdd3f8e7844c15ebfb908e3582823a",
+      "changes": []
+    },
+    {
+      "source": "local_mac/paper_motion_qc.py",
+      "source_sha256": "428f3e79a8d0f43be24cdc823caf62b35742420cd422734b54188abdd6198b8c",
+      "export_path": "01_upstream/local_mac_reference/paper_motion_qc.py",
+      "export_sha256": "428f3e79a8d0f43be24cdc823caf62b35742420cd422734b54188abdd6198b8c",
+      "changes": []
+    },
+    {
+      "source": "local_mac/pilot.py",
+      "source_sha256": "c0ae80f1f6d0ab0e136df6b955d9dc0a99a46fe3a99d84244c07d0e06a90257b",
+      "export_path": "01_upstream/local_mac_reference/pilot.py",
+      "export_sha256": "c0ae80f1f6d0ab0e136df6b955d9dc0a99a46fe3a99d84244c07d0e06a90257b",
+      "changes": []
+    },
+    {
+      "source": "local_mac/qc.py",
+      "source_sha256": "b048a19f76e19611f6c9e32e26fbc2402c866dc7dc7f7eeee8f69e8e5f42fded",
+      "export_path": "01_upstream/local_mac_reference/qc.py",
+      "export_sha256": "b048a19f76e19611f6c9e32e26fbc2402c866dc7dc7f7eeee8f69e8e5f42fded",
+      "changes": []
+    },
+    {
+      "source": "local_mac/record_installation.py",
+      "source_sha256": "cedefdfbb00a145d442223242126e6c99298f7aaf2aa73f6fb5b5a581798bf5e",
+      "export_path": "01_upstream/local_mac_reference/record_installation.py",
+      "export_sha256": "cedefdfbb00a145d442223242126e6c99298f7aaf2aa73f6fb5b5a581798bf5e",
+      "changes": []
+    },
+    {
+      "source": "local_mac/render_reports.py",
+      "source_sha256": "f0d231436b3021d4f60af0c02f5fe38c9be95a2f66de782595979c950ef66235",
+      "export_path": "01_upstream/local_mac_reference/render_reports.py",
+      "export_sha256": "f0d231436b3021d4f60af0c02f5fe38c9be95a2f66de782595979c950ef66235",
+      "changes": []
+    },
+    {
+      "source": "local_mac/run.py",
+      "source_sha256": "685f74ffd83f12eda6df0c26b78ed9516a469d85f3217d513efc0bb7798da461",
+      "export_path": "01_upstream/local_mac_reference/run.py",
+      "export_sha256": "685f74ffd83f12eda6df0c26b78ed9516a469d85f3217d513efc0bb7798da461",
+      "changes": []
+    },
+    {
+      "source": "local_mac/spatial_qc.py",
+      "source_sha256": "7b1bc908e75114f0f4fbe64c7bbfe7a6288af44d9080ce9e57363575506a2262",
+      "export_path": "01_upstream/local_mac_reference/spatial_qc.py",
+      "export_sha256": "7b1bc908e75114f0f4fbe64c7bbfe7a6288af44d9080ce9e57363575506a2262",
+      "changes": []
+    },
+    {
+      "source": "local_mac/summarize_pilot.py",
+      "source_sha256": "96e3da6a5a9e77f2a8cb2b03c20785fda6179ee32cccdf66df1bd4ddcd6d7b4b",
+      "export_path": "01_upstream/local_mac_reference/summarize_pilot.py",
+      "export_sha256": "96e3da6a5a9e77f2a8cb2b03c20785fda6179ee32cccdf66df1bd4ddcd6d7b4b",
+      "changes": []
+    },
+    {
+      "source": "local_mac/tests/test_adopt_orphan.py",
+      "source_sha256": "30355aa0206bc72de5658379c384ee875dff8d544901b644fa116e17a59a2a91",
+      "export_path": "01_upstream/local_mac_reference/tests/test_adopt_orphan.py",
+      "export_sha256": "3937e95545fdfcbd19cb72c51d97cbf8827d678aa498626cab8dc8aa3c9498f3",
+      "changes": [
+        "Replace participant, scan-date and image examples with synthetic values."
+      ]
+    },
+    {
+      "source": "local_mac/tests/test_check_fsnative.py",
+      "source_sha256": "4cbd2314a1eb26e9ef53c22019ddcb51868b31d5ce5cf55f905adebe812ee592",
+      "export_path": "01_upstream/local_mac_reference/tests/test_check_fsnative.py",
+      "export_sha256": "5a570ed303fc53e7d1589c3c13acf1f9d27bfe7e02453adf203487cf27a5127c",
+      "changes": [
+        "Use a relative test import instead of a retired host path."
+      ]
+    },
+    {
+      "source": "local_mac/tests/test_check_reports.py",
+      "source_sha256": "a8efd891ae3b5a134d102b38257f24b3aff017e05e726aae50eb1f6411854d70",
+      "export_path": "01_upstream/local_mac_reference/tests/test_check_reports.py",
+      "export_sha256": "3cfd6b7fc6c0d7cea5d31b56866f647672aafdd7412f111952ee2f6d5e739cc9",
+      "changes": [
+        "Replace participant, scan-date and image examples with synthetic values."
+      ]
+    },
+    {
+      "source": "local_mac/tests/test_cifti_mask_qc.py",
+      "source_sha256": "a29a796f702afc37d0141bff49376337243b1caffcc69dc6db512a53738b9058",
+      "export_path": "01_upstream/local_mac_reference/tests/test_cifti_mask_qc.py",
+      "export_sha256": "4d070e4d95bac9e2f4b25923f43ad50b71481f4e55f6ba4bcae8f77276397b24",
+      "changes": [
+        "Use a relative test import instead of a retired host path."
+      ]
+    },
+    {
+      "source": "local_mac/tests/test_continue_pilot.py",
+      "source_sha256": "577d634dd00f680f5c1c87c8d448d004b1706740f9131ae3f98f70059b8f7af5",
+      "export_path": "01_upstream/local_mac_reference/tests/test_continue_pilot.py",
+      "export_sha256": "3c99152b24a51ec18b310b437d071923394357802cbcc1addbcd3b1690a4d78e",
+      "changes": [
+        "Replace participant, scan-date and image examples with synthetic values."
+      ]
+    },
+    {
+      "source": "local_mac/tests/test_image_tools.py",
+      "source_sha256": "e466e88bab2c0d7a65437e4fc3c96432f52d3dc70c3d12894c35f41761cc9acf",
+      "export_path": "01_upstream/local_mac_reference/tests/test_image_tools.py",
+      "export_sha256": "e466e88bab2c0d7a65437e4fc3c96432f52d3dc70c3d12894c35f41761cc9acf",
+      "changes": []
+    },
+    {
+      "source": "local_mac/tests/test_local_qc.py",
+      "source_sha256": "ea57e6559058755b8e6bc2fde4151b7b9267596394b907a2badb2b430a91ad07",
+      "export_path": "01_upstream/local_mac_reference/tests/test_local_qc.py",
+      "export_sha256": "0fa88948fa00a842cfe53a6dc6e7df138f469e9d5de81ddf2ad8b8c0ac2332a9",
+      "changes": [
+        "Replace participant, scan-date and image examples with synthetic values."
+      ]
+    },
+    {
+      "source": "local_mac/tests/test_local_runner.py",
+      "source_sha256": "635b0b6af398c131b0208ded5f8828a5677415d7dc8cf7a2edeff669799a334c",
+      "export_path": "01_upstream/local_mac_reference/tests/test_local_runner.py",
+      "export_sha256": "41a1d99b9b52dbe0d713dfb3b368cd0d2cf5c26b5f2e160b0d370b9c483c5b94",
+      "changes": [
+        "Replace participant, scan-date and image examples with synthetic values."
+      ]
+    },
+    {
+      "source": "local_mac/tests/test_make_source_manifest.py",
+      "source_sha256": "63130a3085170535f3b84b911233903ec1dcb656726d53d34e9dbc5b04361419",
+      "export_path": "01_upstream/local_mac_reference/tests/test_make_source_manifest.py",
+      "export_sha256": "0f9d4c997b909bbf952ee53d7efe4ba0d17fa66e1c5cfc9c6b7e76ca8ff5fb00",
+      "changes": [
+        "Replace participant, scan-date and image examples with synthetic values."
+      ]
+    },
+    {
+      "source": "local_mac/tests/test_paper_motion_qc.py",
+      "source_sha256": "cd40a2b116b89607f5df766615e16a1c4609c9838052cd2611df7d6ed32b566a",
+      "export_path": "01_upstream/local_mac_reference/tests/test_paper_motion_qc.py",
+      "export_sha256": "e932f7a10369cf7b8123035c0a938b1077e507b2e93d6fc45ba082bbed63f77e",
+      "changes": [
+        "Replace participant, scan-date and image examples with synthetic values."
+      ]
+    },
+    {
+      "source": "local_mac/tests/test_pilot_config_and_profile.py",
+      "source_sha256": "4e12181866c859a3f47670d045bee06c18922cdaf2e0a69e68a2e9bebaaa3ab7",
+      "export_path": "01_upstream/local_mac_reference/tests/test_pilot_config_and_profile.py",
+      "export_sha256": "abf041961debc47d936277b95de8f72d63df20d74af35a7e7b5ef583b248eb6d",
+      "changes": [
+        "Use a relative test import instead of a retired host path.",
+        "Replace participant, scan-date and image examples with synthetic values."
+      ]
+    },
+    {
+      "source": "local_mac/tests/test_render_reports.py",
+      "source_sha256": "e3ed7288f27b387dc86f3b498a63e5a21fb99f4f499c3c08edc55d6d7f064de7",
+      "export_path": "01_upstream/local_mac_reference/tests/test_render_reports.py",
+      "export_sha256": "e3ed7288f27b387dc86f3b498a63e5a21fb99f4f499c3c08edc55d6d7f064de7",
+      "changes": []
+    },
+    {
+      "source": "local_mac/validation/actual-bids-integration-source-20261029.py",
+      "source_sha256": "c9596df33084118b11a6e283f23f79c3d7292f4dbec62db2e488060cffb6d166",
+      "export_path": "01_upstream/local_mac_reference/validation/actual-bids-integration-source-20261029.py",
+      "export_sha256": "29e8710175b667dd223a95271abf0dae20f8a34b8505e4f3f619ad6d613cdc5d",
+      "changes": [
+        "Require an explicit reconstructed legacy root for the historical integration probe.",
+        "Replace participant, scan-date and image examples with synthetic values."
+      ]
+    },
+    {
+      "source": "local_mac/r_compatibility.json",
+      "source_sha256": "4398fdc121f46ab0c6617cce4750856525169e72a4f7a7646191198d613d1507",
+      "export_path": "01_upstream/local_mac_reference/r_compatibility.json",
+      "export_sha256": "4398fdc121f46ab0c6617cce4750856525169e72a4f7a7646191198d613d1507",
+      "changes": []
+    }
+  ]
+}

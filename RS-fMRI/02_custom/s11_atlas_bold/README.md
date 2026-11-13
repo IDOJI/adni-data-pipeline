@@ -138,6 +138,12 @@ python 02_custom/s11_atlas_bold/diagnose_coverage.py \
 
 Replace `BIDS` with the actual matching subject/session entities; EPI and anatomical masks are separate files. Inputs must be finite 3-D images on the same explicit standard-space grid. The EPI mask must be the one used by extraction. `coverage_diagnostics.tsv` preserves each existing ROI QC outcome and compares included/excluded EPI-reference medians, GM probability, T1 intensity and anatomical-mask support. It does not expand masks, drop ROIs, introduce a new cutoff or establish a unique cause. Reference attenuation in excluded tissue supports joint dropout/mask review; distortion, atrophy and local registration can still contribute. Default coverage 0.5, minimum one voxel and `analysis_ready=false` remain unchanged.
 
+## Downstream FC and harmonization handoff
+
+Use `timeseries.tsv`, `labels.tsv`, `frames.tsv`, `roi_coverage.tsv` and `artifact.json` together when designing connectivity analysis. The proposed continuation is **Pearson FC → Fisher-z unique edges → cohort-level ComBat baseline → validation → group/network analysis**. The [FC/harmonization evidence and integration guide](../../06_docs/fc_harmonization.md) records the primary ADNI studies and links neuroCombat, neuroCombat R, neuroHarmonize and FCHarmony. It also specifies atlas/edge identity, censored-frame provenance, batch/covariate review and training-fold boundaries.
+
+This is a documented downstream design, not an FC/harmonization command implemented by this extractor. Existing coverage flags remain review evidence, pending inclusion remains pending, and no new scientific exclusion rule is introduced. S10 FC can be reused only after checking its atlas, estimator and preprocessing against the intended analysis.
+
 ## macOS and Linux
 
 The source manager and Python extraction CLI use the same pinned atlas/label hashes, spaces, coverage settings and run/frame evidence on both hosts. Fetch only selected sources explicitly, use host-correct external paths and preserve raw/denoised input declarations. This step does not need a new imaging container to read existing derivatives.

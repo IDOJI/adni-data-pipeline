@@ -1,6 +1,10 @@
 # Installation and execution environments
 
-Use the [copy-and-paste examples](../07_reproducibility/README.md) for a pinned core Python environment, an offline reference check and explicitly launched public imaging jobs. The real CC0 MRI sample is included in a normal clone; `public.py fetch` verifies and stages it without an OpenNeuro download.
+For reproducible new local runs, follow the [fixed-seed setup](seed_reproducibility.md). A source checkout does not include Docker, container images, TemplateFlow caches, R packages or a FreeSurfer license. The seeded cohort R launcher requires explicit `iso_seed` support in `rrobot`.
+
+For a small pinned Python environment and public data, follow the [copy-and-paste examples](../07_reproducibility/README.md). The offline route needs no Docker; the real imaging route explicitly downloads/executes pinned containers.
+
+The real CC0 MRI sample is included in a normal clone; `public.py fetch` verifies and stages it without an OpenNeuro download.
 
 ## Wrapper and Custom Steps
 
@@ -25,6 +29,10 @@ Custom Steps and configuration tools are tested on Mac. Upstream s4/s6/s7 launch
 ## Optional atlas library
 
 Step 11 sources and TemplateFlow payloads are installed explicitly using its source manager. Do not recursively clone the whole TemplateFlow archive or full CBIG history as part of ordinary installation. See the [atlas guide](atlas_library.md).
+
+## Scalar tables and report browser
+
+Step 12 uses the wrapper Python environment and pandas from `requirements.txt`; no new imaging container, atlas download or R installation is required. From `RS-fMRI/`, run `python 04_workflow/lab.py export-results --archive-root /ABS/PATH/archive --status /ABS/PATH/runtime/metrics.json`. Add `--watch` to scan every 120 seconds. A local service may invoke this command or the repository-owned `02_custom/s12_metrics_summary/run.py` directly. Configure absolute external archive/status/log paths in a private service definition; creating the source directory alone does not install a service. See [Step 12](../02_custom/s12_metrics_summary/README.md) for inputs, outputs and validation limits.
 
 ## Native Linux deployment boundary
 

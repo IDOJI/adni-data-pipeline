@@ -79,3 +79,6 @@ Python 3.11+ and pandas from [requirements.txt](../../requirements.txt). Inputs 
 The exporter and explicit Python `--watch` scan loop can read existing valid archives on both hosts. Set the actual mounted archive path and keep relative HTML/assets intact. Linux archival must first implement and validate the S10 volume/copy transition; copying a Mac receipt or setting its status by hand is not a verified archive.
 
 See the [stage-specific host instructions](../../06_docs/platform_execution.md#s12) for prerequisites, executable routes and validation limits. Shared analysis settings remain in this step's existing configuration; host compatibility is not a new scientific QC pass.
+
+
+For a managed runtime with a source-review skip policy, `04_workflow/source_review_metrics.py` checks exact pair exclusions before delegating to this unchanged exporter. Skipped historical archives keep their existing tables and reports; no metric extraction or report regeneration is performed for them. The wrapper retains the original exporter file and its cache fingerprint, and records `skipped_source_review` in the external watcher status. Use the existing source-review JSON/HTML report for exclusion reasons.

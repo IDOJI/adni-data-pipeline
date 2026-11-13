@@ -72,3 +72,6 @@ RS-fMRI/02_custom/**/config.json
 /RS-fMRI/01_upstream/ADNI_fMRI_protocol/**/*.html
 /RS-fMRI/01_upstream/ADNI_fMRI_protocol/**/*.ipynb
 /RS-fMRI/01_upstream/ADNI_fMRI_protocol/s4_clinica/adni_subs.txt
+
+# Local R dependency libraries; never publish installed packages.
+.R-library/

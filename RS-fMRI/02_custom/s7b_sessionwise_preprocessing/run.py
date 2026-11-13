@@ -74,7 +74,8 @@ def runtime(cfg):
 
 def environment():
     env = os.environ.copy()
-    env["PATH"] = str(REPO / ".venv/bin") + os.pathsep + env.get("PATH", "")
+    env["PATH"] = str(REPO.parents[1] / ".venv/bin") + os.pathsep + env.get("PATH", "")
+    env["R_LIBS_USER"] = str(REPO.parents[1] / ".R-library")
     env["PYTHONDONTWRITEBYTECODE"] = "1"
     env["PYTHONPATH"] = str(REPO) + os.pathsep + env.get("PYTHONPATH", "")
     return env
