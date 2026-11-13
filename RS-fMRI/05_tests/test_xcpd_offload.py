@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 import importlib.util
-spec = importlib.util.spec_from_file_location('integrated_offload', Path(__file__).resolve().parents[1] / '02_custom/s10_xcpd_integrated_qc/offload_completed.py')
+spec = importlib.util.spec_from_file_location('integrated_offload', Path(__file__).resolve().parents[1] / 'pipeline/s10_xcpd_integrated_qc/offload_completed.py')
 m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
 
 class OffloadTests(unittest.TestCase):

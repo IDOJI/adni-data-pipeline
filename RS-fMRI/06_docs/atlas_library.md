@@ -1,6 +1,6 @@
 # Atlas library and extraction boundaries
 
-The optional Step 11 library pins Neuroparc, CBIG, Nilearn and the TemplateFlow archive as separate Git submodules under `02_custom/s11_atlas_bold/01_sources/`. See the [step contract and commands](../02_custom/s11_atlas_bold/README.md).
+The optional Step 11 library pins Neuroparc, CBIG, Nilearn and the TemplateFlow archive as separate Git submodules under `pipeline/s11_atlas_bold/01_sources/`. See the [step contract and commands](../pipeline/s11_atlas_bold/README.md).
 
 | Source | Purpose | Pin and payload policy |
 |---|---|---|

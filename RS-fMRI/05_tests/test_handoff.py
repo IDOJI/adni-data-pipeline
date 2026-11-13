@@ -15,8 +15,8 @@ def load(name, path):
     return module
 
 
-handoff = load('handoff', '02_custom/s5c_validate_handoff/run.py')
-upstream = load('upstream_filters', '01_upstream/ADNI_fMRI_protocol/s7_fmriprep/make_bids_filters.py')
+handoff = load('handoff', 'pipeline/s5c_validate_handoff/run.py')
+upstream = load('upstream_filters', 'pipeline/s7_fmriprep/make_bids_filters.py')
 
 
 def table(tmp_path, visits=('bl', 'm12')):

@@ -20,14 +20,14 @@ def load(relative, name):
 @pytest.mark.parametrize('stage', ['mriqc', 'fmriprep'])
 @pytest.mark.parametrize('entry', ['run_stage', 'main'])
 def test_real_session_logging_batch_transport_and_recovery(tmp_path, monkeypatch, stage, entry):
-    session = load('02_custom/s7b_sessionwise_preprocessing/run_seeded.py', 'seed_transport_session')
+    session = load('pipeline/s7b_sessionwise_preprocessing/run_seeded.py', 'seed_transport_session')
     batch = load('04_workflow/local_batch_seeded.py', 'seed_transport_batch')
-    logging = batch.module('logging', '02_custom/s7c_ants_iteration_logging/run.py')
+    logging = batch.module('logging', 'pipeline/s7c_ants_iteration_logging/run.py')
     root = tmp_path/'runtime'
     case = {'subject':'ADNI999S9999', 'session':'20000101'}
     image = seed_policy.MRIQC_IMAGE if stage == 'mriqc' else 'example@sha256:synthetic'
     cfg = {'runtime':str(root), 'source_bids':str(tmp_path/'source'),
-           'seed_policy':seed_policy.POLICY, 'random_seed':357, 'runs':[case],
+           'seed_policy':seed_policy.POLICY, 'random_seed':1123, 'runs':[case],
            'resources':{'cpus':2, 'omp_nthreads':1, 'workflow_memory_mb':4000, 'docker_memory':'8g'},
            'images':{stage:image}, 'output_spaces':['MNI152NLin6Asym:res-2'],
            'freesurfer_license':'/external/license.txt', 'work_revision':'fixed-seed-v1'}
@@ -64,7 +64,7 @@ def test_real_session_logging_batch_transport_and_recovery(tmp_path, monkeypatch
     index = actual.index('/data')-1
     assert actual[index] == image
     assert actual[actual.index('--cpus')+1] == '1.5' and '--rm' not in actual[:index]
-    assert 'ANTS_RANDOM_SEED=357' in actual and 'OMP_NUM_THREADS=1' in actual
+    assert 'ANTS_RANDOM_SEED=1123' in actual and 'OMP_NUM_THREADS=1' in actual
     if stage == 'mriqc':
         assert actual[actual.index('--entrypoint')+1] == '/opt/adni-seed/mriqc_bootstrap.py'
         assert '--random-seed' not in actual
@@ -110,8 +110,8 @@ def test_real_session_logging_batch_transport_and_recovery(tmp_path, monkeypatch
 
 
 def test_logging_cli_transports_reach_the_seeded_backend(tmp_path, monkeypatch):
-    session = load('02_custom/s7b_sessionwise_preprocessing/run_seeded.py', 'seed_cli_adapter')
-    logging = load('02_custom/s7c_ants_iteration_logging/run.py', 'seed_cli_logging')
+    session = load('pipeline/s7b_sessionwise_preprocessing/run_seeded.py', 'seed_cli_adapter')
+    logging = load('pipeline/s7c_ants_iteration_logging/run.py', 'seed_cli_logging')
     calls = []
     original = SimpleNamespace(run=lambda argv, **kw:calls.append(argv))
     session.subprocess = logging.Transport(original)

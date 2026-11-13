@@ -76,7 +76,7 @@ def test_malformed_receipt_keeps_previous_ledger(tmp_path):
 
 def test_public_receipt_cli(tmp_path):
     root=tmp_path/'runtime';save(root/'logs/mriqc_execution.json',dict(status='success',returncode=0,stage='mriqc',case=dict(subject='toy001',session='M000'),started_at='2026-01-01T00:00:00Z',container_ended_at='2026-01-01T00:01:00Z'))
-    result=subprocess.run([sys.executable,str(ROOT/'02_custom/s7d_processing_timing/run.py'),'--root',str(root)],capture_output=True,text=True)
+    result=subprocess.run([sys.executable,str(ROOT/'pipeline/s7d_processing_timing/run.py'),'--root',str(root)],capture_output=True,text=True)
     assert result.returncode==0,result.stderr
     assert json.loads(result.stdout)['stage_seconds_sum']==60
     assert (root/'timing/attempts.tsv').is_file() and (root/'timing/cases.tsv').is_file()

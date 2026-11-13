@@ -13,4 +13,4 @@ The upstream commit's example environment differs from the wrapper test environm
 
 XCP-D: 26.2.0, with the LINC image digest pinned in `xcpd_linc.example.json`. Keep the 7.A aCompCor and S10 36P/GSR profiles separate. New actual-data calculations were not part of consolidation validation.
 
-Optional atlas source commits are locked in `02_custom/s11_atlas_bold/sources.lock.json`. TemplateFlow payloads are materialized explicitly and verified independently of Git pointers. See the Step 11 README for supported types and exact-space restrictions.
+Optional atlas source commits are locked in `pipeline/s11_atlas_bold/sources.lock.json`. TemplateFlow payloads are materialized explicitly and verified independently of Git pointers. See the Step 11 README for supported types and exact-space restrictions.

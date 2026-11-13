@@ -2,28 +2,28 @@
   "motion_duration_qc": {
     "source": "Existing local ADNI_fMRI_protocol/local_mac/paper_motion_qc.py",
     "sha256": "428f3e79a8d0f43be24cdc823caf62b35742420cd422734b54188abdd6198b8c",
-    "destination": "02_custom/s8a_motion_duration_qc/run.py",
+    "destination": "pipeline/s8a_motion_duration_qc/run.py",
     "copy": "byte-identical at initial import",
     "date": "2026-10-31"
   },
   "research_qc": {
     "source": "Research final-selection research_qc module (2026-10-28)",
     "source_sha256": "d81bb47745b783f9a6b8f3a39d5b9eed81a74b800f9a9fdae0a0f4fce8b0cdb0",
-    "destination": "02_custom/s3a_source_qc/qc_registry.py",
+    "destination": "pipeline/s3a_source_qc/qc_registry.py",
     "adaptation": "Original decision/matching functions retained; vault paths, automatic discovery and legacy CLI removed",
     "date": "2026-11-01"
   },
   "research_nfq": {
     "source": "Research final-selection research_nfq module (2026-10-28)",
     "source_sha256": "9de5a92d9b295e4786016cd50e552f1a879e223bc8d05bd87c6b2882f6334f24",
-    "destination": "02_custom/s3a_source_qc/nfq_quality.py",
+    "destination": "pipeline/s3a_source_qc/nfq_quality.py",
     "adaptation": "Original decision/matching functions retained; vault paths, automatic discovery and legacy CLI removed",
     "date": "2026-11-01"
   },
   "research_clinical_rules": {
     "source": "Research clinical validation rules (2026-10-30-preserve-all-v1)",
     "source_sha256": "2b62570c96bb9211b45efdece0d3d72476ef0b7d8795837512807bde5d2b2dae",
-    "destination": "02_custom/s9a_validate_clinical/run.py",
+    "destination": "pipeline/s9a_validate_clinical/run.py",
     "adaptation": "Selected clinical policies reimplemented for explicit CSV/run inputs; no RDS/snapshot discovery and no full numerical equivalence claim",
     "date": "2026-11-01"
   },
@@ -35,49 +35,49 @@
         "source": "pipeline.py",
         "source_group": "adni-rsfmri-pipeline",
         "source_sha256": "83138ec4fa90164cbe6ee40f1b8586674e13b3bd5a7972c20bb03ee7153f5b89",
-        "destination": "02_custom/s7a_volume_workflow/pipeline.py"
+        "destination": "pipeline/s7a_volume_workflow/pipeline.py"
       },
       {
         "source": "audit_outputs.py",
         "source_group": "adni-rsfmri-pipeline",
         "source_sha256": "254cf94ffeff093c8142543e4482181104f0670181c45937b3412da79b830e7b",
-        "destination": "02_custom/s7a_volume_workflow/audit_outputs.py"
+        "destination": "pipeline/s7a_volume_workflow/audit_outputs.py"
       },
       {
         "source": "repair_xcpd_metadata.py",
         "source_group": "adni-rsfmri-pipeline",
         "source_sha256": "997c9060147a86bcc47e7075aad1f2e3969822e06db7762b85be0eb13bf2e72b",
-        "destination": "02_custom/s7a_volume_workflow/repair_xcpd_metadata.py"
+        "destination": "pipeline/s7a_volume_workflow/repair_xcpd_metadata.py"
       },
       {
         "source": "qc_images.py",
         "source_group": "adni-rsfmri-pipeline",
         "source_sha256": "4f22b7419efb7b72c48b02e9ee912c53f1dcf7effe5d4c2717c090c07ff683bd",
-        "destination": "02_custom/s7a_volume_workflow/qc_images.py"
+        "destination": "pipeline/s7a_volume_workflow/qc_images.py"
       },
       {
         "source": "pipeline.py",
         "source_group": "s10_xcpd_integrated_qc",
         "source_sha256": "387247282adc4e9ea12e7115186527ea294b8ef253a4a40429b148a8a9d081cb",
-        "destination": "02_custom/s10_xcpd_integrated_qc/pipeline.py"
+        "destination": "pipeline/s10_xcpd_integrated_qc/pipeline.py"
       },
       {
         "source": "container_entry.py",
         "source_group": "s10_xcpd_integrated_qc",
         "source_sha256": "2df57b51b1fc4224fc81068e9e522eff2fe401ae29700e3dd6a5f4ed815e86db",
-        "destination": "02_custom/s10_xcpd_integrated_qc/container_entry.py"
+        "destination": "pipeline/s10_xcpd_integrated_qc/container_entry.py"
       },
       {
         "source": "slurm_task.py",
         "source_group": "s10_xcpd_integrated_qc",
         "source_sha256": "5288953f6aa0e2b154a1aa98bfe90a379d29ffcad10da59a86bf01bcdd7fde90",
-        "destination": "02_custom/s10_xcpd_integrated_qc/slurm_task.py"
+        "destination": "pipeline/s10_xcpd_integrated_qc/slurm_task.py"
       },
       {
         "source": "offload_completed.py",
         "source_group": "continuous5",
         "source_sha256": "d5bf11f39261a56e8670aa8ece04d7a2ae00265ff96f50cbab2981c6dd310614",
-        "destination": "02_custom/s10_xcpd_integrated_qc/offload_completed.py"
+        "destination": "pipeline/s10_xcpd_integrated_qc/offload_completed.py"
       },
       {
         "source": "test_audit_outputs.py",
@@ -119,20 +119,20 @@
         "source": "METHODS.md",
         "source_group": "adni-rsfmri-pipeline",
         "source_sha256": "557c26540cb3ce34b1fa2d8af53b014adb4fc45bdedbab578dbefccad853dc3e",
-        "destination": "02_custom/s7a_volume_workflow/METHODS.md"
+        "destination": "pipeline/s7a_volume_workflow/METHODS.md"
       },
       {
         "source": "literature.md",
         "source_group": "adni-rsfmri-pipeline",
         "source_sha256": "60023b9c1c9c146ae750a094348fa102ca298397777526e0a052ef311969028d",
-        "destination": "02_custom/s7a_volume_workflow/literature.md"
+        "destination": "pipeline/s7a_volume_workflow/literature.md"
       }
     ]
   },
   "research_ptdemog_static_rules": {
     "source": "Research PTDEMOG participant-static preprocessing rules",
     "source_sha256": "ef4ade47b940e3ff51595328725c3ac8be449f06b1410d3bab767d5be2575b20",
-    "destination": "02_custom/s9a_validate_clinical/run.py",
+    "destination": "pipeline/s9a_validate_clinical/run.py",
     "adaptation": "Raw eligible same-scope PTGENDER consensus fills structural missing values only; TEAM/QC errors excluded and source rows retained",
     "date": "2026-11-01"
   },
@@ -142,22 +142,22 @@
       {
         "source": "run.py",
         "source_sha256": "685f74ffd83f12eda6df0c26b78ed9516a469d85f3217d513efc0bb7798da461",
-        "destination": "02_custom/s7b_sessionwise_preprocessing/run.py"
+        "destination": "pipeline/s7b_sessionwise_preprocessing/run.py"
       },
       {
         "source": "make_source_manifest.py",
         "source_sha256": "707a175bd000e0b422e6a2135a9d336cd9bdd3f8e7844c15ebfb908e3582823a",
-        "destination": "02_custom/s7b_sessionwise_preprocessing/make_source_manifest.py"
+        "destination": "pipeline/s7b_sessionwise_preprocessing/make_source_manifest.py"
       },
       {
         "source": "finalize_by_scan_dates.py",
         "source_sha256": "cae5e7a4299c9a63344e3c877989f3bef885f6ec48cec9b002702f40ab34eebe",
-        "destination": "02_custom/s7b_sessionwise_preprocessing/publish_pairs.py"
+        "destination": "pipeline/s7b_sessionwise_preprocessing/publish_pairs.py"
       },
       {
         "source": "recover_observers.py",
         "source_sha256": "aca6ddaaa64395a81961dd57f90053fb50ede0565900f3277147c30611249023",
-        "destination": "02_custom/s7b_sessionwise_preprocessing/observe.py"
+        "destination": "pipeline/s7b_sessionwise_preprocessing/observe.py"
       },
       {
         "source": "compute_slots.py",

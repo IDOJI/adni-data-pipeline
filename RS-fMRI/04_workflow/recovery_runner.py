@@ -60,7 +60,7 @@ def main():
     p.add_argument('--runner', required=True, type=Path)
     p.add_argument('runner_args', nargs=argparse.REMAINDER)
     args = p.parse_args()
-    spec = importlib.util.spec_from_file_location('recovery_iteration_logging', LAB/'02_custom/s7c_ants_iteration_logging/run.py')
+    spec = importlib.util.spec_from_file_location('recovery_iteration_logging', LAB/'pipeline/s7c_ants_iteration_logging/run.py')
     logging = importlib.util.module_from_spec(spec); spec.loader.exec_module(logging)
     path = args.runner.resolve()
     spec = importlib.util.spec_from_file_location('recovery_frozen_backend', path)

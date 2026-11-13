@@ -9,4 +9,4 @@ mriqc_image: mriqc-24.0.2.sif
 fmriprep_image: fmriprep-25.2.7.sif
 
 # upstream schema에 대한 명시적 덮어쓰기만 사용. 예: hpc.account.
-upstream_overrides: {}
+pipeline_overrides: {}

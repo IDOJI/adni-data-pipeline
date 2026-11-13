@@ -23,9 +23,9 @@ def checkout(tmp_path):
     root = repo / 'RS-fMRI'
     manifest = json.loads((ROOT / '03_config/protocol_sources.json').read_text())
     for name in manifest['files']:
-        target = root / '01_upstream/ADNI_fMRI_protocol' / name
+        target = root / 'pipeline' / name
         target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(ROOT / '01_upstream/ADNI_fMRI_protocol' / name, target)
+        shutil.copy2(ROOT / 'pipeline' / name, target)
     (root / '03_config').mkdir()
     for name in ('upstream.lock.json', 'protocol_sources.json', 'protocol_history.json'):
         shutil.copy2(ROOT / '03_config' / name, root / '03_config' / name)
@@ -38,7 +38,7 @@ def checkout(tmp_path):
 
 def test_fresh_native_checkout_needs_no_upstream_git_or_network(checkout):
     repo, root = checkout
-    assert not (root / '01_upstream/ADNI_fMRI_protocol/.git').exists()
+    assert not (root / 'pipeline/.git').exists()
     result = source.inspect_protocol(root)
     assert result['distribution'] == 'integrated-source'
     assert result['protocol_clean'] and result['protocol_files'] == 76
@@ -48,7 +48,7 @@ def test_fresh_native_checkout_needs_no_upstream_git_or_network(checkout):
 
 def test_owned_code_can_change_without_repinning_original_commit(checkout):
     repo, root = checkout
-    path = root / '01_upstream/ADNI_fMRI_protocol/s8_final_qc/summarize_motion_from_confounds.py'
+    path = root / 'pipeline/s8_final_qc/summarize_motion_from_confounds.py'
     original = source.inspect_protocol(root)
     path.write_text(path.read_text() + '\n# Synthetic reviewed edit.\n')
     with pytest.raises(ValueError, match='uncommitted source'):
@@ -67,7 +67,7 @@ def test_owned_code_can_change_without_repinning_original_commit(checkout):
 
 def test_untracked_source_and_staged_deletion_are_rejected(checkout):
     repo, root = checkout
-    protocol = root / '01_upstream/ADNI_fMRI_protocol'
+    protocol = root / 'pipeline'
     extra = protocol / 'utils/unreviewed.py'
     extra.write_text('# Synthetic unreviewed module.\n')
     with pytest.raises(ValueError, match='uncommitted source'):
@@ -80,7 +80,7 @@ def test_untracked_source_and_staged_deletion_are_rejected(checkout):
 
 def test_missing_source_and_changed_license_are_rejected(checkout):
     repo, root = checkout
-    protocol = root / '01_upstream/ADNI_fMRI_protocol'
+    protocol = root / 'pipeline'
     file = protocol / 'LICENSE'
     original = file.read_bytes()
     file.write_text('synthetic incompatible replacement')
@@ -95,7 +95,7 @@ def test_missing_source_and_changed_license_are_rejected(checkout):
 def test_inert_legacy_marker_is_not_a_runtime_dependency(checkout):
     repo, root = checkout
     before = source.inspect_protocol(root)
-    marker = root / '01_upstream/ADNI_fMRI_protocol/.git'
+    marker = root / 'pipeline/.git'
     marker.write_text('gitdir: /nonexistent/legacy-metadata\n')
     after = source.inspect_protocol(root)
     assert after['legacy_git_metadata_present']
@@ -121,7 +121,7 @@ def test_import_contains_source_and_attribution_instead_of_subject_results():
 
 
 def test_sample_size_rendering_uses_explicit_synthetic_input(tmp_path):
-    path = ROOT / '01_upstream/ADNI_fMRI_protocol/s8_final_qc/make_sample_size_table.py'
+    path = ROOT / 'pipeline/s8_final_qc/make_sample_size_table.py'
     spec = importlib.util.spec_from_file_location('integrated_sample_size', path)
     module = importlib.util.module_from_spec(spec)
     import sys

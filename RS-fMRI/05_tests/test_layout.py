@@ -1,4 +1,4 @@
-"""Guard the numbered lab layout without changing upstream's own directories."""
+"""Guard a unified owned pipeline with preserved provenance and optional pins."""
 import configparser
 import hashlib
 import json
@@ -13,8 +13,12 @@ REPO = ROOT.parent
 
 
 def test_numbered_directories_and_integrated_source_declaration_agree():
-    names = ('upstream', 'custom', 'config', 'workflow', 'tests', 'docs')
-    for number, name in enumerate(names, 1):
+    assert (ROOT / 'pipeline').is_dir()
+    assert (ROOT / 'provenance').is_dir()
+    assert not (ROOT / '01_upstream').exists()
+    assert not (ROOT / '02_custom').exists()
+    names = ('config', 'workflow', 'tests', 'docs')
+    for number, name in enumerate(names, 3):
         assert (ROOT / f'{number:02}_{name}').is_dir()
         assert not (ROOT / name).exists()
     lock = json.loads((ROOT / '03_config/upstream.lock.json').read_text())
@@ -25,13 +29,15 @@ def test_numbered_directories_and_integrated_source_declaration_agree():
     entries = subprocess.check_output(['git', '-C', str(REPO), 'ls-files', '--stage', '--',
                                       'RS-fMRI/' + lock['path']], text=True).splitlines()
     assert len(entries) > 1
-    assert all(not entry.startswith('160000 ') for entry in entries)
+    gitlinks = [entry for entry in entries if entry.startswith('160000 ')]
+    assert len(gitlinks) == 4
+    assert all('/s11_atlas_bold/01_sources/' in entry for entry in gitlinks)
     assert len(module.sections()) == 5  # SNP and the four optional atlas sources remain submodules.
 
 
 def test_document_links_resolve_and_imported_code_hash_is_preserved():
     files = [REPO / 'README.md', ROOT / 'README.md', *sorted((ROOT / '06_docs').glob('*.md')),
-             *sorted((ROOT / '02_custom').glob('*/README.md'))]
+             *sorted((ROOT / 'pipeline').glob('*/README.md'))]
     for path in files:
         for target in re.findall(r'\]\(([^)]+)\)', path.read_text()):
             if '://' in target or target.startswith('#'):
@@ -42,14 +48,14 @@ def test_document_links_resolve_and_imported_code_hash_is_preserved():
     assert hashlib.sha256((ROOT / imported['destination']).read_bytes()).hexdigest() == imported['sha256']
     # The external data hierarchy and upstream source schema keep their names.
     assert 'ADNI_DATA/config/' in (ROOT / 'README.md').read_text()
-    assert (ROOT / '01_upstream/ADNI_fMRI_protocol/config/config_adni.yaml').is_file()
+    assert (ROOT / 'pipeline/config/config_adni.yaml').is_file()
 
 
 def test_ci_pytest_and_private_configuration_paths_are_current():
     config = configparser.ConfigParser()
     config.read(ROOT / 'pytest.ini')
     assert config['pytest']['testpaths'] == '05_tests'
-    assert '01_upstream' in config['pytest']['norecursedirs'].split()
+    assert 'provenance' in config['pytest']['norecursedirs'].split()
     ci = yaml.safe_load((REPO / '.github/workflows/tests.yml').read_text())
     job = ci['jobs']['synthetic-validation']
     assert job['defaults']['run']['working-directory'] == 'RS-fMRI'
@@ -65,8 +71,10 @@ def test_protocol_document_links_resolve_to_owned_sources():
     lock = json.loads((ROOT / '03_config/upstream.lock.json').read_text())
     text = (ROOT / 'README.md').read_text()
     links = re.findall(r'\[([^]]+)\]\(([^)]+)\)', text)
-    original_steps = [(label, url) for label, url in links if label.startswith('Protocol Step ')]
-    assert len(original_steps) == 10
+    original_steps = [(label, url) for label, url in links if label.startswith('Stage') and url.startswith('pipeline/s')]
+    documented = {url.split('/')[1] for _, url in original_steps}
+    expected = {p.name for p in (ROOT / 'pipeline').glob('s*') if (p / 'README.md').is_file()}
+    assert documented == expected
     for label, url in original_steps + [(label, url) for label, url in links if label == 'CITATION.cff']:
         assert url.startswith(lock['path'] + '/'), (label, url)
         assert (ROOT / url).is_file()

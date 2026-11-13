@@ -8,7 +8,7 @@ import sys
 import tempfile
 import unittest
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "02_custom/s7a_volume_workflow"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "pipeline/s7a_volume_workflow"))
 from audit_outputs import Audit, AuditError, column, infer_dummy, motion_duration_gate, nifti_header, sha256, xcpd_output_root
 
 

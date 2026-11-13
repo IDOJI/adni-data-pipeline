@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "layout": "unified-pipeline",
+  "effective_date": "2026-11-14",
+  "master_seed": 1123,
+  "previous_revision": "94321eb448af8037ac088c66eb46a939b5a25b2c",
+  "paths": {
+    "01_upstream/ADNI_fMRI_protocol/": "pipeline/",
+    "02_custom/": "pipeline/",
+    "01_upstream/local_mac_reference/": "provenance/local_mac_reference/",
+    "01_upstream/s10_local_reference/": "provenance/s10_local_reference/",
+    "01_upstream/notebook_sources/": "provenance/notebook_sources/"
+  },
+  "scope": "Owned source paths only; historical inputs, settings, execution receipts and work caches are not rewritten."
+}

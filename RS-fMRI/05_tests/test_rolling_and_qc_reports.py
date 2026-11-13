@@ -8,7 +8,7 @@ ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'04_workflow'))
 import rolling
 
-spec=importlib.util.spec_from_file_location('qc_reports',ROOT/'02_custom/s10_xcpd_integrated_qc/qc_report.py')
+spec=importlib.util.spec_from_file_location('qc_reports',ROOT/'pipeline/s10_xcpd_integrated_qc/qc_report.py')
 reports=importlib.util.module_from_spec(spec);spec.loader.exec_module(reports)
 
 

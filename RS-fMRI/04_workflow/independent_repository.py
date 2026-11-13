@@ -121,14 +121,14 @@ def install_sources(plan):
 def deployment(plan):
     """Bind historical analysis identity to reviewed owned source without an old read."""
     proof = Path(plan['proof_directory']);old = read(proof/'deployment.before.json')
-    cfg = read(plan['xcpd_config']);protocol = LAB/'01_upstream/ADNI_fMRI_protocol'
+    cfg = read(plan['xcpd_config']);protocol = LAB/'pipeline'
     steps = ('summarize_motion_from_confounds', 'extract_euler_from_freesurfer', 'finalize_inclusion')
     binding = {'historical_repo':cfg['repo'], 'effective_repo':str(protocol),
                's8_sha256':plan['historical_s8_sha256'], 'source_binding_only':True}
     if binding['s8_sha256'] != {s:sha(protocol/'s8_final_qc'/(s+'.py')) for s in steps}:
         raise ValueError('S8 behavior differs from the historical deployment')
-    result = {**old, 'legacy_preprocessing':str(LAB/'02_custom/s7b_sessionwise_preprocessing'),
-              'legacy_xcpd':str(LAB/'02_custom/s10_xcpd_integrated_qc'), 'legacy_subjects':[],
+    result = {**old, 'legacy_preprocessing':str(LAB/'pipeline/s7b_sessionwise_preprocessing'),
+              'legacy_xcpd':str(LAB/'pipeline/s10_xcpd_integrated_qc'), 'legacy_subjects':[],
               'active_xcpd':{}, 'legacy_sources_sha256':{}, 'repository_binding':binding}
     result['integrated_sources_sha256'] = {
         str(LAB/path):sha(LAB/path) for path in plan['bound_sources']}
@@ -139,7 +139,7 @@ def deployment(plan):
     settings = read(proof/'settings.before.json')
     registry = read(proof/'continuation.before.json')
     for route in registry['subjects'].values():
-        route.update(backend=str(LAB/'02_custom/s7b_sessionwise_preprocessing/run.py'))
+        route.update(backend=str(LAB/'pipeline/s7b_sessionwise_preprocessing/run.py'))
         route['backend_sha256'] = sha(route['backend'])
         # Input/config/receipt identities are never changed or re-signed here.
     registry['source_rebinding'] = {'at':now(), 'previous_registry':settings['verified_continuation'],

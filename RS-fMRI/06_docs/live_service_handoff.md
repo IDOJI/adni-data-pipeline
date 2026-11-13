@@ -6,7 +6,7 @@ The preprocessing queue, XCP-D controller and offloader can use this repository 
 
 ## Execution boundaries
 
-- `04_workflow/queue_service.py` continues the existing queue/state/retry policy. Previously started subjects use their original runner until completion; newly admitted subjects use `02_custom/s7b_sessionwise_preprocessing`. Shared leases retain the current five-subject limit across preprocessing and XCP-D.
+- `04_workflow/queue_service.py` continues the existing queue/state/retry policy. Previously started subjects use their original runner until completion; newly admitted subjects use `pipeline/s7b_sessionwise_preprocessing`. Shared leases retain the current five-subject limit across preprocessing and XCP-D.
 - `04_workflow/live_services.py` is an explicit XCP-D compatibility entry point. It verifies the historical configuration and pinned S8 semantics, preserves the existing config_id/hub, reconnects active attempts through a hash-verified frozen completion observer and uses integrated S10 for subsequent runs. Code deployment is recorded separately from scientific configuration.
 - `04_workflow/capture_exits.py` observes existing containers without changing them. Before replacing controllers, attach exit capture so a container exiting with `--rm` cannot lose its completion receipt during the handoff.
 - The integrated offloader continues using the existing root/settings and validated archival receipts. It never treats the service transition as scientific QC approval.
@@ -20,14 +20,14 @@ Activate the existing service labels with new repository entry points and the sa
 ```sh
 python 04_workflow/live_services.py --config /ABSOLUTE/PATH/historical-xcpd.json --deployment /ABSOLUTE/PATH/deployment.json check
 python 04_workflow/live_services.py --config /ABSOLUTE/PATH/historical-xcpd.json --deployment /ABSOLUTE/PATH/deployment.json watch
-python 02_custom/s10_xcpd_integrated_qc/offload_completed.py --root /ABSOLUTE/PATH/runtime --settings /ABSOLUTE/PATH/offload-settings.json
+python pipeline/s10_xcpd_integrated_qc/offload_completed.py --root /ABSOLUTE/PATH/runtime --settings /ABSOLUTE/PATH/offload-settings.json
 ```
 
 The regular S10 constructor continues to require validated integrated protocol source and a new explicit configuration. Only this verified compatibility entry point preserves a historical configuration identity. It does not authorize changed images, thresholds, atlases, nuisance settings or previously unknown caches. Existing completed attempts and human-review fields are preserved.
 
 ## Prospective iteration logging
 
-The queue wraps subsequent stage launches with Custom Step 7.C, including frozen-backend retries. Backend cache identities remain unchanged and the logging transport has separate provenance. For this logging upgrade, use Step 7.C deferred activation: hold only new admission, allow existing containers/workers to finish, gracefully restart the idle controller and restore the original admission policy after the new launcher is advertised. Host `docker run` clients proxy signals; do not terminate active execution trees to enable logging. Check the external activation receipt before reporting the logging transport as active.
+The queue wraps subsequent stage launches with Stage 7.C, including frozen-backend retries. Backend cache identities remain unchanged and the logging transport has separate provenance. For this logging upgrade, use Step 7.C deferred activation: hold only new admission, allow existing containers/workers to finish, gracefully restart the idle controller and restore the original admission policy after the new launcher is advertised. Host `docker run` clients proxy signals; do not terminate active execution trees to enable logging. Check the external activation receipt before reporting the logging transport as active.
 
 ## Source integration and active deployments
 

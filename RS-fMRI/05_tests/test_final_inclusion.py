@@ -12,8 +12,8 @@ def module(name, path):
     spec = importlib.util.spec_from_file_location(name, ROOT / path)
     out = importlib.util.module_from_spec(spec); spec.loader.exec_module(out)
     return out
-clinical = module('clinical_for_final', '02_custom/s9a_validate_clinical/run.py')
-gate = module('final_gate', '02_custom/s9b_validate_inclusion/run.py')
+clinical = module('clinical_for_final', 'pipeline/s9a_validate_clinical/run.py')
+gate = module('final_gate', 'pipeline/s9b_validate_inclusion/run.py')
 
 
 def table(path, rows, fields=None):
@@ -129,7 +129,7 @@ def test_s10_decision_not_promoted(tmp_path, status, expected):
 def test_clinical_hold_cli_and_no_overwrite(tmp_path):
     args = fixture(tmp_path); p = args[1] / 'clinical_validation.tsv'; row = gate.read(p)[0]; row['CLINICAL_STATUS'] = 'hold'
     table(p, [row]); refresh(args[1], p.name)
-    command = [sys.executable, str(ROOT / '02_custom/s9b_validate_inclusion/run.py'), '--source-qc', str(args[0]), '--clinical', str(args[1]), '--confirmed-st-absence', str(args[2]), '--output-dir', str(tmp_path / 'out')]
+    command = [sys.executable, str(ROOT / 'pipeline/s9b_validate_inclusion/run.py'), '--source-qc', str(args[0]), '--clinical', str(args[1]), '--confirmed-st-absence', str(args[2]), '--output-dir', str(tmp_path / 'out')]
     proc = subprocess.run(command, text=True, capture_output=True)
     assert proc.returncode == 0, proc.stderr
     assert result(tmp_path / 'out')['INCLUSION_STATUS'] == 'excluded' and json.loads(proc.stdout)['retained'] == 0

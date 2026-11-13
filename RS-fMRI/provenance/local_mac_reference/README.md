@@ -1,0 +1,9 @@
+# Historical local Mac source reference
+
+This directory preserves the additional `local_mac/` source from the retired standalone protocol checkout. It is a source reference, not another installed pipeline or an active execution entry point. The supported workflow remains [the integrated RS-fMRI guide](../../README.md); use [7.B](../../pipeline/s7b_sessionwise_preprocessing/README.md) for current sessionwise execution, [8.A](../../pipeline/s8a_motion_duration_qc/README.md) for motion duration and [10](../../pipeline/s10_xcpd_integrated_qc/README.md) for integrated postprocessing.
+
+All 31 original Python/R/shell files, including tests and the historical integration probe, plus `r_compatibility.json` are retained. The [source manifest](../../03_config/local_mac_reference.json) records original/exported SHA-256 values and every adaptation. Host-specific test imports are relative; participant, scan-date and image examples are synthetic. The exact originals remain in the verified private backup.
+
+The historical tools expect the old standalone layout (`local_mac/` beside the protocol, with separate Python/Clinica environments), historical configuration and runner identities. They are not wired into the current queue and must not be substituted for an active runner. Reconstruct that layout and review configuration in a separate directory before any experimental reuse. The integration probe requires `ADNI_LEGACY_REFERENCE_ROOT`; no private configuration or actual-data validation results are included here.
+
+The reference tests retain their original scope and are outside the default test collection. Python syntax and source/export hashes were checked during preservation; this is not a claim that historical imaging or the integration probe ran again. Original compatibility code and copied imaging helpers retain their attribution; the repository GPL license applies.

@@ -9,7 +9,7 @@ import pytest
 import yaml
 
 LAB = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(LAB / '02_custom/s5d_bids_identity'))
+sys.path.insert(0, str(LAB / 'pipeline/s5d_bids_identity'))
 sys.path.insert(0, str(LAB / '04_workflow'))
 import continuation as gate
 import queue_service as queue

@@ -6,7 +6,7 @@ import pytest
 
 LAB=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(LAB/'04_workflow'))
-sys.path.insert(0,str(LAB/'02_custom/s5d_bids_identity'))
+sys.path.insert(0,str(LAB/'pipeline/s5d_bids_identity'))
 import source_review as review
 import rolling
 import queue_service as queue

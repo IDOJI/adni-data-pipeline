@@ -30,13 +30,18 @@ def inspect_protocol(root=None, *, require_clean=True):
     prefix = protocol.relative_to(repository).as_posix()
     rows = _git(repository, 'ls-files', '--stage', '-z', '--', prefix).split(b'\0')
     entries = {}
+    optional_sources = {}
     for row in rows:
         if not row:
             continue
         fields, path = row.split(b'\t', 1)
         mode, blob, stage = fields.decode().split()
         if mode == '160000':
-            raise ValueError('Protocol is still a submodule; use the integrated source migration')
+            local_name = path.decode()[len(prefix) + 1:]
+            if not local_name.startswith('s11_atlas_bold/01_sources/') or stage != '0':
+                raise ValueError('Unexpected submodule inside the owned pipeline')
+            optional_sources[local_name] = blob
+            continue
         if mode not in {'100644', '100755'} or stage != '0':
             raise ValueError('Protocol contains an unsupported entry or unresolved Git conflict')
         entries[path.decode()] = (mode, blob)
@@ -84,7 +89,7 @@ def inspect_protocol(root=None, *, require_clean=True):
     # legacy worker. It is not consulted for identity, source selection or Git IO.
     if require_clean and dirty:
         raise ValueError('Integrated protocol has uncommitted source changes: ' + ', '.join(sorted(dirty)))
-    identity = hashlib.sha256(json.dumps(source_hashes, sort_keys=True).encode()).hexdigest()
+    identity = hashlib.sha256(json.dumps({'owned_files': source_hashes, 'optional_sources': optional_sources}, sort_keys=True).encode()).hexdigest()
     return {
         'distribution': 'integrated-source',
         'upstream_commit': origin['commit'],
@@ -92,6 +97,7 @@ def inspect_protocol(root=None, *, require_clean=True):
         'protocol_clean': not dirty,
         'protocol_source_sha256': identity,
         'protocol_files': len(source_hashes),
+        'optional_source_commits': optional_sources,
         'modified_from_import': modified,
         'uncommitted_protocol_files': sorted(dirty),
         'original_history_commits': history['commit_count'],

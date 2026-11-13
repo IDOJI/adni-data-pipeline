@@ -26,7 +26,7 @@ import compute_slots
 import source_review
 
 LAB=Path(__file__).resolve().parents[1]
-STEP=LAB/'02_custom/s7b_sessionwise_preprocessing'
+STEP=LAB/'pipeline/s7b_sessionwise_preprocessing'
 HERE=ROOT=DEPLOYMENT=None
 PY=Path(sys.executable)
 ORIGINAL=set()
@@ -69,7 +69,7 @@ def successful(record):
                 and record.get('exit_code') == 0 and record.get('input_unchanged'))
 
 def stage_command(script, config, stage, subject):
-    return [str(PY),str(LAB/'02_custom/s7c_ants_iteration_logging/run.py'),
+    return [str(PY),str(LAB/'pipeline/s7c_ants_iteration_logging/run.py'),
             '--runner',str(script),'--','--config',str(config),'run',
             '--stage',stage,'--subject',subject]
 
@@ -136,7 +136,7 @@ class Queue:
         scope = self.settings.get('verified_continuation')
         if not scope:
             return None, None
-        adapter = load_module('verified_pair_continuation', LAB/'02_custom/s5d_bids_identity/continuation.py')
+        adapter = load_module('verified_pair_continuation', LAB/'pipeline/s5d_bids_identity/continuation.py')
         registry = adapter.load_registry(scope['path'], scope['sha256'])
         return adapter, registry
 
@@ -147,7 +147,7 @@ class Queue:
         if subject not in registry['subjects']:
             raise ValueError('Unverified pair held outside continuation scope')
         scope = self.settings['verified_continuation']
-        return [str(PY), str(LAB/'02_custom/s5d_bids_identity/continuation.py'),
+        return [str(PY), str(LAB/'pipeline/s5d_bids_identity/continuation.py'),
                 '--registry', scope['path'], '--registry-sha256', scope['sha256'],
                 '--subject', subject, '--stage', stage]
 
@@ -414,7 +414,7 @@ class Queue:
                         if not pending and not futures and not external:
                             mode='verified_scope_finished' if self.settings.get('verified_continuation') else 'queue_exhausted'
                         prep_running=compute_slots.running_subjects(include_xcpd=False)
-                        snapshot={'controller_source':__file__,'controller_pid':os.getpid(),'ants_iteration_logging_launcher':str(LAB/'02_custom/s7c_ants_iteration_logging/run.py'),'new_subject_runner':str(STEP/'run.py'),'code_deployment_sha256':sha(DEPLOYMENT),'updated_at':now(),'mode':mode,'target_concurrency':target,
+                        snapshot={'controller_source':__file__,'controller_pid':os.getpid(),'ants_iteration_logging_launcher':str(LAB/'pipeline/s7c_ants_iteration_logging/run.py'),'new_subject_runner':str(STEP/'run.py'),'code_deployment_sha256':sha(DEPLOYMENT),'updated_at':now(),'mode':mode,'target_concurrency':target,
                                   'active_subjects':sorted(prep_running),'active_count':len(prep_running),
                                   'global_compute_limit':5,'global_active_subjects':sorted(all_running),'global_active_count':len(all_running),
                                   'original_subjects_active':sorted(prep_running & ORIGINAL),'pending':len(pending),

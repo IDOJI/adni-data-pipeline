@@ -3,7 +3,7 @@
 - This public source repository organizes ADNI pipelines by modality under `RS-fMRI/` and `SNP/`. Read each module's implementation status before describing it as validated.
 - Read the relevant modality's `Repository instructions.md` and README before working. The RS-fMRI protocol is ordinary owned source; review its changes in this repository. SNP/atlas submodules remain separately pinned.
 - Do not commit original images, clinical tables, genetic data, real participant IDs, private configuration, execution results, license keys or credentials. Use synthetic examples only.
-- Do not introduce a Selection Table-centered workflow. Preserve upstream stages, independent Custom Steps and the integrated README.
+- Do not introduce a Selection Table-centered workflow. Maintain all RS-fMRI stages together under `RS-fMRI/pipeline/`, preserving stage contracts, attribution and the integrated README.
 - Test commands: run `cd RS-fMRI`, then `python -m pytest -q` and `python 04_workflow/lab.py doctor`.
 - SNP checks: run `cd SNP`, then `python3 -m unittest discover -s 05_tests -v` and `python3 04_workflow/snp.py doctor`.
 - Review owned RS-fMRI source changes with provenance and compatibility tests. SNP/atlas pins still require explicit review; core installation requires no protocol submodule update.

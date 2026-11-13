@@ -80,7 +80,7 @@ def test_pending_batch_never_stops_services(tmp_path, monkeypatch):
 
 
 def test_owned_binding_never_reads_absent_legacy_source(tmp_path):
-    path = LAB/'02_custom/s10_xcpd_integrated_qc/pipeline.py'
+    path = LAB/'pipeline/s10_xcpd_integrated_qc/pipeline.py'
     spec = importlib.util.spec_from_file_location('independent_test_xcpd', path)
     pipeline = importlib.util.module_from_spec(spec);spec.loader.exec_module(pipeline)
     cfg = pipeline.load(LAB/'03_config/xcpd_linc.example.json')
@@ -103,7 +103,7 @@ def test_owned_binding_never_reads_absent_legacy_source(tmp_path):
 
 
 def test_adapter_uses_environment_inside_owned_repository():
-    path = LAB/'02_custom/s7b_sessionwise_preprocessing/run.py'
+    path = LAB/'pipeline/s7b_sessionwise_preprocessing/run.py'
     spec = importlib.util.spec_from_file_location('independent_adapter',path)
     adapter = importlib.util.module_from_spec(spec);spec.loader.exec_module(adapter)
     env = adapter.environment()
@@ -163,7 +163,7 @@ def test_complete_idle_handoff_stays_stopped_and_preserves_original_configuratio
     label = 'com.codex.adni-sb-cpu-budget';plist = folder/(label+'.plist')
     plist.write_bytes(plistlib.dumps({'Label':label,'ProgramArguments':['/absent/original/checkout/.venv/bin/python','/old-tool.py']}))
     names = ['summarize_motion_from_confounds','extract_euler_from_freesurfer','finalize_inclusion']
-    protocol = LAB/'01_upstream/ADNI_fMRI_protocol'
+    protocol = LAB/'pipeline'
     plan.update(repository=str(LAB.parent),python=str(LAB/'.venv/bin/python'),proof_directory=str(proof),
         files=[],bound_sources=[],settings_before_sha256=migration.sha(tmp_path/'continuous5/settings.json'),
         old_deployment=str(proof/'deployment.before.json'),old_deployment_sha256=migration.sha(proof/'deployment.before.json'),

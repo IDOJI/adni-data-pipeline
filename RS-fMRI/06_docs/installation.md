@@ -6,7 +6,7 @@ For a small pinned Python environment and public data, follow the [copy-and-past
 
 The real CC0 MRI sample is included in a normal clone; `public.py fetch` verifies and stages it without an OpenNeuro download.
 
-## Wrapper and Custom Steps
+## Wrapper and Stages
 
 After a normal clone as shown in the root README, create a Python 3.11+ virtual environment under `RS-fMRI/` and install `requirements.txt`. `doctor` checks ordinary tracked source bytes/modes, origin/history and GPL attribution. See the [integration guide](source_integration.md).
 
@@ -20,7 +20,7 @@ Image names in `03_config/lab_config.example.yaml` are examples based on MRIQC 2
 
 Use the [stage-by-stage host guide](platform_execution.md) before moving to a different computer. It provides separate Docker Desktop/Engine setup, common commands and a support matrix. Core Python tools and Linux-container calculations are distinct from Mac-specific service, copy and volume-management adapters.
 
-Custom Steps and configuration tools are tested on Mac. Upstream s4/s6/s7 launchers target Slurm/Apptainer and are not automatically converted to Mac. The existing `local_mac` pilot is an untracked local extension, not part of the original protocol import. Step 7.A adds a separate Docker volume execution/audit profile, and S10 adds completed-pair postprocessing/integrated QC. The full local_mac implementation and S6/S7 queue are not consolidated; a flat-derivative-to-S10-pair adapter is also separate. See [consolidation scope](xcpd_consolidation.md).
+Stages and configuration tools are tested on Mac. Upstream s4/s6/s7 launchers target Slurm/Apptainer and are not automatically converted to Mac. The existing `local_mac` pilot is an untracked local extension, not part of the original protocol import. Step 7.A adds a separate Docker volume execution/audit profile, and S10 adds completed-pair postprocessing/integrated QC. The full local_mac implementation and S6/S7 queue are not consolidated; a flat-derivative-to-S10-pair adapter is also separate. See [consolidation scope](xcpd_consolidation.md).
 
 ## Output locations
 
@@ -32,7 +32,7 @@ Step 11 sources and TemplateFlow payloads are installed explicitly using its sou
 
 ## Scalar tables and report browser
 
-Step 12 uses the wrapper Python environment and pandas from `requirements.txt`; no new imaging container, atlas download or R installation is required. From `RS-fMRI/`, run `python 04_workflow/lab.py export-results --archive-root /ABS/PATH/archive --status /ABS/PATH/runtime/metrics.json`. Add `--watch` to scan every 120 seconds. A local service may invoke this command or the repository-owned `02_custom/s12_metrics_summary/run.py` directly. Configure absolute external archive/status/log paths in a private service definition; creating the source directory alone does not install a service. See [Step 12](../02_custom/s12_metrics_summary/README.md) for inputs, outputs and validation limits.
+Step 12 uses the wrapper Python environment and pandas from `requirements.txt`; no new imaging container, atlas download or R installation is required. From `RS-fMRI/`, run `python 04_workflow/lab.py export-results --archive-root /ABS/PATH/archive --status /ABS/PATH/runtime/metrics.json`. Add `--watch` to scan every 120 seconds. A local service may invoke this command or the repository-owned `pipeline/s12_metrics_summary/run.py` directly. Configure absolute external archive/status/log paths in a private service definition; creating the source directory alone does not install a service. See [Step 12](../pipeline/s12_metrics_summary/README.md) for inputs, outputs and validation limits.
 
 ## Native Linux deployment boundary
 

@@ -11,7 +11,7 @@ from types import SimpleNamespace
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-STEP = ROOT / '02_custom/s7c_ants_iteration_logging'
+STEP = ROOT / 'pipeline/s7c_ants_iteration_logging'
 spec = importlib.util.spec_from_file_location('ants_log_transport', STEP / 'run.py')
 transport = importlib.util.module_from_spec(spec); spec.loader.exec_module(transport)
 
@@ -77,7 +77,7 @@ sys.exit(7)
 def test_queue_uses_logging_for_both_legacy_and_new_stage_dispatch():
     sys.path.insert(0,str(ROOT/'04_workflow'))
     import queue_service as q
-    for script in [Path('/private/frozen/run.py'),ROOT/'02_custom/s7b_sessionwise_preprocessing/run.py']:
+    for script in [Path('/private/frozen/run.py'),ROOT/'pipeline/s7b_sessionwise_preprocessing/run.py']:
         argv=q.stage_command(script,Path('/private/config.yaml'),'fmriprep','ADNI999S9999')
         assert Path(argv[1])==STEP/'run.py'
         assert argv[argv.index('--runner')+1]==str(script)

@@ -7,7 +7,7 @@ import pytest
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'04_workflow'))
 import live_services as live
-spec=importlib.util.spec_from_file_location('recovery_pipeline',ROOT/'02_custom/s10_xcpd_integrated_qc/pipeline.py')
+spec=importlib.util.spec_from_file_location('recovery_pipeline',ROOT/'pipeline/s10_xcpd_integrated_qc/pipeline.py')
 p=importlib.util.module_from_spec(spec);spec.loader.exec_module(p)
 
 
