@@ -61,8 +61,10 @@ def test_old_execution_seed_change_and_tampering_rejected(tmp_path):
 def test_mriqc_adapter_has_no_unsupported_cli_option(tmp_path):
     cmd = policy.docker(arguments('mriqc'), 'mriqc', 357, tmp_path)
     assert '--random-seed' not in cmd
-    assert cmd[cmd.index('--entrypoint')+1] == 'python'
-    assert cmd[cmd.index(policy.MRIQC_IMAGE)+1] == '/opt/adni-seed/mriqc_bootstrap.py'
+    assert cmd[cmd.index('--entrypoint')+1] == '/opt/adni-seed/mriqc_bootstrap.py'
+    assert cmd[cmd.index('/data')-1] == policy.MRIQC_IMAGE
+    code, _, _ = policy.freeze(tmp_path, 357)
+    assert (code/'mriqc_bootstrap.py').stat().st_mode & 0o111
     assert any('dst=/opt/adni-seed,readonly' in item for item in cmd)
     bad = arguments('mriqc')
     bad[bad.index(policy.MRIQC_IMAGE)] = 'mriqc@sha256:unreviewed'

@@ -12,15 +12,20 @@ def __getattr__(name):
     return getattr(_backend, name)
 
 
-def run_stage(*args, **kwargs):
+def _sync_adapters():
     # Preserve the existing timing/logging/transport adapters used by local batches.
     for name in ('subprocess', 'dump'):
         if name in globals():
             setattr(_backend, name, globals()[name])
+
+
+def run_stage(*args, **kwargs):
+    _sync_adapters()
     return _backend.run_stage(*args, **kwargs)
 
 
 def main(argv=None):
+    _sync_adapters()
     return _backend.main(argv)
 
 

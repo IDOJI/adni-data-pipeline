@@ -1,3 +1,4 @@
+#!/opt/conda/bin/python
 """Patch two audited MRIQC randomness sites in the disposable container only.
 
 The installed MRIQC module remains NiPreps Apache-2.0 source. Its original

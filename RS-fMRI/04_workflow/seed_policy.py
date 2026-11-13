@@ -71,9 +71,13 @@ def freeze(root, seed):
         if dest.exists():
             if sha(dest) != sha(source):
                 raise ValueError('Frozen seed implementation changed')
+            if source.name == 'mriqc_bootstrap.py' and not os.access(dest, os.X_OK):
+                raise ValueError('Frozen MRIQC entrypoint is not executable')
         else:
             with dest.open('xb') as stream:
                 stream.write(source.read_bytes())
+            if source.name == 'mriqc_bootstrap.py':
+                dest.chmod(0o755)
     records = marker.parent/'records'
     records.mkdir(exist_ok=True)
     return code, records, contract
@@ -139,8 +143,10 @@ def docker(argv, stage, seed, root, sources=()):
             if ',' in str(source):
                 raise ValueError('Docker bind paths cannot contain commas')
             cleaned += ['--mount', f'type=bind,src={source},dst={dest}{mode}']
-        cleaned += ['--env', 'PYTHONPATH=/opt/adni-seed', '--entrypoint', 'python']
-        application.insert(1, '/opt/adni-seed/mriqc_bootstrap.py')
+        # Keep image immediately before /data: existing logging, local transport
+        # and recovery parse that stable application boundary.
+        cleaned += ['--env', 'PYTHONPATH=/opt/adni-seed',
+                    '--entrypoint', '/opt/adni-seed/mriqc_bootstrap.py']
     if stage == 'fmriprep' and '--skull-strip-fixed-seed' not in application:
         application += ['--skull-strip-fixed-seed']
     receipt = records/(stage+'-'+source_hash+'.json')

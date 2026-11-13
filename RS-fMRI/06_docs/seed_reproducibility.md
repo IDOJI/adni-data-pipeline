@@ -17,7 +17,7 @@ Existing active batches, source locks, cached work and historical results retain
 
 All container stages also set `PYTHONHASHSEED`, `OMP_NUM_THREADS`, `ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS`, `OPENBLAS_NUM_THREADS`, `MKL_NUM_THREADS` and `NUMEXPR_NUM_THREADS`. Numerical thread limits are 1; independent workflow processes can still run concurrently. This may take longer than a historical OMP2 run. Different internal fixed seeds are intentional: repeatability requires each stochastic operation to receive a stable seed, not every algorithm to share the same number.
 
-The pinned MRIQC image is `nipreps/mriqc@sha256:dabe930dd0d1180c565a42f2c6a34f2b23026d9642db5d110f05b427413b829f`. Its package identifies itself as `24.1.0.dev0+gd5b13cb5.d20240826`, despite the historical tag `24.0.2`. It has no supported random-seed CLI option. The bootstrap checks the complete installed anatomical module hash before adapting its two random sites in the disposable container. It preserves the source/license header, records original/effective hashes and the effective source, and leaves the image unchanged. Any other image or source hash is rejected pending review.
+The pinned MRIQC image is `nipreps/mriqc@sha256:dabe930dd0d1180c565a42f2c6a34f2b23026d9642db5d110f05b427413b829f`. Its package identifies itself as `24.1.0.dev0+gd5b13cb5.d20240826`, despite the historical tag `24.0.2`. It has no supported random-seed CLI option. The bootstrap checks the complete installed anatomical module hash before adapting its two random sites in the disposable container. It runs as an executable Docker entrypoint, preserving the original application arguments for the logging, batch and recovery adapters. It preserves the source/license header, records original/effective hashes and the effective source, and leaves the image unchanged. Any other image or source hash is rejected pending review.
 
 ## New local batch
 
@@ -74,6 +74,8 @@ python 04_workflow/iqm_seeded.py --config /ABS/iqm-cohort.yaml --out-dir /ABS/ne
 
 The R launcher fails if explicit isotree seed support is missing. It does not fit population thresholds from a pilot pair. Keep seed 357 for the standard profile; an intentional seed change requires a separate output root and analysis identity.
 
+The launcher resolves configuration/output paths before changing directory and gives the upstream R configuration helper access to the launcher's Python environment. Activating the venv in the calling shell is therefore optional when invoking the venv's Python directly. Existing `R_LIBS_USER` locations are retained after the repository's optional package libraries.
+
 ## Evidence and limits
 
 Container launch preparation writes `<runtime>/seed_policy/policy.json`, frozen bootstrap code, original/wrapper source snapshots and command receipts. For 7.A these live under its external `paths.logs`. Actual stage records and cache signatures retain the effective seed-bearing command. Preparation receipts alone are not proof that imaging completed. Changing the seed, seed implementation or a frozen snapshot in an existing root is rejected.
@@ -81,3 +83,11 @@ Container launch preparation writes `<runtime>/seed_policy/policy.json`, frozen 
 Validation includes command propagation through the real runner builders, session receipt/cache protection, guarded entrypoints and synthetic R fitting. Two disposable containers using the pinned MRIQC image produced identical enhancement arrays for the same seed, even after perturbing global RNG state; changing the seed changed the sampled values. The actual Nipype function and deterministic Atropos setting were checked. This is not a full MRIQC/fMRIPrep/XCP-D cohort rerun or a cross-machine imaging equivalence claim.
 
 Keep inputs, image digests, source revision, templates, settings and hardware/library details in comparisons. Floating-point arithmetic and different architectures can still affect output. Use the numerical comparison tools and visual QC; fixed seeds alone do not guarantee byte-identical whole-pipeline results on every computer. See [fMRIPrep 25.2.7 reproducibility guidance](https://fmriprep.org/en/25.2.7/usage.html) and [ANTs reproducibility guidance](https://github.com/ANTsX/ANTs/wiki/antsRegistration-reproducibility-issues).
+
+## Integration re-audit (2026-11-14)
+
+The first fixed-seed release tested command construction but missed three launcher integration issues. MRIQC's extra bootstrap positional argument broke the original logging/batch/recovery image boundary; the seeded session CLI did not forward an injected logging transport to its underlying runner; and the R launcher depended on shell activation and mishandled relative configuration paths after changing directory. These are corrected without editing legacy deployment-bound runners.
+
+Regression coverage now runs both MRIQC and fMRIPrep through the actual session CLI/direct entry, ANTs logging, local transport and retained-container recovery code, while substituting only external Docker execution. It verifies effective seed settings, unchanged cache identity, command receipts and recovery. A real pinned MRIQC container also successfully ran the bootstrap and logging/batch transport with `--help` (no imaging). Two complete R wrapper runs on 300 synthetic sessions produced identical numeric QC TSVs and example-selection CSVs. These checks supplement, rather than replace, the earlier synthetic algorithm tests. No full participant MRI preprocessing or cross-machine equivalence test was performed.
+
+Use a fresh runtime for this implementation revision; frozen seed implementation hashes intentionally prevent silently changing an existing analysis. Existing automatic batches keep their registered original entrypoint and settings until a separate new batch is prepared.
