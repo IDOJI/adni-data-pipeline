@@ -25,6 +25,6 @@ Metadata: [dataset description](dataset_description.json), [task-level BOLD JSON
 
 ## Use
 
-Follow [the step-by-step guide](../../README.md#b1-stage-and-verify-the-included-public-images). Its `public.py fetch` command copies and verifies these bundled files into a new external working directory **without accessing OpenNeuro**. The original bytes in this directory stay unchanged; execution-specific subject/session names and merged BOLD metadata are created only in the external working directory.
+Follow [the step-by-step guide](../../README.md). Its `public.py fetch` command copies and verifies these bundled files into a new external working directory **without accessing OpenNeuro**. The original bytes in this directory stay unchanged; execution-specific subject/session names and merged BOLD metadata are created only in the external working directory.
 
 An explicit `--source remote` option can re-download the pinned upstream files for independent provenance checks. Missing or modified bundled files cause the default command to fail; there is no silent network fallback. Bundling the raw sample does not establish completed MRIQC/fMRIPrep/XCP-D results or final research inclusion.
