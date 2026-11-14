@@ -71,7 +71,7 @@ def test_protocol_document_links_resolve_to_owned_sources():
     lock = json.loads((ROOT / '03_config/upstream.lock.json').read_text())
     text = (ROOT / 'README.md').read_text()
     links = re.findall(r'\[([^]]+)\]\(([^)]+)\)', text)
-    original_steps = [(label, url) for label, url in links if label.startswith('Stage') and url.startswith('pipeline/s')]
+    original_steps = [(label, url) for label, url in links if url.startswith('pipeline/s') and url.endswith('/README.md')]
     documented = {url.split('/')[1] for _, url in original_steps}
     expected = {p.name for p in (ROOT / 'pipeline').glob('s*') if (p / 'README.md').is_file()}
     assert documented == expected

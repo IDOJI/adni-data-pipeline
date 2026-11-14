@@ -1,48 +1,20 @@
-# Integrated ADNI protocol sources
+# Source and attribution
 
-```sh
-git clone https://github.com/IDOJI/adni-data-pipeline.git
-cd adni-data-pipeline/RS-fMRI
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install -r requirements.txt -r pipeline/s5_post_clinica_qc/requirements.txt
-python 04_workflow/lab.py doctor
-python -m pytest -q
-```
+All maintained stages are in `pipeline/`. The skeleton was adapted and modified from [statMINDlab/ADNI_fMRI_protocol](https://github.com/statMINDlab/ADNI_fMRI_protocol/tree/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3); a separate original checkout is unnecessary.
 
-A normal clone contains the core protocol. No original-protocol checkout or submodule initialization is required. SNP and optional atlas sources remain separate submodules.
+Original [GPL license](../pipeline/LICENSE), [citation](../pipeline/CITATION.cff) and [NOTICE](../NOTICE.md) are retained.
 
-## Ownership and attribution
+| Record | Contents |
+|---|---|
+| [upstream.lock.json](../03_config/upstream.lock.json) | Original URL and import commit |
+| [protocol_sources.json](../03_config/protocol_sources.json) | Original 76-file import hashes |
+| [protocol_history.json](../03_config/protocol_history.json) | Index of 153 original commits |
+| [provenance/](../provenance/README.md) | Historical references and original README |
 
-`pipeline/` is ordinary editable source owned by this repository. All maintained stages now share this directory, including the original skeleton and locally developed stages. The code is adapted and modified from statMINDlab/ADNI_fMRI_protocol; review changes through normal branches and PRs.
+Private original outputs/full Git history are preserved in local backups, outside the public repository. SNP and optional atlas libraries remain separately pinned.
 
-The import baseline records 76 source/attribution files from [statMINDlab/ADNI_fMRI_protocol e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3](https://github.com/statMINDlab/ADNI_fMRI_protocol/tree/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3). Original [GPL-3.0](../pipeline/LICENSE), copyright and [CITATION.cff](../pipeline/CITATION.cff) remain intact. The parent [NOTICE](../NOTICE.md) records the import date/scope. Retain attribution and identify subsequent modifications under the license.
-
-## Source and history preservation
-
-- [upstream.lock.json](../03_config/upstream.lock.json) retains the original URL, baseline commit and review date. Its distribution is now `integrated-source`; it is origin metadata rather than a checkout pin.
-- [protocol_sources.json](../03_config/protocol_sources.json) records original blobs, modes, sizes and SHA-256 values for all 76 imported files. Keep it as the import reference when editing owned code.
-- [protocol_history.json](../03_config/protocol_history.json) indexes all 153 reachable original commits with their original hashes, parents, authors, dates and subjects.
-- A verified, complete local Git bundle preserves the entire original object history and exact original commit IDs outside this public source repository. The original repository URL/commit is an additional public history reference.
-
-The complete original history contains participant results. It is **not grafted into this repository's public ancestry**. The source appears as an import here; the history index and local bundle preserve traceability and restoration without republishing those results.
-
-Only executable source/tests, configuration/environment templates, text documentation and attribution are imported. Participant lists, generated CSV/TSV/HTML/SVG results, original output-bearing notebooks, screenshots, upstream CI and local assistant settings are excluded. Five [source-only notebook copies](../provenance/notebook_sources/README.md) retain code outside the live protocol directory, with outputs/runtime metadata removed and one participant example made synthetic; [their manifest](../03_config/protocol_notebooks.json) records original and exported hashes. The integrated README and execution guides describe the modified pipeline. The original README is preserved in `provenance/original_protocol_README.md`; consult the pinned GitHub URL for its figures and notebook examples. The full local bundle retains original excluded assets.
-
-The additional historical Mac tools are preserved as [source references](../provenance/local_mac_reference/README.md), with all 32 source/test/compatibility files recorded in [their manifest](../03_config/local_mac_reference.json). Four [standalone S10 source/test references](../provenance/s10_local_reference/README.md) additionally preserve changes made after the first import. These references are separate from the active integrated runners. The [2026-11-13 cleanup record](repository_cleanup.md) explains the full private backup and retirement of the standalone checkout.
-
-## Doctor and execution identity
-
-Doctor checks parent-tracked ordinary files, actual bytes/modes, the GPL text and attribution, origin/history consistency and step layout. Missing, redirected or uncommitted protocol files fail. Reviewed source changes recorded in this repository are accepted without repinning the original baseline. The report distinguishes that baseline from the current parent revision and computes the actual protocol content identity.
-
-New 7.B/S10 provenance uses this source identity. The integration does not alter scientific configuration/cache construction or rewrite historical receipts/results. A changed runner still requires the normal cache/deployment review. Source checks do not establish scientific inclusion or a full-cohort imaging baseline.
+From `RS-fMRI/`, run `python 04_workflow/lab.py doctor` to check tracked files, attribution and source identity. Edit and commit maintained code in this repository; retain the import hashes as historical records.
 
 ## Existing live installations
 
-Do not deinitialize/delete the source directory, overwrite deployment-bound runners or restart workers while calculations depend on their recorded hashes. Preserve local files, the Git index, original protocol history and live deployment identities before an in-place migration.
-
-The unified layout changes executable paths and source identity. Existing jobs must finish against a frozen checkout of their original revision, with private launch/registry bindings reviewed at an idle boundary. Preserve scientific configuration, seeds, cache identifiers and historical receipts. A path-only deployment record is separate from scientific provenance. Do not reuse an old runtime for a new seed-1123 analysis.
-
-The [layout mapping](../03_config/layout_migration.json) records old and new source locations. Historical references remain under `provenance/`, outside the active pipeline. New clones need neither an original-protocol checkout nor compatibility symlinks.
-
-See the [update guide](update_guide.md) and [live-service contract](live_service_handoff.md).
+Keep active batches on their frozen revision, configuration and caches. Before relocating their source, verify an idle handoff and record the new executable binding separately from the analysis identity. Use a new runtime for new seed-1123 analyses. See [updates](update_guide.md) and the [service handoff](live_service_handoff.md).
