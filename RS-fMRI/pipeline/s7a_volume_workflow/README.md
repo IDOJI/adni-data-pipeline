@@ -25,3 +25,7 @@ python pipeline/s7a_volume_workflow/audit_outputs.py \
 ```
 
 This profile uses MNI2009c, aCompCor/no GSR and FD 0.5. It is separate from the surface-enabled 7.B → S10 36P/GSR workflow.
+
+## Evidence and limits
+
+Sources: [Behzadi et al. (2007)](https://doi.org/10.1016/j.neuroimage.2007.04.042); [Esteban et al. (2019)](https://doi.org/10.1038/s41592-018-0235-4); [Mehta et al. (2024)](https://doi.org/10.1162/imag_a_00257). The [Stage 7.A evidence record](../../06_docs/stage_evidence.md#stage-7-a) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. These references do not certify the current configuration or any individual image as analysis-ready.

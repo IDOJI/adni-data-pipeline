@@ -1,5 +1,7 @@
 # Date-based EPI and T1 reference selection
 
+Scientific references here are restricted to ADNI official answers and research papers. The [complete stage evidence register](stage_evidence.md) records answer IDs/dates, paper DOIs/sections, and which decisions remain project policies.
+
 Stage 3.B inventories images by participant, actual acquisition date, Image ID and source QC. Visit codes remain provenance. The objective is to retain the available evidence and propose an auditable anatomical reference for every EPI, before any image is approved for preprocessing.
 
 ## Workflow and decision boundaries
@@ -50,7 +52,7 @@ This ordering is an explicit project adaptation of the documented Research selec
 
 ## Conversion and exact binding
 
-Clinica's ADNI converter may retain only one image for a participant/visit/modality. Its selected scan can differ from a 3.B proposal, and multiple EPI images can share a visit label. Therefore, a successfully created BIDS directory does not establish that every proposed Image ID survived conversion. [Clinica's image-selection documentation](https://aramislab.paris.inria.fr/clinica/docs/public/latest/Converters/ADNI2BIDS/).
+The Clinica paper describes ADNI conversion and selection among available acquisitions; the ADNI protocol preprint reports conversion/selection issues. Neither paper guarantees that every proposed Image ID survives the installed converter. Reconcile actual conversion output with 3.B rather than equating successful BIDS conversion with complete image retention. [Routier et al. (2021), ADNI conversion section](https://doi.org/10.3389/fninf.2021.689675); [Rutherford et al. (2026), Step 4, preprint](https://doi.org/10.21203/rs.3.rs-11132707/v1).
 
 Reconcile the source inventory with conversion records and the actual BIDS files. Step 5.D consumes `00.candidate-images.csv`, `04.epi-analysis-manifest.csv` and `07.run-manifest.json`, together with independently established Image ID/date/modality-to-NIfTI-hash evidence. It verifies exact UIDs, participant identity, dates, file hashes and headers before preparing a pair. A proposed image that is absent, ambiguous or inconsistent stays held; another scan with the same VISCODE is not a substitute.
 
@@ -58,30 +60,31 @@ The current guarded runner still accepts only an eligible, resolved same-day pro
 
 ## Evidence and its limits
 
-| Source | Supported interpretation | What it does not establish |
+| Source and exact location | What it supports | What remains a project decision |
 |---|---|---|
-| [ADNI FAQ](https://adni.loni.usc.edu/help-faqs/faqs/) | Actual EXAMDATE/VISDATE should determine longitudinal time intervals; VISCODE is phase-dependent | Equality of visit codes guarantees contemporaneous MRI acquisitions |
-| [BIDS session definition](https://bids-specification.readthedocs.io/en/stable/glossary.html#session) | A session need not equal a longitudinal visit; related acquisitions from different dates may share a session | A particular cross-date T1 is biologically suitable |
-| [fMRIPrep 25.2.7 workflows](https://fmriprep.org/en/25.2.7/workflows.html#longitudinal-processing) | Supports anatomical-reference construction across sessions and an independent sessionwise mode | A universal acceptable EPI–T1 date gap or permission to use future anatomy in prediction |
-| [Rutherford et al. ADNI protocol preprint](https://pmc.ncbi.nlm.nih.gov/articles/PMC13692585/) | Uses actual dates for imaging/clinical alignment and describes requiring a suitable T1 from the same session in its own implementation | Validation of arbitrary cross-date references or a universal same-VISCODE rule |
+| [ADNI QID 2126](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=2126), Monica E., 2025-02-27 | Scheduled visit codes differ from actual elapsed time | Preserve every acquisition and verify exact image identities |
+| [ADNI QID 434](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=434), MRI Core, 2015-02-20 | Select anatomy by acquisition date; adjacent-time T1/T2 can be considered after QC failure | Same-day automatic eligibility, cross-date review holds and the absence of an automatically accepted gap |
+| [ADNI QID 89](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=89), Borowski, 2013-10-24/29; [QID 454](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=454), MRI Core, 2015-04-07 | Historical repeated T1, quality grades and chosen-series decisions | Combined QC/chosen/grade priority, no Image-ID tie-break and no acceleration preference |
+| [ADNI QID 2401](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=2401), Danielle, 2026-02-09 | Nearest diagnosis within a researcher-defined interval | The 28-day clinical window and its independence from the anatomical reference pool |
+| [Rutherford et al. (2026)](https://doi.org/10.21203/rs.3.rs-11132707/v1), Results and Step 9 | Same-session anatomy in that implementation; actual-date clinical linkage with default 180 days | Our stricter exact-image gate, different clinical policy and cross-date candidate inventory |
+| [Arani et al. (2024)](https://doi.org/10.1002/alz.14162), §2.8 | MRI protocol variation across phase/scanner, including ADNI4 | Holding unsupported phases until their conversion/QC/execution paths are reviewed |
 
-Rutherford et al. is a Research Square preprint dated October 6, 2026, and has not been peer reviewed. Its clinical matching window and same-session implementation should be reported as that protocol's choices. They are distinct from the current project's 28-day clinical policy and the new metadata-only cross-date review inventory.
+Rutherford et al. is a Research Square **preprint**, October 6, 2026, version 1; it has not been peer reviewed. Its settings describe one protocol. In particular, its clinical linkage flags unmatched visits; it is not evidence for this project's hard 28-day clinical gate.
 
-For prospective or predictive analyses, anatomy acquired after the target imaging timepoint may introduce information that would not have been available then. The current implementation flags such candidates and prevents automatic cross-date execution. A reviewed study design must decide which anatomy can be used, how repeated observations are handled and how biological change affects registration. Neither a calendar match nor a software-supported reference mode replaces image-quality and registration review.
+ADNI QID 434 permits considering adjacent-time anatomy; it does not require every T1/EPI pair to be same-day. Our same-day-only automatic path is a conservative execution policy. No reviewed source establishes a universally acceptable maximum gap. Future anatomy is flagged because study-timepoint availability must be decided for the actual research design; this is a project safeguard, not a newly claimed ADNI prohibition.
 
 ## Related preprocessing and QC corrections
 
-| Stage | Correction | Evidence and remaining judgment |
+| Stage | Source and supporting location | Implemented correction and limit |
 |---|---|---|
-| 4.B | A conflicting series number cannot fall back to another NFQ row. UID/date evidence narrows identity when present; matching TR/slice count cannot resolve ambiguous acquisitions. Nonfinite timing is rejected. | [BIDS timing metadata](https://bids-specification.readthedocs.io/en/stable/modality-specific-files/magnetic-resonance-imaging-data.html#timing-parameters) describes timing for the actual acquired slices. Matching geometry does not prove acquisition identity. |
-| 6/S8/S10 | Missing/nonfinite required IQMs or failed threshold estimates stay unresolved; a known failure still excludes. S8 reads TSV correctly and does not fill later missing FD with zero. | An unavailable measurement is not evidence of acceptable quality. The [MRIQC measures documentation](https://mriqc.readthedocs.io/en/24.0.0/measures.html) defines measurements, not permission to replace missing evidence with a pass. |
-| S10 | New seeded runs use automatic initial non-steady-state removal and verify actual output frame counts. | [XCP-D 26.2.0](https://xcp-d.readthedocs.io/en/26.2.0/workflows.html) supports automatic removal from fMRIPrep flags. The 36P model does not itself remove initial transient volumes. |
-| S8/S10 | Assess each reconstruction/session separately; estimate site reference from equally weighted participant medians. Small reference groups require explicit anatomical review. | [Rosen et al. (2018)](https://pubmed.ncbi.nlm.nih.gov/29278774/) supports Euler as a reconstruction-quality indicator. The retained threshold of five and configurable reference minimum of 10 are project choices, not universally validated cutoffs. |
-| 7 | Retain pinned fMRIPrep 25.2.7 and exact-image input restriction. | Its [release notes](https://fmriprep.org/en/25.2.7/changes.html) document motion-parameter and mask/SDC fixes; reproducing an older protocol does not require reverting those fixes. |
+| 4.B | [ADNI QID 1822](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=1822), Mayo ADIR team, 2024-03-06; [Sladky et al. (2011)](https://doi.org/10.1016/j.neuroimage.2011.06.078), STC Methods | NFQ/physical timing requires correct acquisition identity. Our series/UID/date checks and ambiguity holds are engineering safeguards; the paper does not validate this repair adapter. |
+| 6/S8/S10 | [Esteban et al. (2017)](https://doi.org/10.1371/journal.pone.0184661), IQMs and visual reports; [Power et al. (2014)](https://doi.org/10.1016/j.neuroimage.2013.08.048), FD methods | Missing/nonfinite QC remains unresolved, later missing FD is not filled with zero, and TSV is read correctly. These are data-integrity corrections, not literature-derived acceptance thresholds. |
+| S10 initial volumes | [Mehta et al. (2024)](https://doi.org/10.1162/imag_a_00257), §2.6 | The paper describes optional automatic NSS removal from fMRIPrep flags. Enabling it and verifying output frame counts are our implementation policy; 36P regression does not itself perform that removal. |
+| S8/S10 anatomy | [Rosen et al. (2018)](https://doi.org/10.1016/j.neuroimage.2017.12.059), quality measures and Fig. 5/Tables 3–4 | Evaluate separate reconstructions separately. The participant-balanced site reference, cutoff 5 and minimum 10 are project adaptations, not rules validated in that paper. |
+| 7 | [Esteban et al. (2019)](https://doi.org/10.1038/s41592-018-0235-4), Methods/Table 1 | The paper supports fMRIPrep's methods. The current 25.2.7 pin, seed/thread settings and exact-image view are engineering choices; no release-specific bug-fix claim is being justified by this older paper. |
+| S10 denoising | [Ciric et al. (2017)](https://doi.org/10.1016/j.neuroimage.2017.03.020), compared models and QC–FC results; [Mehta et al. (2024)](https://doi.org/10.1162/imag_a_00257), §2.13 | 36P/GSR/censoring has method evidence and trade-offs. FD 0.3 mm/240 s are defaults described in the final XCP-D paper, not proven ADNI-optimal thresholds. |
 
-The existing 36P/GSR/censoring approach has support from [Ciric et al. (2017)](https://pmc.ncbi.nlm.nih.gov/articles/PMC5483393/), but its suitability still needs cohort-level QC–FC, distance dependence, retained-duration and group-difference assessment. Current S10 FD 0.3 mm/240 s and the clinical 28-day rule are explicit adaptations, not exact reproduction of Rutherford's settings. No new claim of optimal denoising or completed cohort validation is made here.
-
-Use a fresh runtime and the explicit `sessionwise-euler-nss-v1` configuration for these changes. The new implementation rejects old/missing policy versions before creating S10 state. Existing jobs, caches and frozen results are not migrated by this source change.
+Full parameter comparisons, filtering/regression evidence and operational-stage limits are in the [stage register](stage_evidence.md#parameter-and-policy-traceability). Cohort QC–FC, distance dependence, retained duration and group differences still need assessment. Use a fresh runtime and `sessionwise-euler-nss-v1`; existing jobs/results are not migrated by this documentation update.
 
 ## Validation scope
 

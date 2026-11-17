@@ -49,3 +49,7 @@ All rows remain `PREPROCESSING_READY=False` and `ANALYSIS_READY=False` here. A u
 An optional `confirmed_exclusions` CSV requires `IMAGE_ID`, `PTID`, `MRI_STUDY_DATE`, `MODALITY`, `REASON` and `CONFIRMED`. Use exact identity and explicitly reviewed conversion/slice-timing failures; absence of a sidecar is not sufficient evidence.
 
 The runner verifies source-QC outputs, detects changing inputs, refuses an existing output directory and records hashes for the 5.D handoff. Synthetic tests exercise policy and file contracts. They do not establish real-cohort equivalence, anatomical suitability or successful conversion. See the [design and evidence guide](../../06_docs/date_based_selection.md) for the distinction between published methods and project policy.
+
+## Evidence and limits
+
+Sources: [ADNI VISCODE answer](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=2126); [ADNI EPI–T1 pairing answer](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=434). The [Stage 3.B evidence record](../../06_docs/stage_evidence.md#stage-3-b) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. These references do not certify the current configuration or any individual image as analysis-ready.

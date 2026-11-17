@@ -31,6 +31,7 @@ The current baseline is Research's `2026-10-30-preserve-all-v1`. Publish process
 
 ## Evidence
 
-- [ADNI Mayo MRI QC](https://adni.loni.usc.edu/data-samples/adni-data/neuroimaging/mri/mri-quality-control/): grades 1–3 accepted, grade 4 failed.
-- [ADNI diagnosis definitions](https://adni.loni.usc.edu/quick-start-guide-asset/diagnostic.html): DIAGNOSIS 3 means Dementia.
+- [ADNI QID 89](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=89), Bret Borowski, 2013-10-29: historical T1 grades 1–3 describe graded quality, grade 4 is unusable. Retaining grades 1–3 as candidates is project policy, not a guarantee that grade 3 is adequate for every analysis.
+- [ADNI QID 1756](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=1756), Adam Diaz, 2023-09-19: ADNI3 DIAGNOSIS 3 means Dementia; legacy GO/2 DXCHANGE uses a separate recoding. Input schema must be verified before applying a mapping.
+- [Complete stage evidence register](stage_evidence.md): ADNI answers and research papers only, with exact locations and policy limits.
 - Research code sources and versions are recorded in `03_config/imported_sources.json`. Source CSV paths, input/output hashes and actual raw rows are stored only in external per-run artifacts.

@@ -33,7 +33,13 @@ protocol import.
 
 This follows the requirement for unambiguous Philips timing in the
 [Rutherford et al. protocol preprint](https://pmc.ncbi.nlm.nih.gov/articles/PMC13692585/)
-and the axis/direction semantics in the
-[BIDS specification](https://bids-specification.readthedocs.io/en/stable/modality-specific-files/magnetic-resonance-imaging-data.html#timing-parameters).
+and the slice-timing rationale studied by
+[Sladky et al. (2011)](https://doi.org/10.1016/j.neuroimage.2011.06.078).
+Physical slice-axis/direction verification remains an implementation requirement,
+not a conclusion established by that paper for these ADNI acquisitions.
 The preprint has not been peer reviewed; it is a protocol reference, not a
 validation of this adapter or a substitute for reviewing the actual acquisition.
+
+## Evidence and limits
+
+Sources: [ADNI NFQ/slice-order answer](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=1822); [Sladky et al. (2011)](https://doi.org/10.1016/j.neuroimage.2011.06.078); [Rutherford et al. (2026)](https://doi.org/10.21203/rs.3.rs-11132707/v1). The [Stage 4.B evidence record](../../06_docs/stage_evidence.md#stage-4-b) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. These references do not certify the current configuration or any individual image as analysis-ready.

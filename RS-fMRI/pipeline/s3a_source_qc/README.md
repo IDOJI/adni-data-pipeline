@@ -19,3 +19,7 @@ python pipeline/s3a_source_qc/run.py \
 ```
 
 `MRIQC.csv` here is an ADNI Study File, not MRIQC software output. Use original column names and a new output directory.
+
+## Evidence and limits
+
+Sources: [ADNI repeated T1 and grade answers](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=89); [ADNI chosen-series answer](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=454); [ADNI NFQ/slice-order answer](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=1822); [ADNI4 ARC quality answer](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=2541). The [Stage 3.A evidence record](../../06_docs/stage_evidence.md#stage-3-a) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. These references do not certify the current configuration or any individual image as analysis-ready.

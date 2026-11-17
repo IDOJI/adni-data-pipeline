@@ -27,3 +27,7 @@ python pipeline/s9_clinical_imaging_merge/adni_swimlane_clinical.py \
 ```
 
 Use [9.A](../s9a_validate_clinical/README.md) for scan-date diagnosis validation and [9.B](../s9b_validate_inclusion/README.md) for the final eligibility gate.
+
+## Evidence and limits
+
+Sources: [ADNI VISCODE answer](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=2126); [ADNI imaging–diagnosis answer](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=2401); [Rutherford et al. (2026)](https://doi.org/10.21203/rs.3.rs-11132707/v1). The [Stage 9 evidence record](../../06_docs/stage_evidence.md#stage-9) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. These references do not certify the current configuration or any individual image as analysis-ready.

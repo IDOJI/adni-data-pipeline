@@ -46,8 +46,9 @@ integer semantics, but a run with detected non-steady-state frames is blocked un
 an adequate count or `auto` is selected in a new configuration. Output QC verifies
 the actual removed count against the source confounds, then checks motion-mask and
 retained-frame counts. A 36P nuisance model does not itself remove these frames.
-[XCP-D 26.2.0 workflow documentation](https://xcp-d.readthedocs.io/en/26.2.0/workflows.html)
-describes automatic removal and the nuisance models.
+[Mehta et al. (2024), Sections 2.6 and 2.9](https://doi.org/10.1162/imag_a_00257)
+describes optional automatic initial-volume removal and nuisance models. This
+paper supports the method, not every setting in software version 26.2.0.
 
 Euler QC scores each session's actual reconstruction separately. Conflicting
 reconstruction identities or measurements for one session are rejected. Repeated
@@ -71,3 +72,7 @@ MRIQC flags are nullable: a missing/nonfinite required metric or unestimable
 threshold stays pending, while a known failure still excludes. `qc_metrics_complete`
 is checked when supplied by the MRIQC cohort table. Technical success alone remains
 insufficient for scientific inclusion.
+
+## Evidence and limits
+
+Sources: [Mehta et al. (2024)](https://doi.org/10.1162/imag_a_00257); [Ciric et al. (2017)](https://doi.org/10.1016/j.neuroimage.2017.03.020); [Parkes et al. (2018)](https://doi.org/10.1016/j.neuroimage.2017.12.073); [Hallquist et al. (2013)](https://doi.org/10.1016/j.neuroimage.2013.05.116); [Rosen et al. (2018)](https://doi.org/10.1016/j.neuroimage.2017.12.059). The [Stage 10 evidence record](../../06_docs/stage_evidence.md#stage-10) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. These references do not certify the current configuration or any individual image as analysis-ready.

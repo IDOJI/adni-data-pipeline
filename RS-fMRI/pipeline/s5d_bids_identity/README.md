@@ -54,3 +54,7 @@ Binding verifies the exact EPI and proposed T1, including actual dates, unique U
 The current executable path requires a unique, eligible `same_day_proposed` pair, documented EPI QC, no pairing-review hold and the reviewed GO/2/3 protocol scope. Cross-date candidates, top ties and protocol extensions remain held even if files exist. A 3.B review window does not authorize cross-date execution. See the [date-based selection guide](../../06_docs/date_based_selection.md) for the distinction between inventory, proposal and execution.
 
 `PREPROCESSING_READY` is a technical handoff decision. `ANALYSIS_READY` remains false; anatomical quality, BOLD–T1 registration, denoising, motion/coverage checks and clinical/final inclusion still require their respective stages. Original acquisition dates and source provenance remain unchanged.
+
+## Evidence and limits
+
+Sources: [ADNI FAQ answers](https://adni.loni.usc.edu/help-faqs/faqs/); [ADNI EPI–T1 pairing answer](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=434); [Gorgolewski et al. (2016)](https://doi.org/10.1038/sdata.2016.44). The [Stage 5.D evidence record](../../06_docs/stage_evidence.md#stage-5-d) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. These references do not certify the current configuration or any individual image as analysis-ready.

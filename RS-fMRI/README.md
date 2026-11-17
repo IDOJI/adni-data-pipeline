@@ -70,6 +70,8 @@ S10 uses `dummy_scans=auto` and the explicit `sessionwise-euler-nss-v1` policy i
 
 ## Reference
 
+[Stage-by-stage evidence](06_docs/stage_evidence.md) uses only ADNI official answers and research papers, with answer dates/QIDs, paper DOIs and section locations. It distinguishes direct support from project adaptations and engineering controls. See the [parameter comparison](06_docs/stage_evidence.md#parameter-and-policy-traceability) before describing any configured cutoff as a published ADNI standard.
+
 [Seed settings](06_docs/seed_reproducibility.md) · [Host requirements](06_docs/platform_execution.md) · [Validation](06_docs/validation.md) · [Updates](06_docs/update_guide.md)
 
 Adapted and modified from [statMINDlab/ADNI_fMRI_protocol](https://github.com/statMINDlab/ADNI_fMRI_protocol/tree/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3). Original [GPL license](pipeline/LICENSE), [CITATION.cff](pipeline/CITATION.cff) and [attribution](NOTICE.md) are retained.

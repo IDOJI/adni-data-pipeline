@@ -29,3 +29,7 @@ project minimum of 10 distinct reference participants per site (configurable wit
 `--euler-min-reference-subjects`, minimum 3). The standalone command does not resolve
 small-site anatomical review; use S10's documented review fields. Its tables still
 require the separate source, clinical and study-specific inclusion checks.
+
+## Evidence and limits
+
+Sources: [Power et al. (2012)](https://doi.org/10.1016/j.neuroimage.2011.10.018); [Rosen et al. (2018)](https://doi.org/10.1016/j.neuroimage.2017.12.059). The [Stage 8 evidence record](../../06_docs/stage_evidence.md#stage-8) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. These references do not certify the current configuration or any individual image as analysis-ready.

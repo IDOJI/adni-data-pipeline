@@ -17,3 +17,7 @@ python pipeline/s9b_validate_inclusion/run.py \
 ```
 
 `--conversion-failures` is optional. Use reviewed exclusion records; absence of a sidecar alone is not confirmed slice-timing failure. Pending imaging/source review remains pending.
+
+## Evidence and limits
+
+Sources: [ADNI imaging–diagnosis answer](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=2401); [ADNI diagnosis-code answer](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=1756); [Rutherford et al. (2026)](https://doi.org/10.21203/rs.3.rs-11132707/v1). The [Stage 9.B evidence record](../../06_docs/stage_evidence.md#stage-9-b) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. These references do not certify the current configuration or any individual image as analysis-ready.
