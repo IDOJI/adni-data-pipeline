@@ -367,3 +367,90 @@ def test_missing_bids_dir_raises(tmp_path: Path) -> None:
     _write_metadata_csv(csv_path, [])
     with pytest.raises(FileNotFoundError):
         _run(cfg, tmp_path / "does_not_exist", csv_path, report)
+
+
+def test_explicit_series_conflict_never_writes_or_backs_up(tmp_path: Path) -> None:
+    cfg, bids, csv_path, report = _base_setup(tmp_path)
+    js = _bold_json_path(bids, "ADNI999S9999", "M000")
+    _write_json(js, {"Manufacturer": "Philips", "RepetitionTime": 1.2, "SeriesNumber": 22})
+    before = js.read_bytes()
+    _write_metadata_csv(csv_path, [{
+        "RID": "9999", "VISCODE2": "bl", "MANUFACTURER": "Philips",
+        "MANUFACTURERSMODELNAME": "Synthetic", "REPETITIONTIME": "1200",
+        "SERIESNUMBER": "11", "SLICETIMING": _abs_string(STD_REL)}])
+    assert _run(cfg, bids, csv_path, report) == {"series_number_conflict": 1}
+    assert js.read_bytes() == before
+    assert not js.with_suffix(".json.bak").exists()
+
+
+def test_timing_geometry_does_not_resolve_acquisition_collision() -> None:
+    first = stc.MetadataRecord(9999, "M000", "11", 1.2, STD_REL, STANDARD_PATTERN)
+    second = stc.MetadataRecord(9999, "M000", "11", 3.0, [0., 1.], "(1, 2, ...)")
+    record, status = stc.choose_record([first, second], "11", 6, 1.2, .1)
+    assert record is None and status == "ambiguous"
+    record, status = stc.choose_record([first, second], None, 6, 1.2, .1)
+    assert record is None and status == "ambiguous"
+
+
+def test_optional_uid_and_date_resolve_collision_without_overriding_conflicts() -> None:
+    first = stc.MetadataRecord(9999, "M000", "11", 1.2, STD_REL, STANDARD_PATTERN,
+                               series_uid="synthetic.first", scan_date="2020-01-01")
+    second = stc.MetadataRecord(9999, "M000", "11", 1.2, SEQ_REL, "(1, 2, 3, ...)",
+                                series_uid="synthetic.second", scan_date="2020-02-01")
+    record, _ = stc.choose_record([first, second], "11", 6, 1.2, .1,
+                                 series_uid="synthetic.second", scan_date="2020-02-01")
+    assert record is second
+    record, status = stc.choose_record([first, second], "11", 6, 1.2, .1,
+                                      series_uid="synthetic.second", scan_date="2020-01-01")
+    assert record is None and status == "scan_date_conflict"
+    record, status = stc.choose_record([first], "22", 6, 1.2, .1,
+                                      series_uid="synthetic.first")
+    assert record is None and status == "series_number_conflict"
+
+
+def test_missing_stronger_identity_retains_unique_legacy_match() -> None:
+    candidate = stc.MetadataRecord(9999, "M000", "11", 1.2, STD_REL, STANDARD_PATTERN)
+    record, _ = stc.choose_record([candidate], "11", 6, 1.2, .1,
+                                 series_uid="synthetic.first", scan_date="2020-01-01")
+    assert record is candidate  # source-acquisition review remains required
+
+
+def test_uid_date_match_is_applied_and_audited_from_csv(tmp_path: Path) -> None:
+    cfg, bids, csv_path, report = _base_setup(tmp_path)
+    js = _bold_json_path(bids, "ADNI999S9999", "M000")
+    _write_json(js, {"Manufacturer": "Philips", "RepetitionTime": 1.2, "SeriesNumber": 11,
+                     "SeriesInstanceUID": "synthetic.second", "AcquisitionDateTime": "2020-02-01T09:00:00"})
+    rows = [{"RID": "9999", "VISCODE2": "bl", "MANUFACTURER": "Philips",
+             "REPETITIONTIME": "1200", "SERIESNUMBER": "11",
+             "SLICETIMING": _abs_string(rel), "SeriesInstanceUID": uid, "SERIESDATE": date}
+            for uid, date, rel in [("synthetic.first", "20200101", SEQ_REL),
+                                    ("synthetic.second", "20200201", STD_REL)]]
+    with csv_path.open("w", newline="") as stream:
+        writer = csv.DictWriter(stream, fieldnames=rows[0])
+        writer.writeheader()
+        writer.writerows(rows)
+    assert _run(cfg, bids, csv_path, report) == {"written": 1}
+    assert json.loads(js.read_text())["SliceTiming"] == STD_REL
+    row = _report_rows(report)[0]
+    assert row["metadata_source_row"] == "3"
+    assert row["metadata_series_uid"] == "synthetic.second"
+    assert row["metadata_scan_date"] == "2020-02-01"
+
+
+def test_unusable_timing_cannot_hide_an_identity_collision(tmp_path: Path) -> None:
+    cfg, bids, csv_path, report = _base_setup(tmp_path)
+    js = _bold_json_path(bids, "ADNI999S9999", "M000")
+    _write_json(js, {"Manufacturer": "Philips", "RepetitionTime": 1.2, "SeriesNumber": 11})
+    _write_metadata_csv(csv_path, [{
+        "RID": "9999", "VISCODE2": "bl", "MANUFACTURER": "Philips",
+        "MANUFACTURERSMODELNAME": "Synthetic", "REPETITIONTIME": "1200",
+        "SERIESNUMBER": "11", "SLICETIMING": timing}
+        for timing in ("nan_1", _abs_string(STD_REL))])
+    assert _run(cfg, bids, csv_path, report) == {"ambiguous": 1}
+    assert "SliceTiming" not in json.loads(js.read_text())
+
+
+@pytest.mark.parametrize("raw", ["nan_1", "0_inf", "-inf_0"])
+def test_nonfinite_slice_timing_is_not_usable(raw: str) -> None:
+    with pytest.raises(ValueError, match="nonfinite"):
+        stc.parse_abs_slice_timing(raw)

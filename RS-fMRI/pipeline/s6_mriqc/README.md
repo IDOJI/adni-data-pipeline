@@ -23,3 +23,18 @@ python 04_workflow/iqm_seeded.py \
 ```
 
 R fitting requires `rrobot` with `iso_seed` support. One participant is insufficient for cohort outlier thresholds. Receipt-bound pairs use the [5.D guarded runner](../s5d_bids_identity/README.md).
+
+The cohort export preserves every observed participant/session, including rows
+with incomplete metrics or a missing modality. `excluded_any` is `TRUE` for a
+known outlier, `FALSE` only when all required metrics and fitted thresholds are
+finite and within bounds, and `NA` for an unresolved decision. `qc_status_any`
+reports `excluded`, `included` or `missing`; `qc_metrics_complete`,
+`qc_missing_metrics` and `qc_invalid_thresholds` retain the reason. An established
+failure remains excluded even if other metrics are missing. Supply this table
+to S10 with its `sub`/`ses` columns intact; unresolved rows must not be relabeled
+as included. A numerical fitting error stops fitting rather than issuing a pass.
+
+Synthetic R regression checks cover `NA`, `NaN`, both infinities, invalid fitted
+thresholds, missing T1 rows and known failures alongside missing metrics. They
+exercise the decision/export functions with fixed test thresholds; they do not
+validate SHASH estimation on a real cohort or approve imaging inclusion.

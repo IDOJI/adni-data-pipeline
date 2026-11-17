@@ -27,6 +27,9 @@
 #             threshold) for that metric -- highlighted in its own panel
 # =========================================================================
 
+# Owned-source adaptation: nonfinite metrics/thresholds stay unresolved in the
+# exported cohort flags; they are never converted to a passing QC decision.
+
 # ---- packages ----
 library(tidyverse)     # dplyr, tidyr, ggplot2, purrr, readr, tibble, stringr
 library(rrobot)        # SHASH_out(), normal_to_SHASH() -- robust outlier fit
@@ -169,8 +172,10 @@ prep_rain <- function(df,
   df_long2 <- df_long %>%
     left_join(thresholds, by = "metric") %>%
     mutate(
+      metric_available = is.finite(value),
+      threshold_available = is.finite(thresh_val),
       is_outlier = dplyr::case_when(
-        !is.finite(value) | !is.finite(thresh_val) ~ FALSE,
+        !metric_available | !threshold_available ~ NA,
         tail == "upper" ~ value > thresh_val,
         tail == "lower" ~ value < thresh_val
       )
@@ -233,15 +238,16 @@ plot_rain <- function(prep,
     df_long2 <- df_long2 %>% mutate(is_example = FALSE)
   }
 
-  # --- one three-level class per point; order so examples/outliers draw last (on top) ---
+  # Invalid metrics/fits remain visibly distinct from normal observations.
   df_long2 <- df_long2 %>%
     mutate(point_class = factor(
       case_when(
+        is.na(is_outlier) ~ "missing",
         is_example    ~ "example",
         color_outlier ~ "outlier",
         TRUE          ~ "normal"
       ),
-      levels = c("normal", "outlier", "example")
+      levels = c("normal", "missing", "outlier", "example")
     )) %>%
     arrange(point_class)
 
@@ -258,9 +264,9 @@ plot_rain <- function(prep,
               cov = "point_class",
               point.args = list(size = point_size, alpha = 0.8)) +
     scale_colour_manual(
-      values = c(normal = "grey70", outlier = "red", example = "#1E90FF"),
-      breaks = c("outlier", "example"),
-      labels = c("Outlier (this metric)", "Chosen example"),
+      values = c(normal = "grey70", missing = "orange", outlier = "red", example = "#1E90FF"),
+      breaks = c("missing", "outlier", "example"),
+      labels = c("Missing metric / invalid fit", "Outlier (this metric)", "Chosen example"),
       name   = NULL,
       drop   = FALSE
     ) +
@@ -305,12 +311,24 @@ plot_rain <- function(prep,
 # Collapse per-session outlier flags into a per-session wide table of metric
 # values plus one boolean excluded_<group> column (outlier on ANY of the
 # group's metrics).
+qc_any_outlier <- function(flags) {
+  if (any(flags, na.rm = TRUE)) return(TRUE)
+  if (length(flags) == 0 || anyNA(flags)) return(NA)
+  FALSE
+}
+
 add_qc_flags <- function(prep, group_name, id_cols = c("participant_id", "ses_id")) {
   flag_col <- paste0("excluded_", group_name)
 
   per_session_flag <- prep$data %>%
     group_by(across(all_of(id_cols))) %>%
-    summarize(!!flag_col := any(is_outlier, na.rm = TRUE), .groups = "drop")
+    summarize(
+      !!flag_col := qc_any_outlier(is_outlier),
+      !!paste0("complete_", group_name) := all(!is.na(is_outlier)),
+      !!paste0("missing_", group_name) := paste(sort(unique(metric[!metric_available])), collapse = ";"),
+      !!paste0("invalid_thresholds_", group_name) := paste(sort(unique(metric[!threshold_available])), collapse = ";"),
+      .groups = "drop"
+    )
 
   wide_metrics <- prep$data %>%
     select(all_of(id_cols), metric, value) %>%
@@ -484,7 +502,28 @@ base_ids <- bind_rows(
   distinct()
 
 rename_metrics <- function(df, prefix, id_cols) {
-  df %>% rename_with(~ paste0(prefix, "_", .x), -all_of(c(id_cols, paste0("excluded_", prefix))))
+  decision_cols <- paste0(c("excluded_", "complete_", "missing_", "invalid_thresholds_"), prefix)
+  df %>% rename_with(~ paste0(prefix, "_", .x), -all_of(c(id_cols, decision_cols)))
+}
+
+finalize_qc_table <- function(table) {
+  groups <- c("bold_upper", "bold_lower", "t1_upper", "t1_lower")
+  flags <- as.matrix(table[paste0("excluded_", groups)])
+  complete <- as.matrix(table[paste0("complete_", groups)])
+  table$excluded_any <- apply(flags, 1, qc_any_outlier)
+  table$qc_metrics_complete <- rowSums(is.na(complete) | !complete) == 0
+  table$qc_status_any <- ifelse(is.na(table$excluded_any), "missing",
+                                ifelse(table$excluded_any, "excluded", "included"))
+  # A missing modality has no group row after the joins. Keep that evidence,
+  # instead of silently dropping its participant/session from the export.
+  table$qc_missing_metrics <- apply(table[paste0("missing_", groups)], 1, function(x) {
+    missing <- ifelse(is.na(x), paste0(groups, ":missing_input"), x)
+    paste(missing[nzchar(missing)], collapse = ";")
+  })
+  table$qc_invalid_thresholds <- apply(table[paste0("invalid_thresholds_", groups)], 1, function(x) {
+    paste(x[!is.na(x) & nzchar(x)], collapse = ";")
+  })
+  table %>% dplyr::rename(sub = participant_id, ses = ses_id)
 }
 
 bold_upper_named <- rename_metrics(bold_upper_qc, "bold_upper", id_cols)
@@ -496,15 +535,8 @@ all_IQMs_with_QC <- base_ids %>%
   left_join(bold_upper_named, by = id_cols) %>%
   left_join(bold_lower_named, by = id_cols) %>%
   left_join(t1_upper_named,   by = id_cols) %>%
-  left_join(t1_lower_named,   by = id_cols) %>%
-  mutate(
-    across(starts_with("excluded_"), ~ tidyr::replace_na(.x, FALSE)),
-    excluded_any  = excluded_bold_upper | excluded_bold_lower | excluded_t1_upper | excluded_t1_lower,
-    qc_status_any = ifelse(excluded_any, "excluded", "included")
-  )
+  left_join(t1_lower_named,   by = id_cols)
 
-all_IQMs_with_QC_clean <- all_IQMs_with_QC %>%
-  tidyr::drop_na(-all_of(id_cols)) %>%
-  dplyr::rename(sub = participant_id, ses = ses_id)
+all_IQMs_with_QC_clean <- finalize_qc_table(all_IQMs_with_QC)
 
 write_tsv(all_IQMs_with_QC_clean, qc_flags_tsv)

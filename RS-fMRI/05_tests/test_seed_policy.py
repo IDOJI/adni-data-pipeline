@@ -43,6 +43,18 @@ def test_new_run_examples_use_master_seed_1123():
         assert cfg['random_seed'] == policy.DEFAULT_SEED, name
 
 
+def test_old_xcpd_policy_rejected_before_seed_runtime_creation(tmp_path):
+    entry = LAB / 'pipeline/s10_xcpd_integrated_qc/pipeline_seeded.py'
+    backend = policy.xcpd_backend(entry)
+    cfg = json.loads((LAB / '03_config/xcpd_linc.seeded.example.json').read_text())
+    cfg.pop('qc_policy_version')
+    cfg['root'] = str(tmp_path / 'runtime')
+    path = tmp_path / 'old.json'; path.write_text(json.dumps(cfg))
+    with pytest.raises(ValueError, match='new run ID/runtime'):
+        backend.Pipeline(path)
+    assert not (tmp_path / 'runtime').exists()
+
+
 def test_fmriprep_skullstripping_and_thread_environment(tmp_path):
     base = arguments('fmriprep')
     command = policy.docker(base, 'fmriprep', 357, tmp_path/'fresh')

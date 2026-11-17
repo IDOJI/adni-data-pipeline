@@ -8,15 +8,15 @@
 
 From `RS-fMRI/`, after [setup](../../06_docs/installation.md). Replace example paths and IDs with your inputs.
 
-Use the sessionwise Docker entry point after [7.B preparation](../s7b_sessionwise_preprocessing/README.md):
+For new ADNI selections, complete [3.B date-based proposals](../s3b_image_selection/README.md) and [5.D exact-pair preparation/intake](../s5d_bids_identity/README.md), then use the guarded sessionwise entry point:
 
 ```sh
 # Preview.
-python pipeline/s7b_sessionwise_preprocessing/run_seeded.py \
-  --config /ABS/preprocessing-seeded.yaml dry-run --stage fmriprep --subject ADNI999S9999
+python pipeline/s5d_bids_identity/guarded_runner_seeded.py dry-run \
+  --config /ABS/new-pair-runtime/verified-config.yaml --stage fmriprep
 # Execute.
-python pipeline/s7b_sessionwise_preprocessing/run_seeded.py \
-  --config /ABS/preprocessing-seeded.yaml run --stage fmriprep --subject ADNI999S9999
+python pipeline/s5d_bids_identity/guarded_runner_seeded.py run \
+  --config /ABS/new-pair-runtime/verified-config.yaml --stage fmriprep
 ```
 
-Uses fMRIPrep 25.2.7, master seed 1123, fixed skull-stripping initialization and OMP1. Receipt-bound pairs use [5.D](../s5d_bids_identity/README.md); whole batches use the [batch runner](../../06_docs/local_batch.md).
+Uses fMRIPrep 25.2.7, master seed 1123, fixed skull-stripping initialization and OMP1. Each prepared BIDS view contains exactly the verified T1 and EPI; a session filter alone can admit additional T1 images. Existing independently verified batch handoffs use the [batch runner](../../06_docs/local_batch.md). Legacy launch helpers remain for frozen configurations, not as a substitute for exact image authorization.

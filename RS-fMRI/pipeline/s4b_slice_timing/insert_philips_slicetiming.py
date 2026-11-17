@@ -23,7 +23,10 @@ Each Philips ``*_bold.json`` is matched to an ADNI metadata row by:
   * subject: the numeric RID parsed from ``sub-ADNI<site>S<rid>`` == metadata ``RID``
   * session: the BIDS ``ses-<label>`` == metadata ``VISCODE2`` mapped to a session
              label (``bl`` -> ``M000``, ``m<NN>`` -> ``M0NN``)
-  * series number (tiebreaker when a session has more than one candidate)
+  * exact series number when supplied; a conflicting number never falls back
+  * matching series UID and scan date when present in both sources
+A repeated visit/series remains ambiguous unless its acquisition identity is
+unique. Slice count and TR validate a match; they do not establish identity.
 A match is only accepted if the slice count and TR are consistent with the
 sidecar, otherwise it is reported as ``validation_failed`` and left untouched.
 
@@ -40,6 +43,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import math
 import os
 import re
 import shutil
@@ -70,6 +74,8 @@ def parse_abs_slice_timing(raw: str) -> List[float]:
     if not parts:
         raise ValueError("empty SLICETIMING")
     abs_times = [float(p) for p in parts]
+    if not all(math.isfinite(t) for t in abs_times):
+        raise ValueError("nonfinite SLICETIMING")
     origin = min(abs_times)
     return [round(t - origin, 6) for t in abs_times]
 
@@ -131,10 +137,11 @@ class MetadataRecord:
     """One ADNI fMRI-metadata row reduced to what this step needs."""
 
     __slots__ = ("rid", "session", "series_number", "tr_s", "rel_times",
-                 "n_slices", "pattern")
+                 "n_slices", "pattern", "series_uid", "scan_date", "source_row")
 
     def __init__(self, rid: int, session: str, series_number: str, tr_s: float,
-                 rel_times: List[float], pattern: str) -> None:
+                 rel_times: List[float], pattern: str, series_uid: str = "",
+                 scan_date: str = "", source_row: int = 0) -> None:
         self.rid = rid
         self.session = session
         self.series_number = series_number
@@ -142,6 +149,26 @@ class MetadataRecord:
         self.rel_times = rel_times
         self.n_slices = len(rel_times)
         self.pattern = pattern
+        self.series_uid = series_uid
+        self.scan_date = scan_date
+        self.source_row = source_row
+
+
+def identity_value(row: Dict[str, Any], fields: Iterable[str], *, date=False) -> str:
+    """Read consistent optional identity aliases without inventing evidence."""
+    values = set()
+    for field in fields:
+        value = str(row.get(field, "") or "").strip()
+        if not value:
+            continue
+        if date:
+            value = value.split("T", 1)[0].split(" ", 1)[0]
+            if re.fullmatch(r"\d{8}", value):
+                value = f"{value[:4]}-{value[4:6]}-{value[6:]}"
+        values.add(value)
+    if len(values) > 1:
+        raise ValueError("Conflicting acquisition identity fields: " + ", ".join(fields))
+    return next(iter(values), "")
 
 
 def _manufacturer_matches(value: str, needles: Iterable[str]) -> bool:
@@ -154,8 +181,8 @@ def load_metadata_index(
 ) -> Dict[Tuple[int, str], List[MetadataRecord]]:
     """Build ``{(rid, session): [MetadataRecord, ...]}`` for target manufacturers.
 
-    Rows that are not from a target manufacturer, whose VISCODE2 has no BIDS
-    session equivalent, or whose SLICETIMING is unparseable are skipped.
+    Rows outside the manufacturer/visit scope are skipped. An unusable timing
+    remains an identity candidate so removing it cannot hide a collision.
     """
 
     index: Dict[Tuple[int, str], List[MetadataRecord]] = {}
@@ -167,7 +194,7 @@ def load_metadata_index(
             raise ValueError(
                 f"{csv_path} is missing required columns: {sorted(missing)}"
             )
-        for row in reader:
+        for source_row, row in enumerate(reader, 2):
             if not _manufacturer_matches(row.get("MANUFACTURER", ""), manufacturers):
                 continue
             try:
@@ -180,7 +207,7 @@ def load_metadata_index(
             try:
                 rel = parse_abs_slice_timing(row.get("SLICETIMING", ""))
             except ValueError:
-                continue
+                rel = []
             try:
                 tr_s = float(row.get("REPETITIONTIME", "")) / 1000.0
             except ValueError:
@@ -191,7 +218,10 @@ def load_metadata_index(
                 series_number=str(row.get("SERIESNUMBER", "")).strip(),
                 tr_s=tr_s,
                 rel_times=rel,
-                pattern=acquisition_pattern(rel),
+                pattern=acquisition_pattern(rel) if rel else "invalid",
+                series_uid=identity_value(row, ("SeriesInstanceUID", "SERIESINSTANCEUID", "SERIES_UID")),
+                scan_date=identity_value(row, ("StudyDate", "SERIESDATE", "SCANDATE"), date=True),
+                source_row=source_row,
             )
             index.setdefault((rid, session), []).append(rec)
     return index
@@ -228,33 +258,33 @@ def choose_record(
     n_slices: Optional[int],
     tr_s: Optional[float],
     tr_tol: float,
+    series_uid: Optional[str] = None,
+    scan_date: Optional[str] = None,
 ) -> Tuple[Optional[MetadataRecord], str]:
-    """Pick the single matching record from candidates, or explain why not."""
+    """Select by identity, never by geometry (validated by process_sidecar).
+
+    Geometry arguments remain in the interface for existing callers, but do
+    not disambiguate scans that happen to share an acquisition protocol.
+    """
 
     if not candidates:
         return None, "unmatched"
 
     pool = candidates
-    # Prefer an exact series-number match when the sidecar provides one.
+    # Explicit identity conflicts must never fall back to a different scan.
     if series_number:
         exact = [c for c in pool if c.series_number == str(series_number)]
-        if len(exact) == 1:
-            return exact[0], "matched_series"
-        if exact:
-            pool = exact
-
-    # Narrow by slice count and TR when available.
-    if n_slices is not None:
-        by_slices = [c for c in pool if c.n_slices == n_slices]
-        if by_slices:
-            pool = by_slices
-    if tr_s is not None:
-        by_tr = [c for c in pool if _tr_close(c.tr_s, tr_s, tr_tol)]
-        if by_tr:
-            pool = by_tr
+        if not exact:
+            return None, "series_number_conflict"
+        pool = exact
+    for field, value in (("series_uid", series_uid), ("scan_date", scan_date)):
+        if value and any(getattr(c, field) for c in pool):
+            pool = [c for c in pool if getattr(c, field) == value]
+            if not pool:
+                return None, field + "_conflict"
 
     if len(pool) == 1:
-        return pool[0], "matched"
+        return pool[0], "matched_series" if series_number else "matched"
     return None, "ambiguous"
 
 
@@ -285,6 +315,10 @@ def process_sidecar(
         "slice_pattern": "",
         "flagged": "",
         "message": "",
+        "metadata_source_row": "",
+        "metadata_series_uid": "",
+        "metadata_scan_date": "",
+        "match_basis": "",
     }
 
     try:
@@ -318,12 +352,20 @@ def process_sidecar(
     tr_json = data.get("RepetitionTime")
     tr_json = float(tr_json) if isinstance(tr_json, (int, float)) else None
 
+    try:
+        series_uid = identity_value(data, ("SeriesInstanceUID", "SERIES_UID"))
+        scan_date = identity_value(data, ("StudyDate", "SeriesDate", "AcquisitionDateTime"), date=True)
+    except ValueError as exc:
+        rec_row.update(status="identity_conflict", message=str(exc))
+        return rec_row
     record, why = choose_record(
         index.get((rid, session), []),
         series_number=str(data.get("SeriesNumber", "")).strip() or None,
         n_slices=n_slices,
         tr_s=tr_json,
         tr_tol=opts.tr_tolerance_s,
+        series_uid=series_uid,
+        scan_date=scan_date,
     )
     if record is None:
         rec_row["status"] = why
@@ -333,6 +375,9 @@ def process_sidecar(
     rec_row["n_slices"] = record.n_slices
     rec_row["tr_s"] = record.tr_s
     rec_row["slice_pattern"] = record.pattern
+    rec_row.update(metadata_source_row=record.source_row,
+                   metadata_series_uid=record.series_uid,
+                   metadata_scan_date=record.scan_date, match_basis=why)
     flagged = record.pattern != opts.standard_slice_pattern
     rec_row["flagged"] = "yes" if flagged else "no"
 
@@ -344,6 +389,11 @@ def process_sidecar(
     if tr_json is not None and not _tr_close(record.tr_s, tr_json, opts.tr_tolerance_s):
         rec_row["status"] = "validation_failed"
         rec_row["message"] = f"sidecar TR {tr_json}s vs metadata TR {record.tr_s}s"
+        return rec_row
+    if (not math.isfinite(record.tr_s) or record.tr_s <= 0 or
+            not record.rel_times or any(not math.isfinite(t) or t < 0 or t >= record.tr_s
+                                        for t in record.rel_times)):
+        rec_row.update(status="validation_failed", message="Invalid slice timing or metadata TR")
         return rec_row
 
     if flagged and not opts.write_flagged:
@@ -390,6 +440,7 @@ class Options:
 REPORT_COLUMNS = [
     "participant", "session", "json_path", "manufacturer", "status",
     "series_number", "n_slices", "tr_s", "slice_pattern", "flagged", "message",
+    "metadata_source_row", "metadata_series_uid", "metadata_scan_date", "match_basis",
 ]
 
 

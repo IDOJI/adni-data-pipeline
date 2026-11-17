@@ -14,7 +14,7 @@ from pathlib import Path
 import nibabel as nib
 import numpy as np
 
-VERSION = '2026-11-01-bids-identity-v1'
+VERSION = '2026-11-17-bids-identity-v2'
 NAMES = {'images': '02.image-validation.csv', 'files': '03.file-audit.csv',
          'epi': '04.epi-execution-manifest.csv', 'plans': '05.execution-plans.json',
          'summary': '06.summary.json', 'receipt': '07.binding-receipt.json'}
@@ -241,15 +241,23 @@ def bind(images, epis, roots, expected):
         if status == 'verified':
             verified[image_id] = record
     linked, plans = [], []
-    seen = set()
+    seen, seen_images = set(), set()
     for epi in epis:
         key, image_id = epi['EPI_KEY'], iid(epi['EPI_IMAGE_ID'])
-        if key in seen or image_id not in by_id or identity_fields(by_id[image_id])[:3] != (epi['PTID'], epi['MRI_STUDY_DATE'], 'EPI'):
+        if key in seen or image_id in seen_images or image_id not in by_id or identity_fields(by_id[image_id])[:3] != (epi['PTID'], epi['MRI_STUDY_DATE'], 'EPI'):
             raise ValueError('EPI manifest/source identity conflict')
         seen.add(key)
+        seen_images.add(image_id)
         t1_id = epi.get('PROPOSED_T1_IMAGE_ID', '')
         e, t = verified.get(image_id), verified.get(t1_id)
         reasons = []
+        source_epi = by_id[image_id]
+        if (not true(source_epi.get('ELIGIBLE')) or source_epi.get('QC_STATUS') != 'pass'
+                or source_epi.get('EXCLUSION_REASONS')
+                or source_epi.get('SOURCE_QC_STATUS', 'pass') != 'pass'):
+            reasons.append('EPI_source_QC_pending_or_blocked')
+        if epi.get('EPI_SERIES_UID') and epi['EPI_SERIES_UID'] != source_epi.get('SERIES_UID'):
+            reasons.append('EPI_source_series_uid_conflict')
         if not e: reasons.append('epi_BIDS_identity_pending')
         if not t: reasons.append('t1_BIDS_identity_pending_or_tied')
         if epi['T1_PAIRING_STATUS'] != 'same_day_proposed': reasons.append(epi['T1_PAIRING_STATUS'])
@@ -260,7 +268,9 @@ def bind(images, epis, roots, expected):
             ti = by_id.get(t1_id, {})
             if (ti.get('PTID'), ti.get('MRI_STUDY_DATE'), ti.get('MODALITY')) != (epi['PTID'], epi['MRI_STUDY_DATE'], 'T1'):
                 reasons.append('T1_subject_date_modality_conflict')
-            if not true(ti.get('ELIGIBLE')) or ti.get('QC_STATUS') != 'pass' or ti.get('EXCLUSION_REASONS'):
+            if (not true(ti.get('ELIGIBLE')) or ti.get('QC_STATUS') != 'pass'
+                    or ti.get('EXCLUSION_REASONS')
+                    or ti.get('SOURCE_QC_STATUS', 'pass') != 'pass'):
                 reasons.append('T1_source_QC_pending_or_blocked')
         ready = not reasons
         row = {**epi, 'VERIFIED_BIDS_BOLD_PATH': e['BIDS_NIFTI_PATH'] if e else '',
@@ -291,7 +301,15 @@ def run(config):
     inputs.update({f'hash_evidence_{i}': Path(p).resolve() for i, p in enumerate(cfg['hash_evidence'])})
     before = {k: sha(p) for k, p in inputs.items()}
     prior = proof_files(inputs['pairing_receipt'])
-    if sha(inputs['images']) != prior['inputs']['candidates']['sha256']:
+    # New collection-driven selection produces the candidate registry itself.
+    # Keep existing private Research receipts readable without reinterpreting them.
+    if prior.get('kind') == 'date_based_selection_v1':
+        candidates = prior['outputs']['candidates']
+    elif not prior.get('kind'):
+        candidates = prior['inputs']['candidates']
+    else:
+        raise ValueError('Unsupported pairing receipt kind')
+    if sha(inputs['images']) != candidates['sha256']:
         raise ValueError('Image registry does not match pairing evidence')
     epi_hashes = {m['sha256'] for m in prior['outputs'].values() if m['path'].endswith('04.epi-analysis-manifest.csv')}
     if sha(inputs['epi_manifest']) not in epi_hashes:

@@ -1,0 +1,19 @@
+{
+  "collections": [
+    {
+      "path": "/ABS/collections/adni3_t1.csv",
+      "phase": "ADNI3",
+      "modality": "T1"
+    },
+    {
+      "path": "/ABS/collections/adni3_resting_fmri.csv",
+      "phase": "ADNI3",
+      "modality": "EPI"
+    }
+  ],
+  "source_qc": "/ABS/qc/step3a",
+  "output_dir": "/ABS/qc/new-step3b",
+  "policy": {
+    "cross_date_candidate_window_days": null
+  }
+}

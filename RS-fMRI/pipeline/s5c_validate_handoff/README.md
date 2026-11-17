@@ -16,3 +16,5 @@ python pipeline/s5c_validate_handoff/run.py \
 ```
 
 Use a new output directory. Blocked/pending cases remain audited. For the cluster fMRIPrep launcher, pass `mriqc_sessions.csv` via `--sessions-csv`; the original cluster MRIQC launcher is subject-scoped.
+
+This stage validates selected BOLD at session scope. It does not identify or approve the T1 supplied to fMRIPrep. For new date-based selections, use [3.B](../s3b_image_selection/README.md) and then the [5.D guarded route](../s5d_bids_identity/README.md). A matching VISCODE/session label may span multiple scan dates and is insufficient for T1 authorization. Legacy cluster commands require separately reviewed exact image inputs.

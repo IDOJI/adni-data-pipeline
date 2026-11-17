@@ -61,6 +61,22 @@ def test_positive_binding_and_plan(tmp_path):
     assert p['t1_image_id']=='100' and p['epi_image_id']=='200'
 
 
+@pytest.mark.parametrize('modality', ['T1', 'EPI'])
+@pytest.mark.parametrize('state', ['blocked', 'pending', ''])
+def test_aggregate_source_qc_cannot_be_overridden_by_manifest(tmp_path, modality, state):
+    cfg, _, images, epi, root = fixture(tmp_path)
+    next(r for r in images if r['MODALITY'] == modality)['SOURCE_QC_STATUS'] = state
+    _, _, linked, plans = b.bind(images, [epi], [root], b.load_expected(cfg['hash_evidence']))
+    assert not plans and not linked[0]['PREPROCESSING_READY']
+    assert modality + '_source_QC_pending_or_blocked' in linked[0]['READINESS_BLOCKERS']
+
+
+def test_same_epi_image_cannot_be_repeated_under_a_different_key(tmp_path):
+    cfg, _, images, epi, root = fixture(tmp_path)
+    with pytest.raises(ValueError, match='identity conflict'):
+        b.bind(images, [epi, {**epi, 'EPI_KEY': 'another-key'}], [root], b.load_expected(cfg['hash_evidence']))
+
+
 @pytest.mark.parametrize('change',['tie','cross_date','source_pending','review_pending','extension'])
 def test_policy_pending_never_dispatches(tmp_path,change):
     cfg,cp,_,epi,_=fixture(tmp_path)
