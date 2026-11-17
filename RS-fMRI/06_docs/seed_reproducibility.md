@@ -2,6 +2,12 @@
 
 New local runs use **master seed 1123**, **OMP1** and the `fixed-seed-v1` profile. fMRIPrep remains **25.2.7**; skull stripping is enabled.
 
+To test other OMP/ITK limits, use [S13](../pipeline/s13_reproducibility/README.md)
+with new isolated runtimes. The experiment fixes BLAS at one, measures actual
+preprocessing and XCP-D wall times, and compares derivatives against frozen
+case-specific repeat-run envelopes. It does not relax this production profile or
+establish scientific equivalence automatically.
+
 | Stage | Control |
 |---|---|
 | MRIQC | Python/NumPy/ANTs seed 1123; deterministic enhancement and Atropos initialization |

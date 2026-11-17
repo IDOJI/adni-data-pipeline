@@ -6,11 +6,14 @@ Convert ADNI images into preprocessed/denoised BOLD, quality reports, ROI signal
 
 New local runs use **seed 1123**, **fMRIPrep 25.2.7**, skull stripping and **one numerical thread**. Keep a new runtime for a new seed or source version.
 
+Use the optional [thread reproducibility experiment](pipeline/s13_reproducibility/README.md)
+to measure other OMP/ITK limits in isolated runs before changing production.
+
 ## Structure
 
 ```text
 RS-fMRI/
-├── pipeline/           # All stages: s1_* through s12_*
+├── pipeline/           # All stages: s1_* through s13_*
 ├── 03_config/          # Configuration examples
 ├── 04_workflow/        # Batch runners and shared tools
 ├── 05_tests/           # Tests
@@ -21,7 +24,7 @@ RS-fMRI/
 
 ## Steps and commands
 
-Main flow: **1–5 → MRIQC/fMRIPrep (6/7.B) → S8/S10 QC and XCP-D → clinical/final checks (9.A/9.B) → atlas signals (11)**. Step 12 independently exports completed archive metrics. **7.A is an alternative profile**; 7.C/7.D provide logs and timing.
+Main flow: **1–5 → MRIQC/fMRIPrep (6/7.B) → S8/S10 QC and XCP-D → clinical/final checks (9.A/9.B) → atlas signals (11)**. Step 12 independently exports completed archive metrics. Optional step 13 repeats representative completed cases in fresh runtimes to compare thread limits, tolerances and speed. **7.A is an alternative profile**; 7.C/7.D provide logs and timing.
 
 Click the code name for its inputs, outputs and execution command. Run commands from `RS-fMRI/` after [setup](06_docs/installation.md).
 
@@ -50,6 +53,7 @@ Click the code name for its inputs, outputs and execution command. Run commands 
 | 10 | Denoise BOLD and review imaging QC | Denoised BOLD, ROI/FC, ReHo/ALFF and QC | [pipeline_seeded.py](pipeline/s10_xcpd_integrated_qc/README.md) |
 | 11 | Extract BOLD means with a selected atlas | timeseries.tsv and ROI coverage | [run.py](pipeline/s11_atlas_bold/README.md) |
 | 12 | Collect scalar metrics and report links | metrics.csv, dictionary and index.html | [lab.py export-results](pipeline/s12_metrics_summary/README.md) |
+| 13 | Compare isolated OMP/ITK thread trials against frozen repeat-run tolerances | Actual execution evidence, stage timings, comparison policies and HTML/JSON reports | [run.py](pipeline/s13_reproducibility/README.md) |
 
 ## Configuration
 
@@ -60,6 +64,7 @@ Keep data, private configuration and results outside this repository, for exampl
 | New local batch: preprocessing + XCP-D | [local_batch.seeded.example.json](03_config/local_batch.seeded.example.json) · [commands](06_docs/local_batch.md) |
 | XCP-D for completed pairs | [xcpd_linc.seeded.example.json](03_config/xcpd_linc.seeded.example.json) |
 | Alternative volume profile | [config.seeded.example.json](pipeline/s7a_volume_workflow/config.seeded.example.json) |
+| Optional thread/tolerance experiment | [thread_reproducibility.example.json](03_config/thread_reproducibility.example.json) |
 | DICOM/Clinica and shared paths | [lab_config.example.yaml](03_config/lab_config.example.yaml) · [generate YAML](06_docs/installation.md#configuration) |
 
 Check quantitative QC and native HTML reports before final inclusion. Code tests and successful processing alone do not approve research inclusion.

@@ -22,4 +22,8 @@ adni-data-pipeline/
 
 New RS-fMRI runs use **seed 1123**, **fMRIPrep 25.2.7** and fixed skull-stripping initialization. Start with the [installation](RS-fMRI/06_docs/installation.md), [local batch](RS-fMRI/06_docs/local_batch.md), or [public example](RS-fMRI/07_reproducibility/README.md).
 
+The optional [tolerance-based thread experiment](RS-fMRI/pipeline/s13_reproducibility/README.md)
+compares isolated preprocessing/XCP-D results and measured speed at different
+OMP/ITK limits while retaining existing jobs and outputs.
+
 The RS-fMRI skeleton was adapted and modified from [statMINDlab/ADNI_fMRI_protocol](https://github.com/statMINDlab/ADNI_fMRI_protocol). Original [GPL license](LICENSE), [citations](RS-fMRI/pipeline/CITATION.cff) and [attribution](RS-fMRI/NOTICE.md) are retained.
