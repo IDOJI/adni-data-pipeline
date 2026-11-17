@@ -25,6 +25,10 @@ scratch. Set `prune_owned_work: true` only to remove **new successful trial
 scratch**; original caches and all trial derivatives/logs remain untouched.
 Failed trial scratch is always retained. No incomplete trial is automatically
 restarted or adopted. Review its evidence and use a new experiment root.
+The runtime filesystem device is pinned. If the external volume disappears or
+changes, runtime writes fail rather than creating a shadow directory on the host.
+Reconnect the original volume and review the retained controller/trial evidence
+before resuming the same finite experiment.
 
 ## Run
 

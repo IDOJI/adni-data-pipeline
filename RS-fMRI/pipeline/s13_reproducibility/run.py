@@ -23,7 +23,7 @@ import uuid
 import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from compare import calibrate, compare, completed, digest, evaluate, read, save, sha
+from compare import calibrate, compare, completed, digest, evaluate, protect, read, save, sha
 from execute import LAB, checked_copy, check_tree, docker_names, images, module, now, run_trial, tree_hashes
 
 
@@ -125,6 +125,8 @@ def initialize(config_file):
                 LLM_calls=0, scope="Technical repeatability of the declared cases and OMP/ITK settings; BLAS remains one")
     plan["xcpd_settings"] = {k: v for k, v in xcfg.items() if k not in ("root", "repo", "run_id", "license", "templateflow", "resources", "_config_id")}
     root.mkdir(parents=True)
+    plan["runtime_device"] = root.stat().st_dev
+    protect(root, plan["runtime_device"])
     shutil.copytree(source_configs[0]["source_templateflow"], root / "templateflow", symlinks=False)
     plan["templateflow_hashes"] = tree_hashes(root / "templateflow")
     for case, base in zip(plan["cases"], source_configs):
@@ -165,6 +167,9 @@ def verified_plan(root):
     if sha(root / "plan.json") != read(root / "plan.lock.json")["sha256"]:
         raise ValueError("Experiment plan changed after initialization")
     plan = validate_config(read(root / "plan.json"))
+    if root.stat().st_dev != plan.get("runtime_device"):
+        raise ValueError("Experiment volume identity changed")
+    protect(root, plan["runtime_device"])
     for rel, expected in plan["source_hashes"].items():
         if sha(LAB / rel) != expected:
             raise ValueError("Frozen execution source changed: " + rel)

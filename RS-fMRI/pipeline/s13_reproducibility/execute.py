@@ -16,7 +16,7 @@ import uuid
 
 import nibabel as nib
 
-from compare import inventory, read, save, sha
+from compare import check_write, inventory, read, save, sha
 
 LAB = Path(__file__).resolve().parents[2]
 THREAD_ENV = ("OMP_NUM_THREADS", "ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS")
@@ -209,6 +209,7 @@ def run_trial(root, plan, case, threads, repeat):
 
     label = f"{case['id']}-t{threads:02d}-r{repeat:02d}"
     trial = Path(root) / "trials" / label
+    check_write(trial)
     if trial.exists():
         old = read(trial / "trial.json")
         if old.get("status") == "success":

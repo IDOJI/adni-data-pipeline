@@ -259,3 +259,17 @@ def test_dry_run_cannot_start_imaging(tmp_path, monkeypatch):
     monkeypatch.setattr(runner, "run_trial", lambda *a: pytest.fail("Dry run started imaging"))
     result = runner.run(tmp_path)
     assert result["imaging_started"] is False and result["status"] == "plan_only"
+
+
+def test_missing_or_changed_volume_never_creates_shadow_output(tmp_path):
+    root = tmp_path / "volume"
+    root.mkdir()
+    cmp.protect(root, root.stat().st_dev + 1)
+    with pytest.raises(RuntimeError, match="shadow"):
+        cmp.save(root / "unexpected/results.json", {})
+    assert not (root / "unexpected").exists()
+    cmp.protect(root, root.stat().st_dev)
+    root.rmdir()
+    with pytest.raises(RuntimeError, match="shadow"):
+        cmp.save(root / "unexpected/results.json", {})
+    assert not root.exists()

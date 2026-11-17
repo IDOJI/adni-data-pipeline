@@ -16,6 +16,7 @@ import numpy as np
 
 SCHEMA = 1
 METRICS = ("max_abs", "mae", "nrmse", "p99_abs", "disagreement")
+WRITE_BOUNDARIES = {}
 PATTERNS = {
     "preprocessing": [
         "preprocess/derivatives/fmriprep/sub-*/**/*_desc-preproc_T1w.nii.gz",
@@ -54,8 +55,21 @@ def sha(path):
     return h.hexdigest()
 
 
+def protect(root, device):
+    WRITE_BOUNDARIES[Path(root).resolve()] = device
+
+
+def check_write(path):
+    path = Path(path).absolute()
+    for root, device in WRITE_BOUNDARIES.items():
+        if path == root or path.is_relative_to(root):
+            if not root.is_dir() or root.stat().st_dev != device:
+                raise RuntimeError("Experiment volume is unavailable or changed; no shadow directory will be created")
+
+
 def save(path, value, exclusive=False):
     path = Path(path)
+    check_write(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     payload = json.dumps(value, indent=2, allow_nan=False) + "\n"
     if exclusive:
