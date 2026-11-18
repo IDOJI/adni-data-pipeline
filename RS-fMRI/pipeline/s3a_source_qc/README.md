@@ -4,7 +4,7 @@
 
 **Output:** `image_qc.tsv`, source audits and `artifact.json` in the output directory.
 
-The image table also retains the original MRIQC series type, description, manufacturer, field strength and model for the Search comparison. Rebuild older 3.A artifacts before 3.B.
+The image table also retains the original MRIQC series type, description, manufacturer, field strength and model for the Search comparison. Rebuild older 3.A artifacts before 3.B. A uniquely matched NFQ row with no OVERALLQC column, a blank grade, an unrecognized supplied value and no unique match have distinct reason codes. None is a documented pass.
 
 ## Run
 

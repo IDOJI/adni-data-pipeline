@@ -44,7 +44,10 @@ All rows remain `PREPROCESSING_READY=False` and `ANALYSIS_READY=False` here. A u
 | `06.summary.json` | Counts and explicit scope limitations |
 | `07.run-manifest.json` | Input/output hashes, implementation hashes and policy provenance |
 | `08.collection-row-audit.csv` | Original file/row references and visit labels |
-| `09.download-candidates.txt` | Only confirmed target Image IDs with exact identity, passing source QC and no selection holds; independent of pair approval |
+| `09.download-candidates.txt` | Union of source-QC-pass targets and targets downloadable for local inspection, after all other holds; never an execution list |
+| `10.download-for-qc-review.csv` | Subset of 09 with missing grade evidence, exact identity and no independent hold; includes phase, reasons and source-row references |
+
+`DOWNLOAD_TIER` is `source_qc_pass`, `for_qc_review` or `held`. A positive class requires a matching MRIQC spine. When only a Mayo assessment or a functional NFQ grade is missing, retrieving an image for inspection does not grant it a passing grade. A different phase, known failure, ambiguous identity, undefined grade or scanner conflict remains held. Use the tier or 10 to distinguish these populations before interpreting 09. Rebuild 3.A and 3.B to obtain phase-specific reason codes. See [missing evidence by phase](../../06_docs/date_based_selection.md#reading-missing-evidence-by-phase).
 
 An optional `confirmed_exclusions` CSV requires `IMAGE_ID`, `PTID`, `MRI_STUDY_DATE`, `MODALITY`, `REASON` and `CONFIRMED`. Use exact identity and explicitly reviewed conversion/slice-timing failures; absence of a sidecar is not sufficient evidence.
 

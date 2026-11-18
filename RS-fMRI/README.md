@@ -21,7 +21,7 @@ RS-fMRI/
 
 ## Steps and commands
 
-Main flow: **1/2 metadata export → 3.A source QC → 3.B date-based proposals → image download/3/4/4.B/5 → 5.D exact binding → guarded MRIQC/fMRIPrep (6/7.B) → S8/S10 QC and XCP-D → clinical/final checks (9.A/9.B) → atlas signals (11)**. Same VISCODE is not evidence of the same acquisition date. Every Search row is audited; download requires confirmed T1w/resting BOLD and passing source QC; cross-date pairs, ties and missing evidence remain held. Step 12 independently exports completed archive metrics. **7.A is an alternative profile**; 7.C/7.D provide logs and timing.
+Main flow: **1/2 metadata export → 3.A source QC → 3.B date-based proposals → image download/3/4/4.B/5 → 5.D exact binding → guarded MRIQC/fMRIPrep (6/7.B) → S8/S10 QC and XCP-D → clinical/final checks (9.A/9.B) → atlas signals (11)**. Same VISCODE is not evidence of the same acquisition date. Every Search row is audited; download requires confirmed T1w/resting BOLD; images retrieved for QC inspection are labeled separately from source-QC passes; cross-date pairs, ties and missing evidence remain held. Step 12 independently exports completed archive metrics. **7.A is an alternative profile**; 7.C/7.D provide logs and timing.
 
 Click the code name for its inputs, outputs and execution command. Run commands from `RS-fMRI/` after [setup](06_docs/installation.md).
 

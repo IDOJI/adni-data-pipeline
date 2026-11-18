@@ -2,7 +2,7 @@
 from datetime import datetime
 import re
 
-VERSION = 'date_based_selection_v2'
+VERSION = 'date_based_selection_v3'
 
 
 def image_id(value):

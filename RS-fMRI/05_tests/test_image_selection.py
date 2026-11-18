@@ -224,3 +224,36 @@ def test_date_mapping_may_not_promote_archive_or_visit_date(tmp_path):
     path.write_text(json.dumps(cfg))
     with pytest.raises(ValueError,match='acquisition date'):
         selection.run(path)
+
+
+def test_missing_grades_allow_download_for_inspection_but_never_dispatch(tmp_path):
+    from test_bids_binding import fixture
+    import binding
+    binding_cfg, binding_path, *_ = fixture(tmp_path)
+    cfg, path, _ = setup(tmp_path, qualities=[
+        quality('100','T1', SOURCE_QC_STATUS='pending', QC_STATUS='unknown', QUALITY='', QC_REASON='no_matched_quality_record'),
+        quality('200','EPI', SOURCE_QC_STATUS='pending', NFQ_RAW_QC_STATUS='unknown', NFQ_RAW_REASON='raw_overallqc_column_absent')])
+    selection.run(path)
+    out=Path(cfg['output_dir'])
+    assert (out/selection.NAMES['download']).read_text().splitlines()==['I200','I100']
+    pending=read(out/selection.NAMES['pending_download'])
+    assert {r['DOWNLOAD_REASONS'] for r in pending}=={'no_matched_quality_record','raw_overallqc_column_absent'}
+    assert all(r['SOURCE_QC_STATUS']=='pending' for r in pending)
+    epi=read(out/selection.NAMES['epi'])[0]
+    assert epi['EPI_METADATA_QC_STATE']=='pending' and epi['PAIRING_REVIEW_REQUIRED']=='True'
+    binding_cfg.update(images=str(out/selection.NAMES['candidates']), epi_manifest=str(out/selection.NAMES['epi']),
+                       pairing_receipt=str(out/selection.NAMES['receipt']))
+    binding_path.write_text(json.dumps(binding_cfg))
+    assert binding.run(binding_path)['preprocessing_ready']==0
+
+
+@pytest.mark.parametrize('overrides', [
+    {'MRI_PROTOCOL_PHASE':'ADNI4'}, {'NFQ_RAW_REASON':'raw_overallqc_undefined_value'},
+    {'NFQ_RAW_QC_STATUS':'hold'}, {'NFQ_RAW_REASON':'raw_overallqc_absent_or_undefined'},
+    {'QC_STATUS':'unknown','QC_REASON':'quality_missing_or_undefined','QUALITY':'9'}])
+def test_real_conflicts_and_undefined_values_are_not_download_review_cases(tmp_path,overrides):
+    values=dict(SOURCE_QC_STATUS='pending', NFQ_RAW_QC_STATUS='unknown', NFQ_RAW_REASON='no_unique_raw_nfq_match')
+    cfg,path,_=setup(tmp_path,qualities=[quality('100','T1'),quality('200','EPI',**{**values,**overrides})])
+    selection.run(path); out=Path(cfg['output_dir'])
+    assert (out/selection.NAMES['download']).read_text().splitlines()==['I100']
+    assert read(out/selection.NAMES['pending_download'])==[]

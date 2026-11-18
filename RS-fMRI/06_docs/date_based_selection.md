@@ -16,16 +16,18 @@ flowchart TD
     D -->|Match| T{"Spine type and descriptions"}
     T -->|Perfusion, diffusion, scout or established derivative| OUT["Non-target: inventory only"]
     T -->|Ambiguous or rest undocumented| HOLD
-    T -->|"Confirmed T1w or resting BOLD"| Q{"Source QC pass and no selection hold?"}
-    Q -->|No| HOLD
-    Q -->|Yes| DL["Manual download list"]
+    T -->|"Confirmed T1w or resting BOLD"| Q{"Source evidence for this image"}
+    Q -->|Failure, conflict or undefined grade| HOLD
+    Q -->|QC documented| DL["09: manual download candidates"]
+    Q -->|Only grade evidence missing| PENDING["10: download to inspect; QC remains pending"]
+    PENDING --> DL
     DL --> CMP["Optional: compare historical lists by Image ID"]
     DL --> I["3/4/4.B/5: inventory, BIDS conversion and intake"]
     T --> P["Date-based reference proposals; audit unresolved candidates"]
     P -->|Tie, cross-date or unsupported phase| HOLD
     P -->|Unique same-day| K["5.D: exact IDs, UIDs, hashes, headers and scanner evidence"]
     I --> K
-    K -->|Conflict or missing required scanner evidence| HOLD
+    K -->|Source QC pending, conflict or missing required scanner evidence| HOLD
     K -->|Verified| L["MRIQC and fMRIPrep, then imaging and clinical QC"]
 ```
 
@@ -39,9 +41,22 @@ The [3.B example configuration](../03_config/image_selection.example.json) accep
 |---|---|---|
 | 2 / 3.A: source identity | Read the MRIQC Study Files spine, including original series type, description and scanner; join source quality, NFQ and known failures independently. | [ADNI Image ID correspondence (A10)](stage_evidence.md#a10) and [grade/chosen answers (A05/A09)](stage_evidence.md#stage-3-a). The four-key intersection is the Research workflow, not an ADNI grading recommendation. |
 | 3.B: dates and phase | Use IDA **Study Date** and per-row **Phase**. The MRI protocol phase is a separate observation. Never substitute Archive Date, VISCODE or a visit label. | [ADNI QID 434](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=434) discusses anatomical acquisition dates; [QID 2126](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=2126) distinguishes visit codes from elapsed time. CSV aliases and mixed-file checks are implementation rules. |
-| 3.B: series and download | Require source T1w or source BOLD with positive resting evidence and no contrary description. Exclude perfusion/diffusion, scouts and confirmed MoCoSeries. Ambiguous names stay in review. Source QC pass, verified identity and no holds are required for download. | [Arani et al., §§2.6–2.8 and Table 1](https://doi.org/10.1002/alz.14162) distinguish ASL, diffusion and task-free EPI-BOLD. The text rules, positive confirmation and pre-download QC gate are project safeguards. |
+| 3.B: series and download | Require source T1w or source BOLD with positive resting evidence and no contrary description. Exclude perfusion/diffusion, scouts and confirmed MoCoSeries. Ambiguous names stay in review. Exact identity and absence of a blocking finding are required. Confirmed targets missing only grade evidence may be downloaded for inspection; execution still requires passing source QC. | [Arani et al., §§2.6–2.8 and Table 1](https://doi.org/10.1002/alz.14162) distinguish ASL, diffusion and task-free EPI-BOLD. The text rules, positive confirmation and pre-download QC gate are project safeguards. |
 | 3.B / 5.D: scanner | Compare Search protocol and spine information on each image. Compare independent BIDS metadata to source and across the proposed pair; known conflict holds, absent model stays unknown, missing physical manufacturer or strength holds. | [Arani et al., §2.8](https://doi.org/10.1002/alz.14162) describe scanner/protocol variation; [Gorgolewski et al., BIDS metadata](https://doi.org/10.1038/sdata.2016.44) describe metadata representation. Neither paper prescribes these hold rules. |
 | Private reconciliation | Compare both historical Search/QC lists to the actual download file; classify each ID as retained, added, removed or neither, keeping specific reasons. | An audit of local decisions, not scientific validation. Historical lists are never selection inputs. |
+
+### Reading missing evidence by phase
+
+Use the **search phase** to count images; use the **MRI protocol phase** to interpret them. GO and 2 share a protocol label in some tables. A GO/ADNI1 or ADNI3/GO–2 discrepancy remains a separate review hold. Analyze increments in Image IDs, not in people, sessions or completed preprocessing runs.
+
+| Source and scope | What a linked row establishes | How to read an absence |
+|---|---|---|
+| Research QC1 MRIQC spine plus the matching Search row | Same target acquisition by ID, participant, acquisition date and modality; the spine has no Mayo quality grade. | Recover the positively identified image for QC inspection. A historical download ID does not imply QC pass. |
+| GO/2 or ADNI3 Mayo series QC | Recognized series grade on the particular image; QC2 selection and series quality are separate. | Inspect the actual date coverage of the supplied snapshot and look for the source assessment. No record in that extract is not a failed scan. [ADNI QID 89](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=89) explains historical T1 grades. |
+| GO/2/3 NFQ | Matched overall quality if reported. Functional measures and slice timing are separate from that field. | Distinguish no unique row from a blank or unrecognized grade on a matched row. Do not infer a match by visit or day alone. [ADNI QID 1822](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=1822) identifies the GO/2/3 deliverable; it does not mandate a two-table pass for downloading. |
+| ADNI4 NFQ and ARC | If a supplied NFQ schema has no `OVERALLQC`, even an exact ID+UID does not establish a functional QC grade. | [ADNI QID 2541](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=2541) limits the pass-and-chosen statement to ARC Builder. Do not attribute that provenance to an ordinary mixed Search export; recover image-specific ARC evidence separately. |
+
+These are project rules for retrieval and traceability. Neither ADNI nor [Arani et al., §2.8](https://doi.org/10.1002/alz.14162) establish that missing grades certify preprocessing readiness. The download-for-review list never overrides source QC at 5.D.
 
 ## Three different dates and identities
 

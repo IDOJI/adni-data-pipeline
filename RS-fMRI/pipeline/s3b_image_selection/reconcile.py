@@ -50,7 +50,7 @@ def reconcile(receipt, legacy, output):
                        'LEGACY_MEMBER':prior, 'DOWNLOAD_MEMBER':now, 'CHANGE':change,
                        'REASON':reason, **{k:row.get(k,'') for k in
                        ('SEARCH_DESCRIPTION','SPINE_SERIES_TYPE','SPINE_DESCRIPTION','CLASS_REASON',
-                        'SOURCE_QC_STATUS','QC_REASON','QC_SOURCE_ROWS','NFQ_RAW_REASON','NFQ_RAW_SOURCE_ROWS',
+                        'DOWNLOAD_TIER','SOURCE_QC_STATUS','QC_REASON','QC_SOURCE_ROWS','NFQ_RAW_REASON','NFQ_RAW_SOURCE_ROWS',
                         'SEARCH_PHASE','MRI_PROTOCOL_PHASE','EXCLUSION_REASONS','REVIEW_FLAGS')}})
     changes = [r for r in report if r['CHANGE'] in {'added','removed'}]
     unchanged(hashes)

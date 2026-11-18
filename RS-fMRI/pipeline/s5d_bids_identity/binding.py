@@ -329,7 +329,7 @@ def run(config):
     prior = proof_files(inputs['pairing_receipt'])
     # New collection-driven selection produces the candidate registry itself.
     # Keep existing private Research receipts readable without reinterpreting them.
-    if prior.get('kind') == 'date_based_selection_v2':
+    if prior.get('kind') in {'date_based_selection_v2', 'date_based_selection_v3'}:
         candidates = prior['outputs']['candidates']
     elif not prior.get('kind'):
         candidates = prior['inputs']['candidates']

@@ -46,7 +46,7 @@ Each stage README links to its entry here. Source IDs resolve to the exact ADNI 
 
 **Evidence and location:** A01 distinguishes visit labels from dates. A02 directly discusses acquisition-date T1 choice and possible adjacent-time alternatives. [A01](#a01), [A02](#a02).
 
-**Implementation and limits:** Same-day automatic eligibility, QC → chosen → grade ranking, preserved ties/all EPI, a T1 pool independent of the clinical window, and no cross-date auto-launch are project policies. A02 does not require same-day-only use or specify an acceptable gap. [P18 §§2.6–2.8](#p18) distinguishes ASL and diffusion from task-free BOLD and describes phase/vendor variation. The four-key Search/spine intersection, positive rest evidence, per-row Phase, scanner normalization and the private Image ID change ledger are project rules; see the [checkpoint table](date_based_selection.md#selection-checkpoints-and-their-evidence).
+**Implementation and limits:** Same-day automatic eligibility, QC → chosen → grade ranking, preserved ties/all EPI, a T1 pool independent of the clinical window, and no cross-date auto-launch are project policies. A02 does not require same-day-only use or specify an acceptable gap. [P18 §§2.6–2.8](#p18) distinguishes ASL and diffusion from task-free BOLD and describes phase/vendor variation. The four-key Search/spine intersection, positive rest evidence, per-row Phase, scanner normalization and the private Image ID change ledger are project rules. Separate retrieval for local inspection from source-QC pass: [A08](#a08) is scoped to ADNI4 ARC, and [A04](#a04) does not make the older NFQ schema universal; see the [checkpoint table](date_based_selection.md#selection-checkpoints-and-their-evidence).
 
 <a id="stage-4"></a>
 

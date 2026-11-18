@@ -26,7 +26,8 @@ NAMES = {'candidates': '00.candidate-images.csv', 'policy': '01.pairing-policy.j
          'pool': '02.t1-reference-pool.csv', 'links': '03.epi-t1-candidates.csv',
          'epi': '04.epi-analysis-manifest.csv', 'review': '05.pairing-review.csv',
          'summary': '06.summary.json', 'receipt': '07.run-manifest.json',
-         'rows': '08.collection-row-audit.csv', 'download': '09.download-candidates.txt'}
+         'rows': '08.collection-row-audit.csv', 'download': '09.download-candidates.txt',
+         'pending_download': '10.download-for-qc-review.csv'}
 ALIASES = {
     'IMAGE_ID': ('IMAGE_ID', 'Image Data ID', 'Image ID', 'Image_ID', 'image_id'),
     'PTID': ('PTID', 'Subject', 'Subject ID', 'Subject_ID', 'ParticipantID'),
@@ -190,6 +191,41 @@ def apply_exclusions(images, path):
         row['EXCLUSION_REASONS'] = ';'.join(filter(None, [row['EXCLUSION_REASONS'], item['REASON']]))
 
 
+def classify_download(row):
+    """Allow inspection of a positively identified target, never upgrade its source QC."""
+    blockers = list(filter(None, row['EXCLUSION_REASONS'].split(';')))
+    if row['SERIES_CLASS'] != 'target':
+        blockers.append(row['CLASS_REASON'])
+    blockers.extend(flag for flag in row['REVIEW_FLAGS'].split(';')
+                    if flag.startswith(('scanner_evidence_conflict:', 'invalid_scanner_value:',
+                                        'protocol_search_phase_mismatch', 'row_phase_missing')))
+    gaps = []
+    aggregate = row['SOURCE_QC_STATUS']
+    if aggregate == 'pending':
+        # Only recognized *absences* may go to local QC. An unexpected supplied
+        # grade, ambiguous match or old undifferentiated reason cannot qualify.
+        if row['QC_STATUS'] == 'unknown' and row['QC_REASON'] == 'no_matched_quality_record' and not row['QUALITY']:
+            gaps.append(row['QC_REASON'])
+        elif row['QC_STATUS'] != 'pass' or row['QUALITY'] not in {'1', '2', '3'}:
+            blockers.append(row['QC_REASON'] or 'unresolved_series_grade')
+        if row['MODALITY'] == 'EPI' and row['NFQ_RAW_QC_STATUS'] != 'pass':
+            reason = row['NFQ_RAW_REASON']
+            if row['NFQ_RAW_QC_STATUS'] == 'unknown' and reason in {
+                    'no_unique_raw_nfq_match', 'raw_overallqc_column_absent', 'raw_overallqc_blank'}:
+                gaps.append(reason)
+            else:
+                blockers.append(reason or 'unresolved_nfq_grade')
+        if not gaps:
+            blockers.append('source_qc_pending')
+    elif aggregate != 'pass':
+        blockers.extend(filter(None, ('source_qc_' + aggregate,
+                                      row['QC_REASON'] if row['QC_STATUS'] != 'pass' else '',
+                                      row['NFQ_RAW_REASON'] if row['NFQ_RAW_QC_STATUS'] != 'pass' else '')))
+    row['DOWNLOAD_TIER'] = 'held' if blockers else 'for_qc_review' if gaps else 'source_qc_pass'
+    row['DOWNLOAD_ELIGIBLE'] = not blockers
+    row['DOWNLOAD_REASONS'] = ';'.join(dict.fromkeys(blockers + gaps)) or 'target_exact_identity_and_source_qc_pass'
+
+
 def run(config):
     config = Path(config).resolve()
     cfg = json.loads(config.read_text())
@@ -215,24 +251,12 @@ def run(config):
     if 'confirmed_exclusions' in inputs:
         apply_exclusions(images, inputs['confirmed_exclusions'])
     for row in images:
-        # Keep the inventory and the strict download contract separate. Preserve specific reasons.
-        blockers = list(filter(None, row['EXCLUSION_REASONS'].split(';')))
-        if row['SERIES_CLASS'] != 'target':
-            blockers.append(row['CLASS_REASON'])
-        if row['SOURCE_QC_STATUS'] != 'pass':
-            blockers.append('source_qc_' + row['SOURCE_QC_STATUS'])
-            if row['QC_STATUS'] != 'pass' and row['QC_REASON']:
-                blockers.append(row['QC_REASON'])
-            if row['MODALITY'] == 'EPI' and row['NFQ_RAW_QC_STATUS'] != 'pass' and row['NFQ_RAW_REASON']:
-                blockers.append(row['NFQ_RAW_REASON'])
-        blockers.extend(flag for flag in row['REVIEW_FLAGS'].split(';')
-                        if flag.startswith(('scanner_evidence_conflict:', 'invalid_scanner_value:', 'protocol_search_phase_mismatch', 'row_phase_missing')))
-        row['DOWNLOAD_REASONS'] = ';'.join(dict.fromkeys(blockers)) or 'target_exact_identity_and_source_qc_pass'
-        row['DOWNLOAD_ELIGIBLE'] = not blockers
+        classify_download(row)
     policy = pairing.load_policy(cfg.get('policy'))
     pool, links, epis = pairing.build_pairs([r for r in images if r['SERIES_CLASS'] != 'non_target'], policy)
     summary = {'images': len(images), 'collection_rows': len(row_audit), 'epi_images': len(epis),
                'download_by_modality': dict(Counter(r['MODALITY'] for r in images if r['DOWNLOAD_ELIGIBLE'])),
+               'download_tiers': dict(Counter(r['DOWNLOAD_TIER'] for r in images)),
                'series_class': dict(Counter(r['SERIES_CLASS'] for r in images)),
                'participants': len({r['PTID'] for r in epis}),
                'pairing_status': dict(Counter(r['T1_PAIRING_STATUS'] for r in epis)),
@@ -248,8 +272,13 @@ def run(config):
     write(out / NAMES['review'], [r for r in epis if truth(r['PAIRING_REVIEW_REQUIRED'])], pairing.EPI_FIELDS)
     for key, data in [('policy', policy), ('summary', summary)]:
         (out / NAMES[key]).write_text(json.dumps(data, indent=2) + '\n')
-    # Only confirmed target acquisitions belong in the manual download list.
+    # Retrieval for local QC is allowed only for confirmed target acquisitions.
     (out / NAMES['download']).write_text(''.join('I' + r['IMAGE_ID'] + '\n' for r in images if r['DOWNLOAD_ELIGIBLE']))
+    pending_fields = ['IMAGE_ID', 'PTID', 'MRI_STUDY_DATE', 'MODALITY', 'SEARCH_PHASE', 'MRI_PROTOCOL_PHASE',
+                      'DOWNLOAD_TIER', 'DOWNLOAD_REASONS', 'SOURCE_QC_STATUS', 'QC_REASON', 'QC_SOURCE_ROWS',
+                      'NFQ_RAW_REASON', 'NFQ_RAW_SOURCE_ROWS']
+    write(out / NAMES['pending_download'], [{k: r[k] for k in pending_fields} for r in images
+                                            if r['DOWNLOAD_TIER'] == 'for_qc_review'], pending_fields)
     unchanged(hashes)
     receipt = {'kind': VERSION, 'created_utc': datetime.now(timezone.utc).isoformat(),
                'inputs': {k: {'path': str(p), 'sha256': hashes[str(p)]} for k, p in inputs.items()},
