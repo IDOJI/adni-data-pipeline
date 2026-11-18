@@ -27,3 +27,7 @@ python pipeline/s7b_sessionwise_preprocessing/run_seeded.py \
 ```
 
 Use a new runtime. Direct case commands do not publish the S10 pair layout. The batch publisher/controller uses macOS-specific tools; see [host requirements](../../06_docs/platform_execution.md).
+
+## Evidence and limits
+
+Sources: [Esteban et al. (2019)](https://doi.org/10.1038/s41592-018-0235-4); [ADNI EPI–T1 pairing answer](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=434). The [Stage 7.B evidence record](../../06_docs/stage_evidence.md#stage-7-b) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. These references do not certify the current configuration or any individual image as analysis-ready.

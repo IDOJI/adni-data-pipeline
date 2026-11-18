@@ -96,3 +96,32 @@ Local verification: **351 passed, 17 subtests passed**. Sixteen timing tests cov
 Local verification: **385 passed, 17 subtests passed**. Timing-specific synthetic checks: **50 passed**, including the imported observer tests and cross-contract checks. Fake clocks/containers verify the difference between receipt wall intervals and pause/sleep-adjusted Docker execution windows, failure/retry cost, raw numeric precision, explicit display units, S12 ownership and ambiguous-pair non-publication. Source AST checks preserve five receipt numeric functions, eight observer numeric/event functions and the extracted formatter logic.
 
 A separate checkout was used. Live-tool execution was blocked during local tests; no imaging calculation, operational reconciliation or service installation/start was performed. These checks do not establish real event delivery or host sleep tracking. Original working files and uncommitted work are outside the integration checkout. See [Step 7.D](../pipeline/s7d_processing_timing/README.md) and the [Docker observer guide](processing_timing.md).
+
+## Date-based selection and QC corrections, 2026-11-17
+
+The published-main-based change passed **626 tests and 17 subtests** with
+`python -m pytest -q`; `python 04_workflow/lab.py doctor` passed with clean
+owned protocol sources and preserved attribution. One existing Nilearn
+`standardize=False` future-deprecation warning remains. Focused new selection,
+binding, nonfinite-MRIQC and S8 checks passed 124 tests. The repository-required
+SNP regression suite passed 17 tests and its source doctor passed; SNP source
+was not modified.
+
+The same changes were first checked against the local main containing separate,
+unpublished thread-experiment work (641 tests and 17 subtests passed). That work
+was excluded from this change and the suite was rerun against published main.
+
+Coverage includes actual-date/VISCODE disagreement, multiple EPI acquisitions,
+all-date T1 reference inventory, source-QC and collection conflicts, preserved
+ties, future/cross-date review holds, receipt membership/hashes, exact BIDS
+identity, ambiguous SliceTiming, nullable MRIQC decisions, invalid FD, automatic
+NSS removal/output counts and session-specific Euler assessment. Tests use
+synthetic identities/images and mocked execution; the R tri-state decisions
+are exercised with Rscript. The complete suite also runs the maintained
+upstream utility compatibility checks.
+
+This is source and contract validation in an isolated checkout. No private ADNI
+cohort was reselected, no MRIQC/fMRIPrep/XCP-D container was launched, and no live
+runtime, cache, service or historical result was migrated. Cross-date anatomy,
+ADNI4, image registration quality and cohort-level denoising performance remain
+outside this validation. See [selection policy and evidence](date_based_selection.md).

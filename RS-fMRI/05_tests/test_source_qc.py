@@ -180,3 +180,15 @@ def test_native_source_qc_cli_accepts_explicit_raw_files(tmp_path):
                              '--output-dir', str(tmp_path / 'cli')], capture_output=True, text=True)
     assert result.returncode == 0, result.stderr
     assert json.loads(result.stdout)['source_qc_status'] == {'pass': 1}
+
+
+@pytest.mark.parametrize('field,expected', [({}, 'raw_overallqc_column_absent'),
+                                          ({'OVERALLQC':''}, 'raw_overallqc_blank'),
+                                          ({'OVERALLQC':'9'}, 'raw_overallqc_undefined_value')])
+def test_linked_nfq_without_usable_grade_distinguishes_schema_from_value(tmp_path, field, expected):
+    sources, nfq = fixture(tmp_path)
+    write(next(iter(nfq.values())), [dict(LONIImage='I101', RID='9999', StudyDate='2020-01-01', **field)])
+    step.process(sources, nfq, tmp_path/'out')
+    row = step.read(tmp_path/'out/image_qc.tsv')[0]
+    assert (row['NFQ_RAW_REASON'], row['NFQ_RAW_QC_STATUS'], row['SOURCE_QC_STATUS']) == (expected,'unknown','pending')
+    assert row['NFQ_RAW_SOURCE_ROWS']

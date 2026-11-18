@@ -33,7 +33,7 @@ def fixture(tmp):
         img = nib.Nifti1Image(np.zeros(shape, dtype=np.float32), np.eye(4))
         img.header.set_xyzt_units('mm', 'sec'); img.header.set_dim_info(slice=2)
         img.header.set_zooms((1,1,1,2) if mod == 'EPI' else (1,1,1)); nib.save(img, path)
-        meta = {'SeriesInstanceUID':'1.2.'+image_id,'AcquisitionDateTime':'2020-01-01T12:00:00'}
+        meta = {'Manufacturer':'Siemens', 'MagneticFieldStrength':3.0, 'SeriesInstanceUID':'1.2.'+image_id,'AcquisitionDateTime':'2020-01-01T12:00:00'}
         if mod == 'EPI': meta.update(RepetitionTime=2.,SliceTiming=[0.,.5,1.,1.5],PhaseEncodingDirection='j')
         Path(str(stem)+'.json').write_text(json.dumps(meta))
         images.append(dict(PTID='999_S_9999',MRI_STUDY_DATE='2020-01-01',MODALITY=mod,IMAGE_ID=image_id,
@@ -59,6 +59,22 @@ def test_positive_binding_and_plan(tmp_path):
     assert s['preprocessing_ready']==1 and s['analysis_ready']==0
     p=b.verify_plan(Path(cfg['output_dir'])/b.NAMES['receipt'],epi['EPI_KEY'])
     assert p['t1_image_id']=='100' and p['epi_image_id']=='200'
+
+
+@pytest.mark.parametrize('modality', ['T1', 'EPI'])
+@pytest.mark.parametrize('state', ['blocked', 'pending', ''])
+def test_aggregate_source_qc_cannot_be_overridden_by_manifest(tmp_path, modality, state):
+    cfg, _, images, epi, root = fixture(tmp_path)
+    next(r for r in images if r['MODALITY'] == modality)['SOURCE_QC_STATUS'] = state
+    _, _, linked, plans = b.bind(images, [epi], [root], b.load_expected(cfg['hash_evidence']))
+    assert not plans and not linked[0]['PREPROCESSING_READY']
+    assert modality + '_source_QC_pending_or_blocked' in linked[0]['READINESS_BLOCKERS']
+
+
+def test_same_epi_image_cannot_be_repeated_under_a_different_key(tmp_path):
+    cfg, _, images, epi, root = fixture(tmp_path)
+    with pytest.raises(ValueError, match='identity conflict'):
+        b.bind(images, [epi, {**epi, 'EPI_KEY': 'another-key'}], [root], b.load_expected(cfg['hash_evidence']))
 
 
 @pytest.mark.parametrize('change',['tie','cross_date','source_pending','review_pending','extension'])
@@ -179,3 +195,23 @@ def test_runtime_t1_swap_refused_before_dispatch(tmp_path):
 def test_config_t1_change_refused(tmp_path):
     path,cfg=prepared(tmp_path);cfg['runs'][0]['t1_image_id']='999';path.write_text(yaml.safe_dump(cfg))
     with pytest.raises(ValueError,match='pairing'):g.dispatch(path,'run','fmriprep')
+
+
+@pytest.mark.parametrize('change,reason', [
+    ('vendors','pair_scanner_mismatch:MANUFACTURER'),
+    ('strengths','pair_scanner_mismatch:FIELD_STRENGTH'),
+    ('models','pair_scanner_mismatch:SCANNER_MODEL'),
+    ('unknown','pair_scanner_unverified:MANUFACTURER'),
+    ('source','Source/JSON scanner conflict:MANUFACTURER')])
+def test_scanner_evidence_controls_physical_pair(tmp_path,change,reason):
+    cfg,cp,images,epi,root=fixture(tmp_path)
+    for pattern in ('anat','func'):
+        p=next(root.glob('sub-*/ses-*/'+pattern+'/*.json')); meta=json.loads(p.read_text())
+        if change=='vendors' and pattern=='anat': meta['Manufacturer']='Philips'
+        if change=='strengths' and pattern=='anat': meta['MagneticFieldStrength']=1.5
+        if change=='models': meta['ManufacturersModelName']='Alpha' if pattern=='anat' else 'Beta'
+        if change=='unknown' and pattern=='anat': meta.pop('Manufacturer')
+        if change=='source' and pattern=='anat': images[0]['MANUFACTURER']='GE'
+        p.write_text(json.dumps(meta))
+    _,files,linked,plans=b.bind(images,[epi],[root],b.load_expected(cfg['hash_evidence']))
+    assert not plans and (reason in linked[0]['READINESS_BLOCKERS'] or any(reason in f['REASON'] for f in files))

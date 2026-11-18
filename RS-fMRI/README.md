@@ -2,7 +2,7 @@
 
 Convert ADNI images into preprocessed/denoised BOLD, quality reports, ROI signals and analysis tables.
 
-**Start:** [Install](06_docs/installation.md) → [run a local batch](06_docs/local_batch.md). To practice without ADNI data, use the [public/synthetic examples](07_reproducibility/README.md).
+**Start:** [Install](06_docs/installation.md) → [select by acquisition date](06_docs/date_based_selection.md) → [verify exact images and prepare a run](pipeline/s5d_bids_identity/README.md). The [local batch](06_docs/local_batch.md) accepts an independently verified single-pair-per-participant handoff. To practice without ADNI data, use the [public/synthetic examples](07_reproducibility/README.md).
 
 New local runs use **seed 1123**, **fMRIPrep 25.2.7**, skull stripping and **one numerical thread**. Keep a new runtime for a new seed or source version.
 
@@ -21,7 +21,7 @@ RS-fMRI/
 
 ## Steps and commands
 
-Main flow: **1–5 → MRIQC/fMRIPrep (6/7.B) → S8/S10 QC and XCP-D → clinical/final checks (9.A/9.B) → atlas signals (11)**. Step 12 independently exports completed archive metrics. **7.A is an alternative profile**; 7.C/7.D provide logs and timing.
+Main flow: **1/2 metadata export → 3.A source QC → 3.B date-based proposals → image download/3/4/4.B/5 → 5.D exact binding → guarded MRIQC/fMRIPrep (6/7.B) → S8/S10 QC and XCP-D → clinical/final checks (9.A/9.B) → atlas signals (11)**. Same VISCODE is not evidence of the same acquisition date. Every Search row is audited; download requires confirmed T1w/resting BOLD; images retrieved for QC inspection are labeled separately from source-QC passes; cross-date pairs, ties and missing evidence remain held. Step 12 independently exports completed archive metrics. **7.A is an alternative profile**; 7.C/7.D provide logs and timing.
 
 Click the code name for its inputs, outputs and execution command. Run commands from `RS-fMRI/` after [setup](06_docs/installation.md).
 
@@ -31,11 +31,12 @@ Click the code name for its inputs, outputs and execution command. Run commands 
 | 2 | Download images and Study Files | DICOM, metadata and clinical CSVs | [Manual portal step](pipeline/s2_download/README.md) |
 | 3 | Inventory downloaded DICOMs | Inventory CSV and subject list | [create_dicom_dir_csv.sh](pipeline/s3_organize/README.md) |
 | 3.A | Check source QC, NFQ and image identity | image_qc.tsv | [run.py](pipeline/s3a_source_qc/README.md) |
+| 3.B | Preserve collection images and propose T1 references by actual scan date | Row-level phase/scanner inventory, strict download list, pairing manifest and optional historical ID comparison | [run.py](pipeline/s3b_image_selection/README.md) |
 | 4 | Convert DICOM to BIDS | NIfTI, JSON and conversion records | [Clinica / Slurm helpers](pipeline/s4_clinica/README.md) |
 | 4.B | Fill verified Philips SliceTiming | Updated sidecars and audit TSV | [insert_philips_slicetiming.py](pipeline/s4b_slice_timing/README.md) |
 | 5 | Check converted images and scan parameters | Mastersheet and final_heuristics.tsv | [main.py + run_session_heuristics.py](pipeline/s5_post_clinica_qc/README.md) |
-| 5.C | Create MRIQC/fMRIPrep input lists | Subject/session CSVs | [run.py](pipeline/s5c_validate_handoff/README.md) |
-| 5.D | Verify an exact EPI–T1 pair | Binding receipt and prepared runtime | [binding.py + guarded_runner_seeded.py](pipeline/s5d_bids_identity/README.md) |
+| 5.C | Audit session-level source handoff; does not authorize a T1 reference | Subject/session CSVs | [run.py](pipeline/s5c_validate_handoff/README.md) |
+| 5.D | Verify an exact EPI–T1 pair and physical scanner consistency | Binding receipt and prepared runtime | [binding.py + guarded_runner_seeded.py](pipeline/s5d_bids_identity/README.md) |
 | 6 | Measure image quality | IQM tables and HTML reports | [run_seeded.py + iqm_seeded.py](pipeline/s6_mriqc/README.md) |
 | 7 | Preprocess T1w and BOLD | Aligned images, confounds and reports | [run_seeded.py](pipeline/s7_fmriprep/README.md) |
 | 7.A | Run the alternative volume/aCompCor profile | Volume derivatives and denoised BOLD | [pipeline_seeded.py](pipeline/s7a_volume_workflow/README.md) |
@@ -57,6 +58,7 @@ Keep data, private configuration and results outside this repository, for exampl
 
 | Task | Configuration / guide |
 |---|---|
+| Collection metadata and date-based T1 proposals | [image_selection.example.json](03_config/image_selection.example.json) · [policy and evidence](06_docs/date_based_selection.md) |
 | New local batch: preprocessing + XCP-D | [local_batch.seeded.example.json](03_config/local_batch.seeded.example.json) · [commands](06_docs/local_batch.md) |
 | XCP-D for completed pairs | [xcpd_linc.seeded.example.json](03_config/xcpd_linc.seeded.example.json) |
 | Alternative volume profile | [config.seeded.example.json](pipeline/s7a_volume_workflow/config.seeded.example.json) |
@@ -64,7 +66,11 @@ Keep data, private configuration and results outside this repository, for exampl
 
 Check quantitative QC and native HTML reports before final inclusion. Code tests and successful processing alone do not approve research inclusion.
 
+S10 uses `dummy_scans=auto` and the explicit `sessionwise-euler-nss-v1` policy in new seeded configurations. Nonfinite or missing QC evidence remains pending; known failures remain excluded. Euler outliers are evaluated per reconstruction/session with a participant-balanced site reference. Sites with insufficient reference subjects need documented anatomical review. Existing runtimes retain their frozen configuration; revised outputs require a fresh runtime.
+
 ## Reference
+
+[Stage-by-stage evidence](06_docs/stage_evidence.md) uses only ADNI official answers and research papers, with answer dates/QIDs, paper DOIs and section locations. It distinguishes direct support from project adaptations and engineering controls. See the [parameter comparison](06_docs/stage_evidence.md#parameter-and-policy-traceability) before describing any configured cutoff as a published ADNI standard.
 
 [Seed settings](06_docs/seed_reproducibility.md) · [Host requirements](06_docs/platform_execution.md) · [Validation](06_docs/validation.md) · [Updates](06_docs/update_guide.md)
 

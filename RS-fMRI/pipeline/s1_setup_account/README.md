@@ -11,3 +11,7 @@
 3. After approval, continue to [download](../s2_download/README.md).
 
 This is a manual portal step; no local code is required.
+
+## Evidence and limits
+
+Sources: [ADNI FAQ answers](https://adni.loni.usc.edu/help-faqs/faqs/). The [Stage 1 evidence record](../../06_docs/stage_evidence.md#stage-1) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. These references do not certify the current configuration or any individual image as analysis-ready.

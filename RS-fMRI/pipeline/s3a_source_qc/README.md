@@ -4,6 +4,8 @@
 
 **Output:** `image_qc.tsv`, source audits and `artifact.json` in the output directory.
 
+The image table also retains the original MRIQC series type, description, manufacturer, field strength and model for the Search comparison. Rebuild older 3.A artifacts before 3.B. A uniquely matched NFQ row with no OVERALLQC column, a blank grade, an unrecognized supplied value and no unique match have distinct reason codes. None is a documented pass.
+
 ## Run
 
 From `RS-fMRI/`, after [setup](../../06_docs/installation.md). Replace example paths and IDs with your inputs.
@@ -19,3 +21,7 @@ python pipeline/s3a_source_qc/run.py \
 ```
 
 `MRIQC.csv` here is an ADNI Study File, not MRIQC software output. Use original column names and a new output directory.
+
+## Evidence and limits
+
+Sources: [ADNI repeated T1 and grade answers](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=89); [ADNI chosen-series answer](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=454); [ADNI NFQ/slice-order answer](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=1822); [ADNI4 ARC quality answer](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=2541). The [Stage 3.A evidence record](../../06_docs/stage_evidence.md#stage-3-a) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. These references do not certify the current configuration or any individual image as analysis-ready.

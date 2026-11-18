@@ -218,6 +218,7 @@ def xcpd_backend(entry):
     def seeded_init(self, config_path):
         cfg = base.load(config_path)
         seed = require(cfg)
+        base.validate_qc_policy(cfg)
         freeze(cfg['root'], seed)
         original_init(self, config_path)
 

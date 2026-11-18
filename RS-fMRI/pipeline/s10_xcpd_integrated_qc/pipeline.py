@@ -29,7 +29,9 @@ import pandas as pd
 KEYS = ('sub', 'ses', 'task', 'run', 'acq', 'dir', 'echo', 'rec')
 ENTITY_NAMES = dict(sub='subject', ses='session', task='task', run='run',
                     acq='acquisition', dir='direction', echo='echo', rec='reconstruction')
-MANUAL = ('visual_qc_status', 'visual_qc_reason', 'reviewer', 'review_date', 'review_notes')
+MANUAL = ('visual_qc_status', 'visual_qc_reason', 'euler_visual_qc_status',
+          'euler_visual_qc_reason', 'reviewer', 'review_date', 'review_notes')
+QC_POLICY = 'sessionwise-euler-nss-v1'
 LAB_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_UPSTREAM = LAB_ROOT / "pipeline"
 if str(LAB_ROOT / "04_workflow") not in sys.path:
@@ -172,6 +174,45 @@ def strict_flag(value):
     return None
 
 
+def dummy_scan_evidence(frame, configured):
+    """Match XCP-D auto semantics and never retain a detected initial transient."""
+    columns = [c for c in frame if c.startswith('non_steady_state_outlier')]
+    flagged = np.zeros(len(frame), dtype=bool)
+    if columns:
+        values = frame[columns].apply(pd.to_numeric, errors='raise').to_numpy(dtype=float)
+        if not np.isfinite(values).all() or not np.isin(values, [0, 1]).all():
+            raise ValueError('Non-steady-state flags must be finite and binary')
+        flagged = values.any(axis=1)
+    indices = np.flatnonzero(flagged)
+    inferred = int(indices[-1] + 1) if len(indices) else 0
+    if configured == 'auto':
+        count = inferred
+    elif type(configured) is int and configured >= 0:
+        count = configured
+    else:
+        raise ValueError('dummy_scans must be auto or a nonnegative integer')
+    if not len(frame) or count >= len(frame):
+        raise ValueError('Dummy removal leaves no usable frames')
+    if count < inferred:
+        raise ValueError('Configured dummy removal retains detected non-steady-state frames; use auto or a sufficient explicit count')
+    return {'dummy_scan_policy': configured, 'expected_dummy_volumes': count,
+            'detected_nonsteady_volumes': int(flagged.sum()),
+            'inferred_initial_dummy_volumes': inferred,
+            'nonsteady_columns': columns}
+
+
+def validate_qc_policy(cfg):
+    """Validate scientific policy before creating any runtime state."""
+    if cfg.get('qc_policy_version') != QC_POLICY:
+        raise ValueError('Use an explicit ' + QC_POLICY + ' configuration with a new run ID/runtime; retain frozen historical configurations')
+    if type(cfg.get('euler_min_reference_subjects')) is not int or cfg['euler_min_reference_subjects'] < 3:
+        raise ValueError('Set euler_min_reference_subjects to at least 3; the project default is 10')
+    if not isinstance(cfg.get('euler_threshold'), (int, float)) or not math.isfinite(cfg['euler_threshold']) or cfg['euler_threshold'] <= 0:
+        raise ValueError('Set a finite positive Euler threshold')
+    if not (cfg.get('dummy_scans') == 'auto' or type(cfg.get('dummy_scans')) is int and cfg['dummy_scans'] >= 0):
+        raise ValueError('dummy_scans must be auto or a nonnegative integer')
+
+
 def get_mriqc_flag(row, cfg):
     path = cfg.get('mriqc_flags_file')
     if not path:
@@ -188,6 +229,10 @@ def get_mriqc_flag(row, cfg):
         return None, 'missing_metric'
     flagcol = next((c for c in ('exclude_mriqc', 'excluded_any', 'qc_status_any') if c in match), None)
     value = strict_flag(match.iloc[0][flagcol]) if flagcol else None
+    if value != 1 and 'qc_metrics_complete' in match:
+        complete = str(match.iloc[0]['qc_metrics_complete']).strip().lower()
+        if complete not in ('1', '1.0', 'true', 'yes'):
+            value = None
     return value, 'available' if value is not None else 'missing_metric'
 
 
@@ -259,6 +304,7 @@ def inspect_run(group, pair, cfg, config_id, s8dir):
         df = pd.read_csv(conf, sep='\t')
         if len(df) != nt:
             raise ValueError('Confounds and BOLD length differ')
+        row.update(dummy_scan_evidence(df, cfg['dummy_scans']))
         fd = pd.to_numeric(df['framewise_displacement'], errors='raise')
         if not np.isfinite(fd.iloc[1:]).all() or fd.iloc[1:].lt(0).any():
             raise ValueError('Missing/nonfinite FD beyond first undefined frame')
@@ -315,7 +361,8 @@ def inspect_run(group, pair, cfg, config_id, s8dir):
                 known = strict_flag(iqm[flag])
                 if known is None:
                     raise ValueError('MRIQC embedded QC flag invalid')
-                if known == 1 or row['mriqc_exclude_flag'] is None:
+                embedded_complete = str(iqm.get('qc_metrics_complete', True)).strip().lower() in ('1', '1.0', 'true', 'yes')
+                if known == 1 or (row['mriqc_exclude_flag'] is None and not cfg.get('mriqc_flags_file') and embedded_complete):
                     row['mriqc_exclude_flag'] = known
                     row['mriqc_flag_status'] = 'available'
         report = root / (row['sub'] + '.html')
@@ -468,7 +515,17 @@ def validate_outputs(attempt, row, cfg, exit_code):
                     'num_dummy_volumes', 'num_censored_volumes', 'num_retained_volumes', 'coreg_dice', 'norm_dice']
         if any(k not in q or not math.isfinite(float(q[k])) for k in required):
             raise ValueError('Required LINC QC metric missing/nonfinite')
-        dummy, censored, retained = [int(q[k]) for k in ('num_dummy_volumes', 'num_censored_volumes', 'num_retained_volumes')]
+        count_fields = ('num_dummy_volumes', 'num_censored_volumes', 'num_retained_volumes')
+        if any(not float(q[k]).is_integer() for k in count_fields):
+            raise ValueError('Dummy/censor/retained counts must be integers')
+        dummy, censored, retained = [int(q[k]) for k in count_fields]
+        source_confounds = pd.read_csv(row['source_confounds_file'], sep='\t')
+        if len(source_confounds) != row['n_original_volumes']:
+            raise ValueError('Source confounds and original frame count differ')
+        dummy_evidence = dummy_scan_evidence(source_confounds, cfg['dummy_scans'])
+        if dummy != dummy_evidence['expected_dummy_volumes']:
+            raise ValueError('Actual dummy removal differs from source non-steady-state evidence')
+        out.update(dummy_evidence)
         if min(dummy, censored, retained) < 0 or dummy + censored + retained != row['n_original_volumes'] or retained != nout:
             raise ValueError('BOLD, dummy/censor/retained counts disagree')
         motion = read_xcp_tsv(file_for(root, row, '*_motion.tsv'))
@@ -566,8 +623,13 @@ def decide_final(row, cohort_ready=False):
     if strict_flag(row.get('euler_qc_flag')) == 1: reasons.append('euler_excluded')
     if row.get('xcpd_qc_status') == 'fail': reasons.append('xcpd_quality_failed')
     if row.get('visual_qc_status') == 'fail': reasons.append('visual_qc_failed:' + str(row.get('visual_qc_reason', '')))
+    if row.get('euler_visual_qc_status') == 'fail': reasons.append('anatomical_visual_qc_failed')
     if reasons: return 'exclude', False, ';'.join(reasons)
-    if any(strict_flag(row.get(k)) is None for k in ('euler_qc_flag', 'mriqc_exclude_flag')):
+    small_site_review = (row.get('euler_qc_status') == 'insufficient_reference'
+                         and row.get('euler_visual_qc_status') == 'pass'
+                         and bool(row.get('euler_visual_qc_reason'))
+                         and bool(row.get('reviewer')) and bool(row.get('review_date')))
+    if strict_flag(row.get('mriqc_exclude_flag')) is None or (strict_flag(row.get('euler_qc_flag')) is None and not small_site_review):
         return 'pending_review', None, 'cohort_flags_missing'
     if row.get('xcpd_status') != 'success' or not row.get('functional_outputs_valid'):
         return 'processing_failed', False, 'xcpd_not_validated'
@@ -584,6 +646,7 @@ class Pipeline:
         self.config_path = Path(path).resolve()
         self.cfg = load(path)
         cfg = self.cfg
+        validate_qc_policy(cfg)
         cfg['repo'] = str(Path(cfg.get('repo') or DEFAULT_UPSTREAM).resolve())
         if Path(cfg['repo']) != DEFAULT_UPSTREAM.resolve():
             raise ValueError('Use the integrated protocol source; do not substitute an unreviewed checkout')
@@ -866,13 +929,17 @@ class Pipeline:
             if not mriqc_flags:
                 raise ValueError('Finalization requires explicit current-cohort MRIQC flags')
             cf = dict(self.cfg, mriqc_flags_file=mriqc_flags)
-            eu = pd.DataFrame([{'sub': r['sub'], 'ses': r['ses'], 'site': r['site'], 'avg_en': r.get('avg_euler')} for r in rows]).drop_duplicates(['sub', 'ses'])
-            if eu.avg_en.isna().any():
-                raise ValueError('Cannot finalize with missing Euler')
-            flags, _ = upstream(self.cfg['repo'], 'finalize_inclusion').compute_sitewise_euler_exclusion(eu)
+            eu = pd.DataFrame([{'sub': r['sub'], 'ses': r['ses'], 'site': r['site'], 'avg_en': r.get('avg_euler'),
+                                'reconstruction_id': str(Path(r['source_pair']) / 'fmriprep/sourcedata/freesurfer' / str(r.get('freesurfer_subject') or r['sub'] + '_' + r['ses'])),
+                                'mt1_image_id': r.get('mt1_image_id', '')} for r in rows])
+            euler_qc = upstream(self.cfg['repo'], 'finalize_inclusion').assess_sessionwise_euler(
+                eu, min_reference_subjects=self.cfg['euler_min_reference_subjects'],
+                threshold=self.cfg['euler_threshold']).set_index(['sub', 'ses'])
             for r in rows:
                 self.verify_final_output_files(r)
-                r['euler_qc_flag'] = int(flags.loc[r['sub']])
+                assessment = euler_qc.loc[(r['sub'], r['ses'])]
+                r['euler_qc_flag'] = int(assessment.exclude_euler) if pd.notna(assessment.exclude_euler) else None
+                r.update({k: clean(assessment[k]) for k in ('euler_qc_status', 'euler_qc_reason', 'euler_reference_subjects', 'euler_site_reference')})
                 r['mriqc_exclude_flag'], r['mriqc_flag_status'] = get_mriqc_flag(r, cf)
         visual = self.hub / 'visual_review.tsv'
         old_visual_hash = sha(visual) if visual.exists() else None
@@ -899,6 +966,8 @@ class Pipeline:
             if high: reasons.append('processing_or_quantitative_QC_warning')
             near = r.get('mean_fd', 0) >= self.cfg['pre_mean_fd_threshold'] * self.cfg['review']['near_threshold_fraction'] or r.get('fd_over_threshold_proportion',r.get('fd_over_0p5_proportion', 0)) >= self.cfg['pre_fd_proportion_threshold'] * self.cfg['review']['near_threshold_fraction']
             if near: reasons.append('near_motion_threshold')
+            if r.get('euler_qc_status') in ('invalid_metric', 'insufficient_reference'):
+                reasons.append('anatomical_' + r['euler_qc_status'])
             if key(r) in audit: reasons.append('seeded_site_vendor_random_audit')
             required = bool(reasons) or old.get(key(r), {}).get('visual_review_required') == 'True'
             if required and not reasons:reasons.append('previously_selected_for_review')
@@ -909,6 +978,8 @@ class Pipeline:
                 r['visual_qc_status'] = 'pending' if required else 'not_reviewed'
             if r['visual_qc_status'] not in ('pass', 'fail', 'pending', 'not_reviewed'):
                 raise ValueError('Invalid manual review status')
+            if r.get('euler_visual_qc_status', '') not in ('', 'pass', 'fail', 'pending', 'not_reviewed'):
+                raise ValueError('Invalid anatomical visual review status')
             status, inc, why = decide_final(r, cohort_ready)
             r.update(final_qc_status=status, final_include=inc, final_exclusion_reason=why,
                      ANALYSIS_READY=False, inclusion_scope='imaging_QC_only_source_and_clinical_checks_separate')
@@ -938,7 +1009,7 @@ class Pipeline:
         included = sorted({(r['sub'], r['ses']) for r in rows if r['final_qc_status'] == 'include'})
         tsv(outdir / 'final_included_sessions.tsv', [{'sub': s, 'ses': v, 'rule': 'at_least_one_included_run'} for s, v in included], ['sub', 'ses', 'rule'])
         counts = {field: dict(collections.Counter(str(r.get(field, 'NA')) for r in rows)) for field in ('pre_xcpd_qc_status', 'xcpd_status', 'xcpd_qc_status', 'final_qc_status', 'review_priority', 'visual_qc_status')}
-        summary = {'subjects': len({r['sub'] for r in rows}), 'sessions': len({(r['sub'], r['ses']) for r in rows}), 'runs': len(rows), 'cohort_finalization_deferred': not cohort_ready, 'counts': counts}
+        summary = {'subjects': len({r['sub'] for r in rows}), 'sessions': len({(r['sub'], r['ses']) for r in rows}), 'runs': len(rows), 'cohort_finalization_deferred': not cohort_ready, 'counts': counts, 'qc_policy_version': QC_POLICY}
         summary.update(xcpd_attempts_total=sum(len(list(self.attempt_root(r).glob('attempt-*/execution.json'))) for r in rows),
                        visual_review_required=sum(bool(r['visual_review_required']) for r in rows),
                        visual_review_completed=sum(r['visual_qc_status'] in ('pass','fail') and bool(r['reviewer']) and bool(r['review_date']) for r in rows))

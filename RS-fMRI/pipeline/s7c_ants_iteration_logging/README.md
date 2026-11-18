@@ -15,3 +15,7 @@ python pipeline/s7c_ants_iteration_logging/run.py \
 ```
 
 This launches actual preprocessing. The batch runner already enables this logger. Iteration counts are not a percentage-complete estimate.
+
+## Evidence and limits
+
+Sources: [Esteban et al. (2019)](https://doi.org/10.1038/s41592-018-0235-4). The [Stage 7.C evidence record](../../06_docs/stage_evidence.md#stage-7-c) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. This stage is operational instrumentation; no paper is claimed to validate its logs/timing as an imaging-quality measure.
