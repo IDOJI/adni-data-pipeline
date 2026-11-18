@@ -19,7 +19,8 @@ def quality(iid, modality, day='2020-01-01', **updates):
     row = dict(IMAGE_ID=iid, PTID='999_S_9999', MRI_STUDY_DATE=day, MODALITY=modality,
                SERIES_UID='1.2.' + iid, QC_STATUS='pass', QUALITY='2', SERIES_SELECTED='TRUE',
                SOURCE_QC_STATUS='pass', QC_BLOCKED=False, NFQ_RAW_QC_STATUS='pass' if modality == 'EPI' else '',
-               MRI_PROTOCOL_PHASE='ADNI3')
+               MRI_PROTOCOL_PHASE='ADNI3', SPINE_SERIES_TYPE='BOLD' if modality == 'EPI' else 'T1w',
+               SPINE_DESCRIPTION='Resting State fMRI' if modality == 'EPI' else 'MPRAGE')
     return {**row, **updates}
 
 
@@ -167,3 +168,59 @@ def test_existing_outputs_and_input_mutation_are_rejected(tmp_path, monkeypatch)
     with pytest.raises(ValueError, match='new output'):
         selection.run(path)
     assert before == {p.name: selection.sha(p) for p in Path(cfg['output_dir']).iterdir()}
+
+
+def test_mixed_ida_search_is_not_a_download_list(tmp_path):
+    from reconcile import reconcile
+    cfg, path, source = setup(tmp_path)
+    descriptions = ['MPRAGE','Axial rsfMRI (Eyes Open)','relCBF','Perfusion_Weighted',
+                    'MoCoSeries','Axial pCASL (Eyes Open)','Axial MB DTI','Advanced fMRI',
+                    'Axial rsfMRI (Eyes Open)','task-nback','Axial rsfMRI (Eyes Open)']
+    ids = ['100'] + [str(i) for i in range(200,210)]
+    rows = [{'Subject ID':'999_S_9999','Image ID':'I'+key,'Study Date':'1/1/2020',
+             'Phase': 'ADNI 3' if i != 1 else 'ADNI 4','Archive Date':'2/2/2022','Description':desc,
+             'Modality':'fMRI' if i else 'MRI','Imaging Protocol':'Manufacturer=GE MEDICAL SYSTEMS; Field Strength=3.0'}
+            for i,(key,desc) in enumerate(zip(ids,descriptions))]
+    qc = [quality(k,'EPI' if i else 'T1', SPINE_DESCRIPTION='Advanced fMRI' if i==7 else descriptions[i],
+                  MRI_PROTOCOL_PHASE='ADNI4' if i==1 else 'ADNI3', SPINE_MANUFACTURER='GE',
+                  SPINE_SCANNER_MODEL='Model X',SPINE_FIELD_STRENGTH='3 T') for i,k in enumerate(ids)]
+    qc.pop(8)  # A convincing name without source identity is insufficient.
+    qc[-1]['SPINE_MANUFACTURER']='Siemens'
+    qdir = tmp_path/'mixed-qc'; qdir.mkdir(); cfg['source_qc'] = str(qdir)
+    write(qdir/'image_qc.tsv',qc); finish(qdir,'source_qc_v1',{}, {})
+    write(source,rows[1:]); t1=tmp_path/'t1.csv'; write(t1,rows[:1])
+    cfg['collections']=[{'path':str(source),'modality':'EPI'},{'path':str(t1),'modality':'T1'}]
+    path.write_text(json.dumps(cfg)); selection.run(path); out=Path(cfg['output_dir'])
+    reg={r['IMAGE_ID']:r for r in read(out/selection.NAMES['candidates'])}
+    assert set((out/selection.NAMES['download']).read_text().splitlines()) == {'I100','I200'}
+    assert reg['200']['SEARCH_PHASE']=='ADNI4' and reg['200']['MRI_STUDY_DATE']=='2020-01-01'
+    assert reg['200']['MANUFACTURER']=='ge' and reg['200']['FIELD_STRENGTH']=='3'
+    assert reg['200']['SCANNER_MODEL']=='modelx' and not reg['200']['SEARCH_SCANNER_MODEL']
+    assert 'scanner_evidence_conflict' in reg['209']['DOWNLOAD_REASONS']
+    assert 'moco_excluded_by_spine' in reg['203']['DOWNLOAD_REASONS']
+    assert 'exact_MRIQC_BOLD_not_confirmed' in reg['207']['DOWNLOAD_REASONS']
+    assert 'rest_not_documented' in reg['206']['DOWNLOAD_REASONS']
+    assert {r['EPI_IMAGE_ID'] for r in read(out/selection.NAMES['epi'])}.isdisjoint({'201','202','203','204','205'})
+    assert next(r for r in read(out/selection.NAMES['epi']) if r['EPI_IMAGE_ID']=='200')['PROTOCOL_SCOPE']=='extension_review'
+    legacy={}
+    for mod, keys in [('T1',['100']),('EPI',['201','207','999'])]:
+        legacy[mod]=tmp_path/(mod+'-legacy.csv')
+        write(legacy[mod],[dict(image_id=i,PTID='999_S_9999',STUDY_DATE='2020-01-01') for i in keys])
+    compare=tmp_path/'compare'
+    stats=reconcile(out/selection.NAMES['receipt'],legacy,compare)['summary']
+    assert stats['changed']==4 and stats['unexplained']==0
+    changed={r['IMAGE_ID']:r for r in read(compare/'changed-images.csv')}
+    assert changed['200']['CHANGE']=='added' and changed['999']['REASON']=='absent_from_supplied_search_exports'
+    assert 'perfusion' in changed['201']['REASON']
+    cfg['collections'][0]['phase']='ADNI3';path.write_text(json.dumps({**cfg,'output_dir':str(tmp_path/'bad')}))
+    with pytest.raises(ValueError,match='row Phase'):
+        selection.run(path)
+
+
+def test_date_mapping_may_not_promote_archive_or_visit_date(tmp_path):
+    cfg,path,source=setup(tmp_path)
+    cfg['collections'][0]['columns']={'MRI_STUDY_DATE':'Archive Date'}
+    write(source,[collection('100',**{'Archive Date':'01/01/2020'})])
+    path.write_text(json.dumps(cfg))
+    with pytest.raises(ValueError,match='acquisition date'):
+        selection.run(path)

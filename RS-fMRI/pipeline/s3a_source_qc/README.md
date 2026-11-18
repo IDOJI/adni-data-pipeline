@@ -4,6 +4,8 @@
 
 **Output:** `image_qc.tsv`, source audits and `artifact.json` in the output directory.
 
+The image table also retains the original MRIQC series type, description, manufacturer, field strength and model for the Search comparison. Rebuild older 3.A artifacts before 3.B.
+
 ## Run
 
 From `RS-fMRI/`, after [setup](../../06_docs/installation.md). Replace example paths and IDs with your inputs.

@@ -17,13 +17,13 @@ From `RS-fMRI/`, after [setup](../../06_docs/installation.md):
 python pipeline/s3b_image_selection/run.py --config /ABS/image-selection.json
 ```
 
-Each collection declares its `path`, `phase` and `modality` (`T1` or `EPI`). The export must identify the participant, Image ID and actual acquisition date. Common headings such as `Subject`, `Image Data ID` and `Acq Date` are recognized. Use `columns` to map a nonstandard heading explicitly; do not map a visit code to `MRI_STUDY_DATE`. If modality is omitted for a mixed export, every image must be classifiable from the source-QC registry. Phase remains an explicit collection declaration.
+Declare a search scope (`T1` or `EPI`); it is not evidence of series type. Mixed-phase IDA exports work directly: `Image ID`, `Subject ID`, `Study Date`, `Phase`, `Description` and `Imaging Protocol`. A file-level `phase` is only for verified uniform exports: when a Phase column exists each row must agree with that declaration. A blank row phase is held when no declaration is supplied. Visit and archive dates cannot stand in for acquisition dates. Optional `columns` mappings support other schemas. If search scope is omitted every ID must have a classifiable source modality.
 
-Optional scanner/UID fields are retained. A UID missing from the export can come from the matched source record. Conflicting participant/date/modality/UID evidence blocks that image; missing quality remains pending. Repeated identical image records share one registry row while every original collection row remains in the audit. Conflicting copies fail instead of selecting the first row.
+Rebuild 3.A first: old artifacts lack original MRIQC series type/description. The collection is joined by Image ID and checked against participant, acquisition date, modality and available UID. Original spine type and both descriptions separate resting BOLD/T1w from non-target and ambiguous rows. The MRIQC spine's MoCoSeries and non-target T1 descriptors (ax/cor/SmartBrain/FLAIR) override quality grades. A Search-only MoCo label without corroboration remains held. Read manufacturer, field and model from dedicated or packed protocol fields; retain independent MRIQC values. Conflicting normalized evidence holds the image; missing model is never manufactured. The `ELIGIBLE` field records absence of a hard source exclusion; only `DOWNLOAD_ELIGIBLE` governs downloading.
 
 ## Pairing policy
 
-- Preserve every EPI and all supplied T1 candidates, including excluded and unresolved rows. Neither a T1's clinical diagnosis gap nor the later 28-day clinical rule removes it from the anatomical reference inventory.
+- Preserve every raw row in the inventory. Keep target and unresolved search candidates visible for pairing; established non-target series do not enter pairing. Neither a T1's clinical diagnosis gap nor the later 28-day clinical rule removes it from the anatomical reference inventory.
 - Prefer eligible same-day T1 candidates. Rank by documented QC, Mayo selection and quality grade, retaining all top ties. Unknown quality can remain a candidate but cannot authorize processing.
 - If no eligible same-day T1 exists, rank cross-date candidates by documented QC, absolute date gap, Mayo selection and quality grade. Store signed gaps and flag future anatomy, scanner/phase differences and missing evidence.
 - `cross_date_candidate_window_days: null` inventories all supplied dates; it does **not** authorize an unlimited pairing interval. A positive integer limits the candidates considered for cross-date review, retaining outside-window rows in the audit. Every cross-date proposal stays held.
@@ -39,16 +39,26 @@ All rows remain `PREPROCESSING_READY=False` and `ANALYSIS_READY=False` here. A u
 | `01.pairing-policy.json` | Exact pairing policy used |
 | `02.t1-reference-pool.csv` | All T1 candidates with reference eligibility |
 | `03.epi-t1-candidates.csv` | All within-participant links, dates, ranks and review flags |
-| `04.epi-analysis-manifest.csv` | One row per EPI, including unresolved or excluded images |
+| `04.epi-analysis-manifest.csv` | One row per target or unresolved EPI search candidate, with QC and pairing state |
 | `05.pairing-review.csv` | EPI rows requiring pairing/source review |
 | `06.summary.json` | Counts and explicit scope limitations |
 | `07.run-manifest.json` | Input/output hashes, implementation hashes and policy provenance |
 | `08.collection-row-audit.csv` | Original file/row references and visit labels |
-| `09.download-candidates.txt` | Nonblocked Image IDs, including pending QC; a manual download aid |
+| `09.download-candidates.txt` | Only confirmed target Image IDs with exact identity, passing source QC and no selection holds; independent of pair approval |
 
 An optional `confirmed_exclusions` CSV requires `IMAGE_ID`, `PTID`, `MRI_STUDY_DATE`, `MODALITY`, `REASON` and `CONFIRMED`. Use exact identity and explicitly reviewed conversion/slice-timing failures; absence of a sidecar is not sufficient evidence.
 
 The runner verifies source-QC outputs, detects changing inputs, refuses an existing output directory and records hashes for the 5.D handoff. Synthetic tests exercise policy and file contracts. They do not establish real-cohort equivalence, anatomical suitability or successful conversion. See the [design and evidence guide](../../06_docs/date_based_selection.md) for the distinction between published methods and project policy.
+
+## Optional private comparison
+
+After selection, run the following on the two existing Research Search/QC exports (`image_id,PTID,STUDY_DATE`). The union report includes all raw IDs, even images in neither list. A second report contains only changes with all contributing reasons, QC record references and descriptions. Duplicate IDs, conflicting historical identities and a download file that disagrees with the registry stop the audit. The external receipt binds the compared files. These are stage-matched lists, not a comparison against final clinical or preprocessing cohorts.
+
+```sh
+python pipeline/s3b_image_selection/reconcile.py --receipt /ABS/new-step3b/07.run-manifest.json \
+  --legacy-t1 /ABS/search_T1_QC_filtered.csv --legacy-epi /ABS/search_EPB_QC_filtered.csv \
+  --output-dir /ABS/private/new-comparison
+```
 
 ## Evidence and limits
 

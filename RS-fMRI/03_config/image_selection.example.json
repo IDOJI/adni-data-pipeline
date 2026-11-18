@@ -1,13 +1,11 @@
 {
   "collections": [
     {
-      "path": "/ABS/collections/adni3_t1.csv",
-      "phase": "ADNI3",
+      "path": "/ABS/collections/mixed_phase_t1.csv",
       "modality": "T1"
     },
     {
-      "path": "/ABS/collections/adni3_resting_fmri.csv",
-      "phase": "ADNI3",
+      "path": "/ABS/collections/mixed_phase_resting_fmri.csv",
       "modality": "EPI"
     }
   ],

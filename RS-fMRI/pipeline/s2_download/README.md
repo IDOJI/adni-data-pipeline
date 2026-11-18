@@ -9,7 +9,7 @@
 1. Sign in to [LONI IDA](https://ida.loni.usc.edu/login.jsp) with approved ADNI access.
 2. Export reviewed T1w and resting-fMRI collection CSVs with Image IDs, participant identifiers and actual acquisition dates. Record search phase, search criteria and data-freeze date. Retain available UID/scanner fields and visit labels.
 3. Download matching Study Files, including clinical, MRI QC, NFQ and deletion records. Run [3.A source QC](../s3a_source_qc/README.md), then [3.B date-based selection](../s3b_image_selection/README.md) before reducing the imaging candidates.
-4. Review the 3.B inventory and download the required images through IDA. Its `09.download-candidates.txt` lists nonblocked images, including pending QC, and is a manual aid rather than scientific approval or an automatic portal upload.
+4. Review the 3.B inventory and download the required images through IDA. Its `09.download-candidates.txt` lists positively identified target acquisitions with matching source identity and passing QC, and is a manual aid rather than scientific approval or an automatic portal upload.
 5. Store archives, exports and source-table versions outside the repository, following the [data layout](../../06_docs/data_preparation.md). Continue with [DICOM inventory](../s3_organize/README.md) and [conversion](../s4_clinica/README.md).
 
 Preserve every candidate EPI and the available T1 reference pool in the metadata audit. Do not restrict T1 downloads to the same VISCODE or prune the T1 reference inventory using the later clinical 28-day rule. Same-day proposals, cross-date review cases and unresolved ties are distinct states; no pairing proposal itself approves processing. See the [selection design](../../06_docs/date_based_selection.md).

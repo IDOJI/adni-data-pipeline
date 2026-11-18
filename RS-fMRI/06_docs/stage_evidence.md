@@ -46,7 +46,7 @@ Each stage README links to its entry here. Source IDs resolve to the exact ADNI 
 
 **Evidence and location:** A01 distinguishes visit labels from dates. A02 directly discusses acquisition-date T1 choice and possible adjacent-time alternatives. [A01](#a01), [A02](#a02).
 
-**Implementation and limits:** Same-day automatic eligibility, QC → chosen → grade ranking, preserved ties/all EPI, a T1 pool independent of the clinical window, and no cross-date auto-launch are project policies. A02 does not require same-day-only use or specify an acceptable gap.
+**Implementation and limits:** Same-day automatic eligibility, QC → chosen → grade ranking, preserved ties/all EPI, a T1 pool independent of the clinical window, and no cross-date auto-launch are project policies. A02 does not require same-day-only use or specify an acceptable gap. [P18 §§2.6–2.8](#p18) distinguishes ASL and diffusion from task-free BOLD and describes phase/vendor variation. The four-key Search/spine intersection, positive rest evidence, per-row Phase, scanner normalization and the private Image ID change ledger are project rules; see the [checkpoint table](date_based_selection.md#selection-checkpoints-and-their-evidence).
 
 <a id="stage-4"></a>
 
@@ -86,7 +86,7 @@ Each stage README links to its entry here. Source IDs resolve to the exact ADNI 
 
 **Evidence and location:** A10 describes Image ID correspondence; A02 addresses the anatomical reference; P02 supplies metadata organization. [A10](#a10), [A02](#a02), [P02](#p02).
 
-**Implementation and limits:** Date/UID/hash/header verification, receipt binding and isolated one-EPI/one-T1 staging are project integrity controls. No cited source mandates this receipt format or certifies registration quality from hashes.
+**Implementation and limits:** Date/UID/hash/header verification, receipt binding and isolated one-EPI/one-T1 staging are project integrity controls. Cross-check scanner evidence against both physical sidecars; [P18 §2.8](#p18) supports recording variability, not mandatory manufacturer/strength holds. No cited source mandates this receipt format or certifies registration quality from hashes.
 
 <a id="stage-6"></a>
 
@@ -333,7 +333,7 @@ Each stage README links to its entry here. Source IDs resolve to the exact ADNI 
 
 <a id="p18"></a>
 
-**P18 — [Arani et al. (2024)](https://doi.org/10.1002/alz.14162).** Design and validation of the ADNI MR protocol. Alzheimer’s & Dementia (2024-08-08 online). Section 2.8: phase/scanner-dependent fMRI protocols, including ADNI4 changes. Peer-reviewed. [Full text](https://pmc.ncbi.nlm.nih.gov/articles/PMC11497751/).
+**P18 — [Arani et al. (2024)](https://doi.org/10.1002/alz.14162).** Design and validation of the ADNI MR protocol. Alzheimer’s & Dementia (2024-08-08 online). Sections 2.6–2.8 and Table 1: separate ASL, diffusion and BOLD acquisitions; phase/scanner-dependent fMRI protocols, including ADNI4 changes. Peer-reviewed. [Full text](https://pmc.ncbi.nlm.nih.gov/articles/PMC11497751/).
 
 <a id="p19"></a>
 

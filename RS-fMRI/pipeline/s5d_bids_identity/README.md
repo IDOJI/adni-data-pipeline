@@ -51,6 +51,8 @@ The template uses [seed 1123 and OMP1](../../06_docs/seed_reproducibility.md). U
 
 Binding verifies the exact EPI and proposed T1, including actual dates, unique UIDs, independent NIfTI hashes and BIDS header consistency. It checks source eligibility for both modalities and rejects duplicate EPI image assignments. A BIDS file with the same visit label is not a replacement for a missing proposed Image ID.
 
+Scan-level source/JSON contradictions and scanner differences across EPI and T1 block execution. Both physical files must report comparable manufacturer and field strength; model is compared when available and otherwise recorded as unknown. Compare normalized vendor names and numeric strengths. A scanner match is not registration QC. Rebuild old 3.B v1 and 5.D receipts before using this path; unversioned Research pairing receipts still require the current physical checks.
+
 The current executable path requires a unique, eligible `same_day_proposed` pair, documented EPI QC, no pairing-review hold and the reviewed GO/2/3 protocol scope. Cross-date candidates, top ties and protocol extensions remain held even if files exist. A 3.B review window does not authorize cross-date execution. See the [date-based selection guide](../../06_docs/date_based_selection.md) for the distinction between inventory, proposal and execution.
 
 `PREPROCESSING_READY` is a technical handoff decision. `ANALYSIS_READY` remains false; anatomical quality, BOLD–T1 registration, denoising, motion/coverage checks and clinical/final inclusion still require their respective stages. Original acquisition dates and source provenance remain unchanged.

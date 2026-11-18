@@ -21,7 +21,7 @@ RS-fMRI/
 
 ## Steps and commands
 
-Main flow: **1/2 metadata export → 3.A source QC → 3.B date-based proposals → image download/3/4/4.B/5 → 5.D exact binding → guarded MRIQC/fMRIPrep (6/7.B) → S8/S10 QC and XCP-D → clinical/final checks (9.A/9.B) → atlas signals (11)**. Same VISCODE is not evidence of the same acquisition date. Every EPI is preserved; cross-date pairs, ties and missing evidence remain held. Step 12 independently exports completed archive metrics. **7.A is an alternative profile**; 7.C/7.D provide logs and timing.
+Main flow: **1/2 metadata export → 3.A source QC → 3.B date-based proposals → image download/3/4/4.B/5 → 5.D exact binding → guarded MRIQC/fMRIPrep (6/7.B) → S8/S10 QC and XCP-D → clinical/final checks (9.A/9.B) → atlas signals (11)**. Same VISCODE is not evidence of the same acquisition date. Every Search row is audited; download requires confirmed T1w/resting BOLD and passing source QC; cross-date pairs, ties and missing evidence remain held. Step 12 independently exports completed archive metrics. **7.A is an alternative profile**; 7.C/7.D provide logs and timing.
 
 Click the code name for its inputs, outputs and execution command. Run commands from `RS-fMRI/` after [setup](06_docs/installation.md).
 
@@ -31,12 +31,12 @@ Click the code name for its inputs, outputs and execution command. Run commands 
 | 2 | Download images and Study Files | DICOM, metadata and clinical CSVs | [Manual portal step](pipeline/s2_download/README.md) |
 | 3 | Inventory downloaded DICOMs | Inventory CSV and subject list | [create_dicom_dir_csv.sh](pipeline/s3_organize/README.md) |
 | 3.A | Check source QC, NFQ and image identity | image_qc.tsv | [run.py](pipeline/s3a_source_qc/README.md) |
-| 3.B | Preserve collection images and propose T1 references by actual scan date | Candidate registry, all EPI/T1 links, review manifest and hashed receipt | [run.py](pipeline/s3b_image_selection/README.md) |
+| 3.B | Preserve collection images and propose T1 references by actual scan date | Row-level phase/scanner inventory, strict download list, pairing manifest and optional historical ID comparison | [run.py](pipeline/s3b_image_selection/README.md) |
 | 4 | Convert DICOM to BIDS | NIfTI, JSON and conversion records | [Clinica / Slurm helpers](pipeline/s4_clinica/README.md) |
 | 4.B | Fill verified Philips SliceTiming | Updated sidecars and audit TSV | [insert_philips_slicetiming.py](pipeline/s4b_slice_timing/README.md) |
 | 5 | Check converted images and scan parameters | Mastersheet and final_heuristics.tsv | [main.py + run_session_heuristics.py](pipeline/s5_post_clinica_qc/README.md) |
 | 5.C | Audit session-level source handoff; does not authorize a T1 reference | Subject/session CSVs | [run.py](pipeline/s5c_validate_handoff/README.md) |
-| 5.D | Verify an exact EPI–T1 pair | Binding receipt and prepared runtime | [binding.py + guarded_runner_seeded.py](pipeline/s5d_bids_identity/README.md) |
+| 5.D | Verify an exact EPI–T1 pair and physical scanner consistency | Binding receipt and prepared runtime | [binding.py + guarded_runner_seeded.py](pipeline/s5d_bids_identity/README.md) |
 | 6 | Measure image quality | IQM tables and HTML reports | [run_seeded.py + iqm_seeded.py](pipeline/s6_mriqc/README.md) |
 | 7 | Preprocess T1w and BOLD | Aligned images, confounds and reports | [run_seeded.py](pipeline/s7_fmriprep/README.md) |
 | 7.A | Run the alternative volume/aCompCor profile | Volume derivatives and denoised BOLD | [pipeline_seeded.py](pipeline/s7a_volume_workflow/README.md) |

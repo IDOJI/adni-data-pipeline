@@ -7,6 +7,7 @@ import json
 import math
 import os
 import re
+import sys
 from collections import Counter, defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
@@ -14,7 +15,10 @@ from pathlib import Path
 import nibabel as nib
 import numpy as np
 
-VERSION = '2026-11-17-bids-identity-v2'
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import scanner_evidence as scanner
+
+VERSION = 'bids-identity-scanner-v3'
 NAMES = {'images': '02.image-validation.csv', 'files': '03.file-audit.csv',
          'epi': '04.epi-execution-manifest.csv', 'plans': '05.execution-plans.json',
          'summary': '06.summary.json', 'receipt': '07.binding-receipt.json'}
@@ -147,6 +151,7 @@ def inspect_file(root, sidecar, by_uid, expected):
               'SERIES_UID': '', 'SUBJECT': '', 'SESSION': '', 'NIFTI_SHA256': '',
               'JSON_SHA256': '', 'NIFTI_SHAPE': '', 'STATUS': 'pending',
               'REASON': '', 'HASH_EVIDENCE_FILE': '', 'HASH_EVIDENCE_ROW': ''}
+    record.update({field: '' for field in scanner.FIELDS})
     try:
         if not path_within(root, sidecar) or not resident(sidecar):
             raise ValueError('Sidecar unavailable or symlink outside root')
@@ -173,6 +178,10 @@ def inspect_file(root, sidecar, by_uid, expected):
         source = matches[0]
         image_id = iid(source['IMAGE_ID'])
         record.update(IMAGE_ID=image_id, PTID=source['PTID'], MRI_STUDY_DATE=source['MRI_STUDY_DATE'])
+        for field, key in scanner.FIELDS.items():
+            record[field] = scanner.normalized(field, meta.get(key))
+            if scanner.comparison(source, record, field) == 'mismatch':
+                raise ValueError('Source/JSON scanner conflict:' + field)
         if source['MODALITY'] != modality:
             raise ValueError('Source/BIDS modality conflict')
         if sub not in (source['PTID'].replace('_', ''), 'ADNI' + source['PTID'].replace('_', '')):
@@ -231,6 +240,7 @@ def bind(images, epis, roots, expected):
         status = 'verified' if len(signatures) == 1 and len(valid) == len(found) else 'conflict' if found and (len(signatures) > 1 or valid) else 'pending'
         chosen = valid[0] if status == 'verified' else {}
         record = {**{k: source.get(k, '') for k in ('PTID', 'MRI_STUDY_DATE', 'MODALITY', 'IMAGE_ID', 'SERIES_UID')},
+                  **{k: chosen.get(k, '') for k in scanner.FIELDS},
                   'BIDS_STATUS': status, 'OBSERVED_COPY_COUNT': len(found),
                   'BIDS_ROOT': chosen.get('BIDS_ROOT', ''),
                   'BIDS_NIFTI_PATH': chosen.get('NIFTI_PATH', ''), 'BIDS_JSON_PATH': chosen.get('JSON_PATH', ''),
@@ -256,6 +266,8 @@ def bind(images, epis, roots, expected):
                 or source_epi.get('EXCLUSION_REASONS')
                 or source_epi.get('SOURCE_QC_STATUS', 'pass') != 'pass'):
             reasons.append('EPI_source_QC_pending_or_blocked')
+        if 'DOWNLOAD_ELIGIBLE' in source_epi and not true(source_epi['DOWNLOAD_ELIGIBLE']):
+            reasons.append('EPI_download_selection_held')
         if epi.get('EPI_SERIES_UID') and epi['EPI_SERIES_UID'] != source_epi.get('SERIES_UID'):
             reasons.append('EPI_source_series_uid_conflict')
         if not e: reasons.append('epi_BIDS_identity_pending')
@@ -272,10 +284,24 @@ def bind(images, epis, roots, expected):
                     or ti.get('EXCLUSION_REASONS')
                     or ti.get('SOURCE_QC_STATUS', 'pass') != 'pass'):
                 reasons.append('T1_source_QC_pending_or_blocked')
+            if 'DOWNLOAD_ELIGIBLE' in ti and not true(ti['DOWNLOAD_ELIGIBLE']):
+                reasons.append('T1_download_selection_held')
+        scanner_states = {}
+        if e and t:
+            for field in scanner.FIELDS:
+                # Compare physical evidence across files and all available source evidence.
+                state = scanner.comparison(e, t, field)
+                scanner_states[field] = state
+                values = {scanner.normalized(field, r.get(field)) for r in (e, t, source_epi, ti)} - {''}
+                if len(values) > 1:
+                    reasons.append('pair_scanner_mismatch:' + field)
+                elif state == 'unknown' and field in {'MANUFACTURER', 'FIELD_STRENGTH'}:
+                    reasons.append('pair_scanner_unverified:' + field)
         ready = not reasons
         row = {**epi, 'VERIFIED_BIDS_BOLD_PATH': e['BIDS_NIFTI_PATH'] if e else '',
                'VERIFIED_BIDS_T1_PATH': t['BIDS_NIFTI_PATH'] if t else '',
                'BIDS_IDENTITY_STATUS': 'verified' if e and t else 'pending',
+               'PHYSICAL_SCANNER_COMPARISON': ';'.join(k + ':' + v for k, v in scanner_states.items()),
                'PREPROCESSING_READY': ready, 'ANALYSIS_READY': False,
                'READINESS_BLOCKERS': ';'.join(reasons) if reasons else 'postprocessing_and_scientific_QC_pending'}
         linked.append(row)
@@ -303,7 +329,7 @@ def run(config):
     prior = proof_files(inputs['pairing_receipt'])
     # New collection-driven selection produces the candidate registry itself.
     # Keep existing private Research receipts readable without reinterpreting them.
-    if prior.get('kind') == 'date_based_selection_v1':
+    if prior.get('kind') == 'date_based_selection_v2':
         candidates = prior['outputs']['candidates']
     elif not prior.get('kind'):
         candidates = prior['inputs']['candidates']
@@ -344,6 +370,7 @@ def run(config):
         receipt = {'version': VERSION, 'created_utc': datetime.now(timezone.utc).isoformat(),
                    'inputs': {k: {'path': str(p), 'sha256': before[k]} for k, p in inputs.items()},
                    'outputs': {k: {'path': str(p.resolve()), 'sha256': sha(p)} for k, p in targets.items() if k != 'receipt'},
+                   'scanner_code': {'path': str(Path(scanner.__file__).resolve()), 'sha256': sha(scanner.__file__)},
                    'code': {'path': str(Path(__file__).resolve()), 'sha256': sha(__file__)}}
         with targets['receipt'].open('x') as f: json.dump(receipt, f, ensure_ascii=False, indent=2)
         published.append(targets['receipt'])
@@ -357,7 +384,7 @@ def verify_plan(receipt, epi_key):
     proof = proof_files(receipt)
     if proof.get('version') != VERSION:
         raise ValueError('Unsupported binding artifact version')
-    if sha(proof['code']['path']) != proof['code']['sha256']:
+    if any(sha(proof[k]['path']) != proof[k]['sha256'] for k in ('code', 'scanner_code')):
         raise ValueError('Binding validation code changed after artifact creation')
     # Revalidate upstream policy/registry provenance as well as binding outputs.
     proof_files(proof['inputs']['pairing_receipt']['path'])

@@ -141,7 +141,8 @@ def reference_allowed(row):
     """Unknown QC may be inventoried as a candidate but cannot authorize use."""
     status = _text(row.get("QC_STATUS")).lower()
     quality = _text(row.get("QUALITY"))
-    return (source_qc_state(row) != "blocked"
+    return (row.get("SERIES_CLASS", "target") == "target"
+            and source_qc_state(row) != "blocked"
             and _truth(row.get("ELIGIBLE")) is True
             and not _text(row.get("EXCLUSION_REASONS"))
             and status in {"pass", "unknown"}

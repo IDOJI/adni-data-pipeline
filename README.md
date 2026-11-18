@@ -20,7 +20,7 @@ adni-data-pipeline/
 └── SNP/
 ```
 
-New RS-fMRI runs use **seed 1123**, **fMRIPrep 25.2.7** and fixed skull-stripping initialization. Start with [installation](RS-fMRI/06_docs/installation.md) and [date-based image selection](RS-fMRI/06_docs/date_based_selection.md). The selection path is **collection CSVs → source QC (3.A) → EPI/T1 proposals by actual acquisition date (3.B) → BIDS conversion → exact image verification (5.D) → guarded preprocessing → imaging/clinical QC**. Matching VISCODE or session labels alone does not authorize a T1–EPI pair.
+New RS-fMRI runs use **seed 1123**, **fMRIPrep 25.2.7** and fixed skull-stripping initialization. Start with [installation](RS-fMRI/06_docs/installation.md) and [date-based image selection](RS-fMRI/06_docs/date_based_selection.md). The selection path is **collection CSVs → source QC (3.A) → EPI/T1 proposals by actual acquisition date (3.B) → BIDS conversion → exact image verification (5.D) → guarded preprocessing → imaging/clinical QC**. Only confirmed target series enter the manual download list; the private [Image ID comparison](RS-fMRI/pipeline/s3b_image_selection/README.md#optional-private-comparison) explains differences from previous Search/QC lists. Matching VISCODE or session labels alone does not authorize a T1–EPI pair.
 
 New S10 configurations use automatic non-steady-state removal and session-specific Euler QC under an explicit versioned policy; use a fresh runtime. See the [local batch](RS-fMRI/06_docs/local_batch.md) for its single-pair-per-participant handoff contract, or the [public example](RS-fMRI/07_reproducibility/README.md).
 

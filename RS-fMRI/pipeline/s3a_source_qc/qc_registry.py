@@ -97,6 +97,9 @@ def normalize(source, row, row_number):
             LONI_SERIES=integer_id(row['LONISeries'], 'S'),
             SERIES_NUMBER=integer_id(row['SeriesNumber']),
             MRI_PROTOCOL_PHASE=text(row['MRIProtocolPhase']),
+            SPINE_SERIES_TYPE=text(row['SeriesType']), SPINE_DESCRIPTION=text(row.get('SeriesDescription')),
+            SPINE_MANUFACTURER=text(row.get('ScannerManufacturer')), SPINE_SCANNER_MODEL=text(row.get('ScannerModel')),
+            SPINE_FIELD_STRENGTH=text(row.get('MagneticFieldStrength')),
             QUALITY='', SERIES_SELECTED='', STUDY_OVERALLPASS='',
             PROTOCOL_STATUS='', STUDY_PROTOCOL_STATUS='', COMMENTS='',
             SOURCE=source, SOURCE_ROW=row_number)
@@ -262,6 +265,8 @@ def build_registry(paths):
             'MODALITY': canonical.get('MODALITY') or (next(iter(types)) if len(types) == 1 else ''),
             'SERIES_UID': canonical.get('SERIES_UID', ''),
             'MRI_PROTOCOL_PHASE': canonical.get('MRI_PROTOCOL_PHASE', ''),
+            **{k: canonical.get(k, '') for k in ('SPINE_SERIES_TYPE', 'SPINE_DESCRIPTION', 'SPINE_MANUFACTURER',
+                                                 'SPINE_SCANNER_MODEL', 'SPINE_FIELD_STRENGTH')},
             'QC_SOURCE': ';'.join(used_sources), 'QC_STATUS': status,
             'QUALITY': quality, 'SERIES_SELECTED': next(iter(choices)) if len(choices) == 1 else '',
             'QC_REASON': reason, 'QC_WARNINGS': ';'.join(sorted(set(warnings))),

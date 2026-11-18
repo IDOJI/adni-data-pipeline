@@ -8,25 +8,40 @@ Stage 3.B inventories images by participant, actual acquisition date, Image ID a
 
 ```mermaid
 flowchart TD
-    A[Step 2: collection CSVs and original Study Files] --> B[3.A: source QC and NFQ evidence]
-    A --> C[3.B: normalize image identity and actual dates]
-    B --> C
-    C --> D[Preserve every EPI and all T1 candidates]
-    D --> E[Rank within-participant T1 candidates]
-    E --> F[Unique same-day proposal with documented QC]
-    E --> G[Cross-date, ties, missing evidence or protocol extension: hold]
-    C --> H[Manual download of reviewed image candidates]
-    H --> I[3 and 4: DICOM inventory, conversion records and BIDS]
-    I --> J[4.B and 5: timing and acquisition checks]
-    F --> K[5.D: exact Image ID, UID, date, hash and header binding]
-    J --> K
-    K --> L[6 and 7: MRIQC and fMRIPrep]
-    L --> M[Imaging QC, denoising and clinical/final inclusion checks]
+    A["2: original IDA Search and MRIQC, Mayo, NFQ, deletion tables"] --> B["3.A: preserve spine type, description, scanner and source QC"]
+    A --> C["3.B: read each Study Date, Phase and Imaging Protocol"]
+    B --> D{"Exact Image ID, participant, acquisition date and modality?"}
+    C --> D
+    D -->|Missing or conflicting| HOLD["Private inventory: reasons and source rows"]
+    D -->|Match| T{"Spine type and descriptions"}
+    T -->|Perfusion, diffusion, scout or established derivative| OUT["Non-target: inventory only"]
+    T -->|Ambiguous or rest undocumented| HOLD
+    T -->|"Confirmed T1w or resting BOLD"| Q{"Source QC pass and no selection hold?"}
+    Q -->|No| HOLD
+    Q -->|Yes| DL["Manual download list"]
+    DL --> CMP["Optional: compare historical lists by Image ID"]
+    DL --> I["3/4/4.B/5: inventory, BIDS conversion and intake"]
+    T --> P["Date-based reference proposals; audit unresolved candidates"]
+    P -->|Tie, cross-date or unsupported phase| HOLD
+    P -->|Unique same-day| K["5.D: exact IDs, UIDs, hashes, headers and scanner evidence"]
+    I --> K
+    K -->|Conflict or missing required scanner evidence| HOLD
+    K -->|Verified| L["MRIQC and fMRIPrep, then imaging and clinical QC"]
 ```
 
 Metadata exports and source QC can be reviewed before a large imaging download. If images have already been downloaded, 3.B can instead reconcile that inventory. Neither route changes original source tables. The metadata stage writes only external artifacts and never invokes a downloader, Clinica, MRIQC or fMRIPrep.
 
-The [3.B example configuration](../03_config/image_selection.example.json) accepts explicit collection files, their phases/modalities, the 3.A output directory and a new output directory. Source QC is linked through `artifact.json` and `image_qc.tsv`. Collection identity conflicts remain blocked, unverified quality remains pending, and the output receipt binds all artifacts for later verification.
+The [3.B example configuration](../03_config/image_selection.example.json) accepts explicit collection files, their search modalities and per-row phases, the 3.A output directory and a new output directory. Source QC is linked through `artifact.json` and `image_qc.tsv`. Collection identity conflicts remain blocked, unverified quality remains pending, and the output receipt binds all artifacts for later verification.
+
+## Selection checkpoints and their evidence
+
+| Checkpoint | What is checked | Basis and limits |
+|---|---|---|
+| 2 / 3.A: source identity | Read the MRIQC Study Files spine, including original series type, description and scanner; join source quality, NFQ and known failures independently. | [ADNI Image ID correspondence (A10)](stage_evidence.md#a10) and [grade/chosen answers (A05/A09)](stage_evidence.md#stage-3-a). The four-key intersection is the Research workflow, not an ADNI grading recommendation. |
+| 3.B: dates and phase | Use IDA **Study Date** and per-row **Phase**. The MRI protocol phase is a separate observation. Never substitute Archive Date, VISCODE or a visit label. | [ADNI QID 434](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=434) discusses anatomical acquisition dates; [QID 2126](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=2126) distinguishes visit codes from elapsed time. CSV aliases and mixed-file checks are implementation rules. |
+| 3.B: series and download | Require source T1w or source BOLD with positive resting evidence and no contrary description. Exclude perfusion/diffusion, scouts and confirmed MoCoSeries. Ambiguous names stay in review. Source QC pass, verified identity and no holds are required for download. | [Arani et al., §§2.6–2.8 and Table 1](https://doi.org/10.1002/alz.14162) distinguish ASL, diffusion and task-free EPI-BOLD. The text rules, positive confirmation and pre-download QC gate are project safeguards. |
+| 3.B / 5.D: scanner | Compare Search protocol and spine information on each image. Compare independent BIDS metadata to source and across the proposed pair; known conflict holds, absent model stays unknown, missing physical manufacturer or strength holds. | [Arani et al., §2.8](https://doi.org/10.1002/alz.14162) describe scanner/protocol variation; [Gorgolewski et al., BIDS metadata](https://doi.org/10.1038/sdata.2016.44) describe metadata representation. Neither paper prescribes these hold rules. |
+| Private reconciliation | Compare both historical Search/QC lists to the actual download file; classify each ID as retained, added, removed or neither, keeping specific reasons. | An audit of local decisions, not scientific validation. Historical lists are never selection inputs. |
 
 ## Three different dates and identities
 
@@ -42,7 +57,7 @@ The clinical nearest/28-day policy belongs to 9.A/9.B. It is not an EPI–T1 pai
 
 ## Project policy implemented by 3.B
 
-All supplied EPI images receive a manifest row. All supplied T1 images stay in the reference pool, including failed images marked ineligible. Links are generated only within the same participant. Known source failures cannot become eligible references, and missing source evidence is never promoted to a pass.
+Every raw search row remains in the inventory. Identified non-target series do not enter the pairing manifest. Other EPI search candidates retain their review state; unresolved T1s cannot authorize a reference. Links are generated only within the same participant. Known source failures cannot become eligible references, and missing source evidence is never promoted to a pass.
 
 Eligible same-day candidates take precedence. Within that set, priority is documented source QC, Mayo-selected status, then quality grade. If no eligible same-day candidate exists, cross-date priority is documented QC, absolute acquisition-date gap, Mayo selection, then grade. Acceleration is recorded without a preference. All equally ranked top candidates are retained; the code does not break ties using Image ID, row order or the latest date.
 
