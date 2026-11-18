@@ -20,7 +20,8 @@ from _shared import new_output, read, sha, snapshot, unchanged, verify_bundle, w
 import pairing
 from series_evidence import equipment, series_class
 
-VERSION = 'date_based_selection_v2'
+from selection_identity import VERSION, image_id, scan_date
+
 NAMES = {'candidates': '00.candidate-images.csv', 'policy': '01.pairing-policy.json',
          'pool': '02.t1-reference-pool.csv', 'links': '03.epi-t1-candidates.csv',
          'epi': '04.epi-analysis-manifest.csv', 'review': '05.pairing-review.csv',
@@ -47,27 +48,6 @@ QC_FIELDS = ('QC_STATUS', 'QUALITY', 'SERIES_SELECTED', 'QC_REASON', 'QC_WARNING
 
 def truth(value):
     return str(value).strip().lower() in {'true', '1', 'yes'}
-
-
-def image_id(value):
-    token = str(value).strip()
-    if not re.fullmatch(r'[Ii]?[0-9]+', token):
-        raise ValueError('Image ID must be a numeric LONI image identifier')
-    token = token.removeprefix('I').removeprefix('i')
-    return str(int(token))
-
-
-def scan_date(value):
-    token = str(value).strip()
-    for fmt in ('%Y-%m-%d', '%Y%m%d', '%m/%d/%Y', '%m/%d/%Y %H:%M:%S'):
-        try:
-            return datetime.strptime(token, fmt).date().isoformat()
-        except ValueError:
-            pass
-    try:
-        return datetime.fromisoformat(token).date().isoformat()
-    except ValueError as exc:
-        raise ValueError('Missing or invalid actual acquisition date; VISCODE is not a date substitute') from exc
 
 
 def phase(value):
@@ -274,7 +254,7 @@ def run(config):
     receipt = {'kind': VERSION, 'created_utc': datetime.now(timezone.utc).isoformat(),
                'inputs': {k: {'path': str(p), 'sha256': hashes[str(p)]} for k, p in inputs.items()},
                'outputs': {k: {'path': str(out / name), 'sha256': sha(out / name)} for k, name in NAMES.items() if k != 'receipt'},
-               'implementation_sha256': {name: sha(Path(__file__).parent / name) for name in ('run.py', 'pairing.py', 'series_evidence.py', '../scanner_evidence.py')},
+               'implementation_sha256': {name: sha(Path(__file__).parent / name) for name in ('run.py', 'pairing.py', 'series_evidence.py', 'selection_identity.py', '../scanner_evidence.py')},
                'analysis_ready': False, 'summary': summary}
     (out / NAMES['receipt']).write_text(json.dumps(receipt, indent=2) + '\n')
     return summary

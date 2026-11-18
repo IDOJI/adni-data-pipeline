@@ -4,7 +4,9 @@ from collections import Counter
 import json
 from pathlib import Path
 
-from run import VERSION, image_id, scan_date
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from selection_identity import VERSION, image_id, scan_date
 from _shared import finish, new_output, read, sha, snapshot, unchanged, write
 
 
