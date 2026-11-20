@@ -109,13 +109,20 @@ def install(base, root, existing_estimate_mb=4000):
         try:
             while held is None:
                 prerequisites(plan)
-                active = active_subjects(slots)
-                active = {key: max(value, existing_estimate_mb) for key, value in active.items()}
-                info = json.loads(subprocess.check_output(["docker", "info", "--format", "{{json .}}"], text=True, timeout=25))
+                try:
+                    active = active_subjects(slots)
+                    active = {key: max(value, existing_estimate_mb) for key, value in active.items()}
+                    info = json.loads(subprocess.check_output(["docker", "info", "--format", "{{json .}}"], text=True, timeout=25))
+                except (subprocess.TimeoutExpired, subprocess.CalledProcessError) as exc:
+                    base.save(root / "status.json", {"at": base.now(), "status": "waiting_for_docker",
+                              "active_subjects": None, "reason": str(exc), "LLM_calls": 0})
+                    time.sleep(poll)
+                    continue
                 reasons = capacity_reasons(subject, active, plan["workflow_memory_mb"], info["MemTotal"])
                 if base.shutil.disk_usage(root).free < plan["min_free_gib"] * 2**30:
                     reasons.append("Experiment volume is below the frozen free-space floor")
                 if not reasons:
+                    base.verified_plan(root)
                     candidate = (directory / (subject + ".lock")).open("a+")
                     try:
                         fcntl.flock(candidate, fcntl.LOCK_EX | fcntl.LOCK_NB)

@@ -97,9 +97,14 @@ def test_priority_admission_does_not_wait_for_pending_queue_and_releases_subject
     with pytest.raises(ValueError, match="gate"):
         with adapter.lease("ADNI999S9999", "reproducibility"):
             pass
-    snapshots = [{f"ADNI999S{i:04d}": 4000 for i in range(5)},
+    snapshots = [None, {f"ADNI999S{i:04d}": 4000 for i in range(5)},
                  {f"ADNI999S{i:04d}": 4000 for i in range(4)}]
-    monkeypatch.setattr(priority, "active_subjects", lambda slots: snapshots.pop(0))
+    def observed(slots):
+        item = snapshots.pop(0)
+        if item is None:
+            raise priority.subprocess.TimeoutExpired(["docker", "ps"], 25)
+        return item
+    monkeypatch.setattr(priority, "active_subjects", observed)
     monkeypatch.setattr(priority.subprocess, "check_output", lambda *a, **k: json.dumps({"MemTotal": 24 * 2**30}))
     monkeypatch.setattr(priority.time, "sleep", lambda seconds: None)
     holder["gate_held"] = True

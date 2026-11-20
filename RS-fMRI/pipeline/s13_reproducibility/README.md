@@ -51,8 +51,10 @@ python pipeline/s13_reproducibility/priority.py --root /ABS/experiment \
 ```
 
 Review the old worker before switching launchers. An existing controller lock,
-changed source/input/volume identity, incomplete trial, unavailable Docker or
-unaccounted container holds execution for review. Never launch duplicate workers
+changed source/input/volume identity, incomplete trial or unaccounted container
+holds execution for review. An unavailable Docker API waits without assuming
+that there are zero active subjects, retaining priority until it recovers.
+Never launch duplicate workers
 or stop an imaging container to obtain a slot. The launcher records its own hash
 in `priority_scheduler.json`, leaving the frozen scientific runner intact.
 Its subject lock and admission gate release on process exit/failure.
