@@ -25,5 +25,8 @@ New RS-fMRI runs use **seed 1123**, **fMRIPrep 25.2.7** and fixed skull-strippin
 The optional [tolerance-based thread experiment](RS-fMRI/pipeline/s13_reproducibility/README.md)
 compares isolated preprocessing/XCP-D results and measured speed at different
 OMP/ITK limits while retaining existing jobs and outputs.
+Its optional priority launcher admits the finite experiment before pending
+production work when a shared subject slot and memory are available, retaining
+the five-subject cap and existing running calculations.
 
 The RS-fMRI skeleton was adapted and modified from [statMINDlab/ADNI_fMRI_protocol](https://github.com/statMINDlab/ADNI_fMRI_protocol). Original [GPL license](LICENSE), [citations](RS-fMRI/pipeline/CITATION.cff) and [attribution](RS-fMRI/NOTICE.md) are retained.

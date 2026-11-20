@@ -26,6 +26,117 @@ def load(name):
 cmp = load("compare")
 runner = load("run")
 execution = load("execute")
+priority = load("priority")
+
+
+def test_priority_capacity_preserves_five_and_checks_memory():
+    active = {f"ADNI999S{i:04d}": 4000 for i in range(5)}
+    assert priority.capacity_reasons("ADNI999S9999", active, 4000, 24 * 2**30)
+    active.pop("ADNI999S0004")
+    assert priority.capacity_reasons("ADNI999S9999", active, 4000, 24 * 2**30) == []
+    assert priority.capacity_reasons("ADNI999S9999", active, 16000, 24 * 2**30)
+    assert priority.capacity_reasons("ADNI999S0000", active, 4000, 24 * 2**30)
+    with pytest.raises(ValueError, match="five"):
+        priority.capacity_reasons("ADNI999S9999", {}, 4000, 24 * 2**30, limit=6)
+
+
+def test_priority_memory_uses_workflow_declaration_and_never_underestimates_default():
+    assert priority.observed_memory_mb({"Config": {"Cmd": ["--mem-mb", "8000"]}}) == 8000
+    assert priority.observed_memory_mb({"Config": {"Cmd": ["--mem-gb", "8"]}}) == 8000
+    assert priority.observed_memory_mb({"Config": {"Cmd": ["--mem-mb", "1"]}}) == 4000
+    assert priority.observed_memory_mb({"Config": {"Cmd": ["--mem-mb", "NaN"]}}) == 4000
+
+
+def test_priority_gate_blocks_new_admissions_and_releases_on_failure(tmp_path):
+    import fcntl
+    from types import SimpleNamespace
+    directory = tmp_path / "compute_slots"
+    directory.mkdir()
+    holder = {"gate_held": False}
+    slots = SimpleNamespace(HERE=tmp_path)
+    with pytest.raises(RuntimeError, match="synthetic failure"):
+        with priority.admission_priority(slots, holder):
+            assert holder["gate_held"]
+            with (directory / "admission.lock").open("a") as another_controller:
+                with pytest.raises(BlockingIOError):
+                    fcntl.flock(another_controller, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            raise RuntimeError("synthetic failure")
+    assert not holder["gate_held"]
+    with (directory / "admission.lock").open("a") as another_controller:
+        fcntl.flock(another_controller, fcntl.LOCK_EX | fcntl.LOCK_NB)
+
+
+def test_priority_holds_for_unaccounted_docker_container(monkeypatch, tmp_path):
+    from types import SimpleNamespace
+    slots = SimpleNamespace(HERE=tmp_path, running_subjects=lambda: set(), live_reservations=lambda path: set())
+    def docker(argv, **kwargs):
+        return "unmanaged\n" if argv[1] == "ps" else json.dumps([{"Name": "/other-work"}])
+    monkeypatch.setattr(priority.subprocess, "check_output", docker)
+    with pytest.raises(ValueError, match="Unaccounted"):
+        priority.active_subjects(slots)
+
+
+def test_priority_admission_does_not_wait_for_pending_queue_and_releases_subject(tmp_path, monkeypatch):
+    import fcntl
+    from types import SimpleNamespace
+    shared = tmp_path / "continuous5"
+    directory = shared / "compute_slots"
+    directory.mkdir(parents=True)
+    cmp.save(shared / "settings.json", {"global_compute_limit": 5})
+    pending = tmp_path / "production-status.json"
+    cmp.save(pending, {"subjects": {"synthetic": {"status": "pending"}}})
+    before = pending.read_bytes()
+    plan = {"shared_compute_root": str(tmp_path), "production_status_files": [str(pending)],
+            "workflow_memory_mb": 4000, "min_free_gib": 1}
+    slots = SimpleNamespace(HERE=shared, configure=lambda root: None)
+    base = SimpleNamespace(module=lambda rel: slots, report=lambda *a: None, verified_plan=lambda root: plan,
+                           read=cmp.read, save=cmp.save, now=lambda: "synthetic", shutil=shutil)
+    _, _, holder = priority.install(base, tmp_path)
+    assert base.idle_reasons(plan) == []
+    adapter = base.module("04_workflow/compute_slots.py")
+    with pytest.raises(ValueError, match="gate"):
+        with adapter.lease("ADNI999S9999", "reproducibility"):
+            pass
+    snapshots = [{f"ADNI999S{i:04d}": 4000 for i in range(5)},
+                 {f"ADNI999S{i:04d}": 4000 for i in range(4)}]
+    monkeypatch.setattr(priority, "active_subjects", lambda slots: snapshots.pop(0))
+    monkeypatch.setattr(priority.subprocess, "check_output", lambda *a, **k: json.dumps({"MemTotal": 24 * 2**30}))
+    monkeypatch.setattr(priority.time, "sleep", lambda seconds: None)
+    holder["gate_held"] = True
+    with pytest.raises(RuntimeError, match="synthetic failure"):
+        with adapter.lease("ADNI999S9999", "reproducibility"):
+            with (directory / "ADNI999S9999.lock").open() as probe:
+                with pytest.raises(BlockingIOError):
+                    fcntl.flock(probe, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            raise RuntimeError("synthetic failure")
+    with (directory / "ADNI999S9999.lock").open() as probe:
+        fcntl.flock(probe, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    assert not snapshots and pending.read_bytes() == before
+    assert cmp.read(tmp_path / "status.json")["pending_production_queue_is_not_a_blocker"] is True
+
+
+def test_priority_separates_numerical_pass_from_contended_timing(tmp_path):
+    from types import SimpleNamespace
+    refs = [fixture(tmp_path / "trials" / f"synthetic-t01-r{i:02d}", i) for i in range(1, 4)]
+    trials = [fixture(tmp_path / "trials" / f"synthetic-t04-r{i:02d}", i + 3, threads=4, seconds=50) for i in range(1, 3)]
+    record = cmp.read(trials[0] / "trial.json")
+    record["isolated"] = False
+    cmp.save(trials[0] / "trial.json", record)
+    cmp.save(tmp_path / "policies/synthetic.json", cmp.calibrate(refs))
+    shared = tmp_path / "continuous5"
+    shared.mkdir()
+    plan = {"cases": [{"id": "synthetic"}], "threads": [1, 4], "reference_repeats": 3,
+            "candidate_repeats": 2, "shared_compute_root": str(tmp_path)}
+    base = SimpleNamespace(module=lambda rel: SimpleNamespace(configure=lambda root: None, HERE=shared),
+                           report=runner.report, verified_plan=lambda root: plan, trial_paths=runner.trial_paths,
+                           read=cmp.read, save=cmp.save, itertools=runner.itertools)
+    priority.install(base, tmp_path)
+    result = base.report(tmp_path, plan)
+    row = next(r for r in result["cases"] if r["threads"] == 4)
+    assert row["technical_status"] == "PASS"
+    assert row["speedup"] is None and row["observed_speedup_uncontrolled"] == 2
+    assert result["highest_tested_passing_threads"] == 4
+    assert result["fastest_tested_passing_threads"] is None
 
 
 def nifti(path, data, affine=None):

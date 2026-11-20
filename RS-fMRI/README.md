@@ -8,6 +8,8 @@ New local runs use **seed 1123**, **fMRIPrep 25.2.7**, skull stripping and **one
 
 Use the optional [thread reproducibility experiment](pipeline/s13_reproducibility/README.md)
 to measure other OMP/ITK limits in isolated runs before changing production.
+Its optional priority launcher uses the next eligible shared slot without waiting
+for the whole production queue to finish; the shared five-subject cap remains.
 
 ## Structure
 

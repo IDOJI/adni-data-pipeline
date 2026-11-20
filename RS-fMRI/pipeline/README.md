@@ -5,6 +5,8 @@ All maintained RS-fMRI stages are in this folder.
 Optional [S13 reproducibility](s13_reproducibility/README.md) measures thread-count
 effects after representative successful 7.B cases are available; it preserves
 the production seed/thread policy and existing results.
+The optional priority launcher waits for a free shared slot and memory rather
+than terminal production queues, retaining the five-subject limit.
 
 Use the [step table](../README.md#steps-and-commands) to choose a stage. Each stage README gives its function, output and commands. Start with [installation](../06_docs/installation.md) or the [local batch runner](../06_docs/local_batch.md).
 

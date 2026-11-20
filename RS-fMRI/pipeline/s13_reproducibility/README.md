@@ -16,7 +16,7 @@ It does not change the production thread count or approve research inclusion.
 | Execution | Original 7.B backend, unchanged S10 argument builder and S10 output validator, existing 7.C logging wrapper; no image download |
 | Fixed controls | Inputs, seed, skull-strip seed, scientific options, templates, atlas, CPU budget, memory budget and images |
 | Experimental control | `--omp-nthreads`, `OMP_NUM_THREADS` and `ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS`; BLAS/NumExpr remain one to avoid nested oversubscription |
-| Scheduling | One trial at a time, only after declared production queues are terminal and Docker/shared reservations are idle; use the existing five-subject lease |
+| Scheduling | One trial at a time with the existing five-subject cap; default waits for idle queues, optional priority admission starts when a subject slot and memory are available |
 | Outputs | Isolated trials, actual Docker identity/mount/start/exit records, per-stage wall time, frozen case-specific tolerance policies, comparisons, `report.json` and `report.html` |
 | Validation | Actual zero-exit executions, input preservation, S10 output validation, identical product inventories, coordinate/temporal axes, label order, missingness and exact censor choices |
 
@@ -29,6 +29,48 @@ The runtime filesystem device is pinned. If the external volume disappears or
 changes, runtime writes fail rather than creating a shadow directory on the host.
 Reconnect the original volume and review the retained controller/trial evidence
 before resuming the same finite experiment.
+
+## Admission priority
+
+For an authorized finite experiment, use the additive priority launcher with the
+recorded frozen S13 runner. It removes the requirement to drain all pending
+production queues. It holds the **existing shared admission gate**, waits for a
+free subject slot and sufficient declared workflow memory, and reserves one
+subject. Already admitted calculations keep their locks and continue; new
+production admissions, including subsequent stages needing a new lease, wait
+until this finite experiment releases the gate. The production queue order,
+five-subject setting, scientific source, results and caches are not rewritten.
+This is experiment-wide priority, not simultaneous admission of all trials.
+
+```sh
+python pipeline/s13_reproducibility/priority.py --root /ABS/experiment \
+  --runner /ABS/frozen-source/pipeline/s13_reproducibility/run.py
+# Inspect the plan, then explicitly execute:
+python pipeline/s13_reproducibility/priority.py --root /ABS/experiment \
+  --runner /ABS/frozen-source/pipeline/s13_reproducibility/run.py --execute
+```
+
+Review the old worker before switching launchers. An existing controller lock,
+changed source/input/volume identity, incomplete trial, unavailable Docker or
+unaccounted container holds execution for review. Never launch duplicate workers
+or stop an imaging container to obtain a slot. The launcher records its own hash
+in `priority_scheduler.json`, leaving the frozen scientific runner intact.
+Its subject lock and admission gate release on process exit/failure.
+
+A free subject slot does not guarantee enough memory. Admission sums the active
+subjects' workflow memory declarations, the frozen experiment budget and a
+1 GiB reserve; the existing-subject estimate defaults to at least 4000 MB and
+can only be raised with `--existing-memory-mb`. These are conservative scheduling
+estimates, not guarantees of peak memory. Keep every experimental condition's
+CPU/memory budget fixed; a different budget requires a separately initialized
+experiment. The priority launcher never silently lowers a frozen budget.
+
+Numerical tolerance and timing validity are reported separately. Runs overlapping
+production may pass the numerical tolerance but cannot establish a speedup.
+Controlled speedups require at least two isolated reference repetitions and two
+isolated candidate repetitions. Raw mixed-load ratios are labelled
+`observed_speedup_uncontrolled`; insufficient isolated timings stay unavailable.
+Use the same launcher with `--report-only` to regenerate this combined report.
 
 ## Run
 
