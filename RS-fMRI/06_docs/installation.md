@@ -62,6 +62,21 @@ PY
 
 </details>
 
+## Read a Docker preview
+
+The stage command you paste invokes the repository's runner. Its preview shows the longer command for your selected case. Before the container image name, the options configure Docker. After the image, the program receives its inputs, output directory, `participant` analysis level and processing options. In Step 10 the image first runs a small Python check of the selected BOLD and atlas, then passes those options to XCP-D.
+
+| Execution option | How to read it |
+|---|---|
+| Docker `run` or `create`, `--name`, `--label` | Start a container or prepare it for a separate start. Names and labels tie it to the run record. A dry run only shows the plan. |
+| `--platform linux/amd64`, image `@sha256:…`, `--pull never`, `--rm` | Select the image architecture and exact build. Where present, `--pull never` uses the installed image and `--rm` removes the exited container. Mounted output and work directories persist. |
+| `--mount` or `-v`, `--env` or `-e`, `--entrypoint` | Connect host files to container paths (`readonly` or `:ro` protects input). Environment variables locate TemplateFlow, set seeds and limit numerical threads. An entry point selects the program that starts inside the image. Edit host paths in the private config. |
+| Docker `--cpus`, `--memory` | Set the container's CPU quota and memory limit. These values apply to one container. |
+| Application `--nprocs`, `--omp-nthreads`, `--mem-mb` | Set the workflow CPU budget, threads available to an individual threaded operation, and memory budget for scheduling tasks. With `--omp-nthreads 1`, independent workflow tasks can still run concurrently. |
+| `-w` or `--work-dir`, `--stop-on-first-crash`, `--notrack` | Set the intermediate work directory, stop the workflow on its first crash, and disable usage reporting. The derivatives go to the separate output mount. |
+
+For a new participant, change the input paths and labels in your private configuration. To reproduce a published profile, keep its scientific settings. For a planned change in denoising model, output space or censoring threshold, use a fresh results and work directory so that the two analyses can be compared.
+
 ## Configuration
 
 After setting `DATA` and `RESULTS` above, make your private lab configuration:

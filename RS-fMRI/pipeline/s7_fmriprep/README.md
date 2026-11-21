@@ -1,6 +1,6 @@
 # Stage 7 — Preprocess T1w and BOLD with fMRIPrep
 
-fMRIPrep estimates head motion, corrects distortion and registers the functional images to anatomical and standard space. Its outputs include preprocessed BOLD, confounds for denoising and an HTML registration report.
+fMRIPrep prepares the anatomy, estimates head motion, corrects distortion and aligns functional images to anatomical and standard space. It saves the aligned BOLD image, motion estimates and other potential noise signals in a confounds table. XCP-D then uses the selected columns to remove modeled noise from the time series. For example, motion correction realigns displaced volumes in space, while subsequent FD censoring removes selected time points from the denoised series.
 
 Choose the stage that matches the intended outputs. Each linked page gives its own configuration fields, commands and verification steps.
 
@@ -11,3 +11,5 @@ Choose the stage that matches the intended outputs. Each linked page gives its o
 | One BIDS session, volume-only processing | [7.A · volume workflow](../s7a_volume_workflow/README.md) | Configured `fmriprep_output` |
 
 The seeded profiles use fMRIPrep 25.2.7, seed 1123, fixed skull-stripping initialization and one numerical thread. [Seed settings](../../06_docs/seed_reproducibility.md)
+
+For the public profile values and what each command-line option does, see the [7.A volume options](../s7a_volume_workflow/README.md#what-the-volume-fmriprep-options-do) or the [7.B surface-enabled options](../s7b_sessionwise_preprocessing/README.md#what-the-fmriprep-options-do).
