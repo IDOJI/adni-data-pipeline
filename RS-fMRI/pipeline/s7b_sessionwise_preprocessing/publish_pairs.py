@@ -56,3 +56,59 @@ def _publish(root,plan):
   os.rename(staging,target)
   report.append(metadata)
  return report
+
+
+def publish_verified_pair(root):
+    """Publish the manual 5.D runtime through the same publisher as the batch."""
+    import re
+    import sys
+    import yaml
+
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 's5d_bids_identity'))
+    import guarded_runner_seeded as gate
+    import continuation
+
+    root = Path(root).resolve()
+    config = root / 'pair/verified-config.yaml'
+    cfg = yaml.safe_load(config.read_text())
+    gate.dispatch(config, 'check')
+    plan = gate.binding.verify_plan(cfg['binding_receipt'], cfg['epi_key'])
+    subject = plan['subject']
+    if not re.fullmatch(r'\d{3}_S_\d{4,}', plan['ptid']) or subject != 'ADNI' + plan['ptid'].replace('_', ''):
+        raise ValueError('The S10 subject label must match the verified ADNI participant')
+    runtime = root / 'pair/processing'
+    if Path(cfg['runtime']).resolve() != runtime:
+        raise ValueError('Configuration belongs to a different runtime')
+    paths = gate.backend().paths_for(cfg, cfg['runs'][0])
+    for stage in continuation.STAGES:
+        _, record = continuation.latest(runtime, subject, stage)
+        if not continuation.completed(record):
+            raise ValueError(f'Complete {stage} successfully with unchanged inputs before publishing')
+        continuation.check_record(record, paths, plan, runtime / 'bids')
+        continuation.output_evidence(runtime, subject, stage)
+
+    link = root / 'runs' / subject
+    link.parent.mkdir(exist_ok=True)
+    try:
+        link.symlink_to(runtime, target_is_directory=True)
+    except FileExistsError:
+        if link.resolve() != runtime:
+            raise ValueError('A different runtime already occupies this subject path')
+    date = datetime.date.fromisoformat(plan['date']).strftime('%Y%m%d')
+    pair_id = f'EPI_{date}_MT1_{date}'
+    target = root / 'results' / plan['ptid'] / pair_id
+    case = dict(ptid=plan['ptid'], subject=subject, pair_id=pair_id, target=str(target),
+                epi_date=plan['date'], mt1_date=plan['date'], epi_image_id=plan['epi_image_id'],
+                mt1_image_id=plan['t1_image_id'], execution_session_label=plan['session'],
+                pairing_basis='Verified source images, UIDs, dates and hashes')
+    result, = publish(root, [case])
+    if result['delivery_status'] not in ('processing_complete_QC_pending', 'previously_published'):
+        raise ValueError(result['delivery_status'])
+    return target
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--root', type=Path, required=True, help='Directory containing pair/verified-config.yaml')
+    args = parser.parse_args()
+    print(publish_verified_pair(args.root))

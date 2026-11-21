@@ -1,22 +1,13 @@
-# Stage 7 — fMRIPrep
+# Stage 7 — Preprocess T1w and BOLD with fMRIPrep
 
-**What:** Preprocess T1w/BOLD, perform skull stripping and registration, and estimate confounds.
+fMRIPrep estimates head motion, corrects distortion and registers the functional images to anatomical and standard space. Its outputs include preprocessed BOLD, confounds for denoising and an HTML registration report.
 
-**Output:** `derivatives/fmriprep/`: preprocessed images, confounds, surfaces/CIFTI, FreeSurfer results and HTML reports.
+Choose the stage that matches the intended outputs. Each linked page gives its own configuration fields, commands and verification steps.
 
-## Run
+| Input and objective | Stage to run | Where to look afterwards |
+|---|---|---|
+| Verified ADNI pair, FreeSurfer reconstruction and 91k CIFTI | [7.B · sessionwise fMRIPrep](../s7b_sessionwise_preprocessing/README.md) after [MRIQC](../s6_mriqc/README.md) | `$CASE/derivatives/fmriprep/` |
+| Same 7.B run with ANTs iteration logs | [7.C · logging launcher](../s7c_ants_iteration_logging/README.md) | Same derivatives plus attempt logs |
+| One BIDS session, volume-only processing | [7.A · volume workflow](../s7a_volume_workflow/README.md) | Configured `fmriprep_output` |
 
-From `RS-fMRI/`, after [setup](../../06_docs/installation.md). Replace example paths and IDs with your inputs.
-
-Use the sessionwise Docker entry point after [7.B preparation](../s7b_sessionwise_preprocessing/README.md):
-
-```sh
-# Preview.
-python pipeline/s7b_sessionwise_preprocessing/run_seeded.py \
-  --config /ABS/preprocessing-seeded.yaml dry-run --stage fmriprep --subject ADNI999S9999
-# Execute.
-python pipeline/s7b_sessionwise_preprocessing/run_seeded.py \
-  --config /ABS/preprocessing-seeded.yaml run --stage fmriprep --subject ADNI999S9999
-```
-
-Uses fMRIPrep 25.2.7, master seed 1123, fixed skull-stripping initialization and OMP1. Receipt-bound pairs use [5.D](../s5d_bids_identity/README.md); whole batches use the [batch runner](../../06_docs/local_batch.md).
+The seeded profiles use fMRIPrep 25.2.7, seed 1123, fixed skull-stripping initialization and one numerical thread. [Seed settings](../../06_docs/seed_reproducibility.md)
