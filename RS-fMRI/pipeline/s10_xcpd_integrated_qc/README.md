@@ -30,13 +30,15 @@ python pipeline/s10_xcpd_integrated_qc/pipeline_seeded.py --config "$XCFG" prefl
 python pipeline/s10_xcpd_integrated_qc/pipeline_seeded.py --config "$XCFG" dry-run
 ```
 
-**Denoise one candidate.** The seeded LINC profile uses 36 nuisance regressors including global signal, 0.01–0.08 Hz filtering, 6 mm smoothing, FD 0.3 mm and a 240-second minimum. It produces denoised BOLD, 4S256Parcels time series and connectivity, ReHo and ALFF. Run once with one processing owner for this root.
+Open the `mapping` file named by the dry run. Each candidate has a `bids_filter` showing the selected scan and a `command` listing the exact arguments in order. In that array, `/input /job/derivatives participant` marks the start of XCP-D's arguments. Use the [option table below](#what-the-xcp-d-options-do) to interpret the preview.
+
+**Denoise one candidate.** `pilot` runs the first eligible candidate using your `XCFG`. The primary outputs are denoised BOLD, regional time series and correlations, regional homogeneity (ReHo) and amplitude of low-frequency fluctuations (ALFF). Run once with one processing owner for this root.
 
 ```sh
 python pipeline/s10_xcpd_integrated_qc/pipeline_seeded.py --config "$XCFG" pilot
 ```
 
-**Collect and verify.** Read `final_qc_master.tsv` under `postprocessing/<config_id>/` and the pair's `qc_report.html`. The latest attempt under `s10/<config_id>/runs/<run>/attempt-*/` contains the evidence. For a successful denoised result, check `status: success`, `exit_code: 0` and `input_unchanged: true` in `execution.json`, plus `functional_outputs_valid: true` in `output_validation.json`. The validated images are under `derivatives/` in that attempt. Held scans and scans skipped for insufficient duration have separate outcomes.
+**Collect and verify.** Read `final_qc_master.tsv` under `postprocessing/<config_id>/` and the pair's `qc_report.html`. The latest attempt under `s10/<config_id>/runs/<run>/attempt-*/` contains the evidence. For a successful denoised result, check `status: success`, `exit_code: 0` and `input_unchanged: true` in `execution.json`, plus `functional_outputs_valid: true` in `output_validation.json`. The validated images are under `derivatives/` in that attempt. In a successful validation, `actual_configuration_file` in `output_validation.json` points to the XCP-D TOML used to cross-check model, filter and atlas settings. Held scans and scans skipped for insufficient duration have separate outcomes.
 
 ```sh
 python pipeline/s10_xcpd_integrated_qc/pipeline_seeded.py --config "$XCFG" collect
@@ -50,3 +52,39 @@ python pipeline/s10_xcpd_integrated_qc/pipeline_seeded.py --config "$XCFG" final
 ```
 
 Pass the matching `final_included_runs.tsv` and `clinical_scan_links.tsv` from the same `finalizations/<timestamp>/` to [9.A · clinical validation](../s9a_validate_clinical/README.md).
+
+### What the XCP-D options do
+
+The values below are for the **7.B → 10** route. Your private `xcpd.json` holds the input paths and model settings. The [command builder](pipeline.py) reads them and adds fixed choices such as per-run processing. [XCP-D 26.2.0 option reference](https://xcp-d.readthedocs.io/en/26.2.0/usage.html) · [Denoising workflows](https://xcp-d.readthedocs.io/en/26.2.0/workflows.html)
+
+| Select the input | Meaning in this profile |
+|---|---|
+| `--mode linc`, `--input-type fmriprep`, `--file-format nifti` | Start from LINC defaults, then apply the explicit options below. The input is a preprocessed fMRIPrep BOLD volume. It selects the 2 mm MNI152NLin6Asym NIfTI produced by 7.B. |
+| `--participant-label`, `--session-id` (when present), `--task-id rest`, `--bids-filter-file /job/bids_filter.json` | Select the identified participant, visit, task, run and spatial grid. The [container check](container_entry.py) requires exactly the expected BOLD and verifies the atlas before starting XCP-D. |
+| `--combine-runs n` | Analyze each run independently. Its censor mask, retained duration and connectivity matrix refer to that run. |
+
+| Denoise the BOLD | Meaning in this profile |
+|---|---|
+| `--dummy-scans 0` | Keeps the leading volumes at this step. Motion censoring can still remove any of those volumes. |
+| `--despike y` | Attenuates large transient intensity spikes in a voxel's time series before nuisance regression. Frame removal is controlled separately by FD. |
+| `--nuisance-regressors 36P` | Regresses out 36 terms. The nine base traces are six motion estimates plus mean white-matter, cerebrospinal-fluid and whole-brain signals. Each contributes the original, its temporal derivative, and the square of each. Global signal regression is part of this model. |
+| `--motion-filter-type none`, `--head-radius 50` | Uses unfiltered realignment traces for motion estimates. Framewise displacement (FD) estimates movement between successive volumes. A 50 mm radius converts head rotations into millimetres for this calculation. The BOLD band-pass filter below is a separate operation. |
+| `--fd-thresh 0.3`, `--censor-between 0`, `--output-type censored` | Marks frames with FD greater than 0.3 mm for removal. Short stretches of low-motion frames remain eligible. The final denoised series contains retained volumes, so its length can be shorter than the input. Check the run's `*_outliers.tsv`. |
+| `--min-time 240` | Requires 240 seconds of retained signal. With TR = 2 s, 119 retained volumes give 238 s and the run is skipped. 120 volumes meet the duration requirement. |
+| `--lower-bpf 0.01`, `--upper-bpf 0.08`, `--bpf-order 2` | Filters BOLD and nuisance time series along time with a Butterworth band-pass and order parameter 2. The cutoffs are in Hz. XCP-D interpolates censored samples internally for filtering. The final censored output omits them. |
+| `--smoothing 6` | Produces an additional denoised image smoothed across neighboring voxels with a 6 mm FWHM kernel. The unsmoothed output preserves more spatial detail. |
+
+| Produce and check the outputs | Meaning in this profile |
+|---|---|
+| `--atlases 4S256Parcels`, `--min-coverage 0.5` | Averages retained BOLD within each of 256 regions. A region with less than half its extent covered gets missing signal values. The parcel coverage TSV shows which regions are affected. |
+| `--output-run-wise-correlations y` | Writes one 256 × 256 Pearson correlation matrix per run from the regional time series. Missing regions can produce missing correlations. |
+| `--linc-qc y`, `--abcc-qc y` | Produces LINC QC metrics plus ABCC's additional summary and motion-threshold outputs. The repository collects run-level evidence in `output_validation.json`. |
+| `--output-layout bids`, `--report-output-level root` | Organizes derivatives by BIDS entities and puts the XCP-D HTML report at the derivative root. The repository's `qc_report.html` is a separate summary. |
+
+The default profile also produces an ALFF map (strength of slow BOLD fluctuations) and a ReHo map (similarity among neighboring voxel time series). Check the native images, `*_stat-mean_timeseries.tsv`, `*_stat-pearsoncorrelation_relmat.tsv` and `*_stat-coverage_bold.tsv` in the selected attempt.
+
+**Where to change a value.** `fd_threshold`, `min_time`, `dummy_scans`, `lower_bpf`, `upper_bpf`, `bpf_order` and `smoothing` are fields in `$XCFG`. `nuisance_regressors` selects the model. The `global_signal_regression` field records that choice and must agree with 36P. If `bandpass` is false the runner adds `--disable-bandpass-filter`. Start a new analysis directory for a different scientific profile.
+
+**Two different motion decisions.** The repository first screens the whole run using mean FD above 0.5 mm or more than 30% of frames above 0.5 mm, along with its other QC checks. For a run admitted to XCP-D, `--fd-thresh 0.3` then censors individual frames. A 0.4 mm frame counts toward XCP-D censoring while staying below the earlier 0.5 mm cutoff.
+
+**Execution settings.** The manual setup uses the batch resource settings (`--nprocs 2 --omp-nthreads 1 --mem-mb 4000`) with a 16 GiB container limit. `--random-seed 1123` supplies the fixed seed, `--fs-license-file /license.txt` supplies the license, and `--work-dir /job/work` keeps intermediate files with the attempt. `--stop-on-first-crash` and `--notrack` control error handling and telemetry. [Docker and runtime options](../../06_docs/installation.md#read-a-docker-preview)

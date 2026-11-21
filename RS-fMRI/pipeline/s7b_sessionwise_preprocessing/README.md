@@ -10,6 +10,8 @@ Use this route for surface-enabled ADNI processing after [5.D intake](../s5d_bid
 python pipeline/s5d_bids_identity/guarded_runner_seeded.py dry-run --stage fmriprep --config "$CFG"
 ```
 
+Read the preview from left to right. Docker mounts the verified input as `/data` and the derivatives as `/out`. After the image name, `/data /out participant` tells fMRIPrep to process the selected participant. The [option table](#what-the-fmriprep-options-do) explains the arguments that follow. For another pair, use its generated `CFG`.
+
 For standard logging, run the block below. To record ANTs iterations, choose the [7.C launch command](../s7c_ants_iteration_logging/README.md) instead. Launch fMRIPrep once per attempt.
 
 ```sh
@@ -17,6 +19,22 @@ python pipeline/s5d_bids_identity/guarded_runner_seeded.py run --stage fmriprep 
 ```
 
 Check the native HTML report, `*_desc-preproc_bold.nii.gz` and `*_desc-confounds_timeseries.tsv` in `$CASE/derivatives/fmriprep/`. The latest fMRIPrep attempt under `$CASE/logs/` records the Docker command, source, exit code and input checks in `run.json`. Look for `execution_completed_QC_required`, `exit_code: 0` and `input_unchanged: true`. Then inspect [8 · motion and Euler values](../s8_final_qc/README.md) and [8.A · retained duration](../s8a_motion_duration_qc/README.md).
+
+### What the fMRIPrep options do
+
+| Option in the 7.B preview | What it does to this session |
+|---|---|
+| `--participant-label`, `--task-id rest`, `--bids-filter-file /config/filter.json` | Select the participant and resting BOLD. The generated filter also limits BOLD and anatomical queries to the verified visit. Check the labels before starting. |
+| `--subject-anatomical-reference sessionwise` | Builds this visit's anatomical reference from its T1w input. fMRIPrep aligns the visit's BOLD to that reference. |
+| `--ignore fieldmaps`, `--force syn-sdc`, `--use-syn-sdc error` | Excludes acquired field maps, explicitly requests anatomy-based SyN distortion correction and treats an unavailable requested correction as an error. This addresses EPI stretching or compression along the phase-encoding axis. Check the corrected BOLD-to-anatomy alignment in the report. |
+| `--output-spaces MNI152NLin6Asym:res-2 MNI152NLin2009cAsym fsnative fsaverage:den-10k func` | Writes the BOLD in the requested coordinate systems. Step 10 reads the 2 mm MNI152NLin6Asym volume. The other requests cover a second MNI template, individual and standard cortical surfaces, and native functional space. `res-2` selects the output grid. |
+| `--fs-license-file /license.txt`, `--fs-subjects-dir /fsdir` | Supplies the license and the persistent directory for FreeSurfer reconstruction. The cortical surfaces support surface sampling and the Euler check in Step 8. |
+| `--cifti-output 91k` | Also samples BOLD at about 91,000 cortical surface and subcortical volume locations in a CIFTI dense time series (`*.dtseries.nii`). Step 10's published profile uses the NIfTI volume. |
+| `--random-seed 1123`, `--skull-strip-fixed-seed` | Fixes the run seed and the initialization used for anatomical brain extraction. Review the extracted brain boundary on the T1w report. |
+
+Head-motion estimation and BOLD-to-anatomy registration are part of the workflow. Slice-timing correction depends on usable `SliceTiming` metadata. Those times describe when each slice was acquired. `PhaseEncodingDirection` identifies an axis and sign used for distortion correction. Check the run report to see which corrections were actually applied. [fMRIPrep 25.2.7 processing details](https://fmriprep.org/en/25.2.7/workflows.html) · [Option reference](https://fmriprep.org/en/25.2.7/usage.html)
+
+**Where the values come from.** The private 5.D YAML supplies `runs`, `output_spaces` and `resources`. The [command builder](run.py) sets the field-map policy and CIFTI request. The [seed policy](../../04_workflow/seed_policy.py) adds the skull-stripping flag. The published local profile uses `--nprocs 2 --omp-nthreads 1 --mem-mb 4000`. For the meaning of those settings, `-w`, `--notrack`, `--stop-on-first-crash` and the Docker flags, see [execution controls](../../06_docs/installation.md#read-a-docker-preview).
 
 ### Publish the completed pair
 

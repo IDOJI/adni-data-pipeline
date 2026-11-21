@@ -14,11 +14,11 @@ Start with [installation and your two paths](06_docs/installation.md#paths-for-a
 
 [5.D · match the EPI and T1w and check intake](pipeline/s5d_bids_identity/README.md) → [6 · run MRIQC](pipeline/s6_mriqc/README.md) → [7.B · run fMRIPrep](pipeline/s7b_sessionwise_preprocessing/README.md) (or [7.C · run it with registration logs](pipeline/s7c_ants_iteration_logging/README.md)) → [8 · inspect motion and surfaces](pipeline/s8_final_qc/README.md) → [8.A · check retained time](pipeline/s8a_motion_duration_qc/README.md) → [7.B · publish the completed pair locally](pipeline/s7b_sessionwise_preprocessing/README.md#publish-the-completed-pair) → [10 · denoise and verify outputs](pipeline/s10_xcpd_integrated_qc/README.md).
 
-Use this route for surface-enabled processing and 36P denoising with global signal regression. For DICOM downloads, begin at [Steps 1–5](#steps-and-commands). An existing managed cohort uses its [batch controller](06_docs/local_batch.md).
+Use this route for surface-enabled preprocessing and 36P denoising with global signal regression. To read a command, see [how 7.B corrects distortion and builds surfaces](pipeline/s7b_sessionwise_preprocessing/README.md#what-the-fmriprep-options-do) and [how Step 10 models noise, censors frames and computes connectivity](pipeline/s10_xcpd_integrated_qc/README.md#what-the-xcp-d-options-do). For DICOM downloads, begin at [Steps 1–5](#steps-and-commands). An existing managed cohort uses its [batch controller](06_docs/local_batch.md).
 
 ### Route B — One-session BIDS dataset
 
-Follow [7.A · volume-only fMRIPrep and aCompCor XCP-D](pipeline/s7a_volume_workflow/README.md) for a BIDS session with T1w and resting BOLD. Its guide shows which JSON fields hold the paths and BIDS labels, then gives separate preview, execution and verification commands for each program.
+Follow [7.A · volume-only fMRIPrep and aCompCor XCP-D](pipeline/s7a_volume_workflow/README.md) for a BIDS session with T1w and resting BOLD. The preview guides cover [fMRIPrep volume preprocessing](pipeline/s7a_volume_workflow/README.md#what-the-volume-fmriprep-options-do) and [XCP-D aCompCor denoising](pipeline/s7a_volume_workflow/README.md#what-the-volume-xcp-d-options-do).
 
 ## Structure
 

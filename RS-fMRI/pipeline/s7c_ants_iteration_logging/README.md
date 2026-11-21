@@ -12,4 +12,4 @@ python pipeline/s7c_ants_iteration_logging/run.py \
   --config "$CFG" run --stage fmriprep --subject "$SUB"
 ```
 
-The fMRIPrep attempt under `$CASE/logs/` contains `ants_logging.json` with the effective Docker command, and `ants_iterations/` with stdout, stderr, iteration tables and progress records. Use the [7.B completion checks](../s7b_sessionwise_preprocessing/README.md#run-fmriprep) before moving on to motion QC.
+The fMRIPrep attempt under `$CASE/logs/` contains `ants_logging.json` with the effective Docker command, and `ants_iterations/` with stdout, stderr, iteration tables and progress records. Verbose ANTs logging records progress during registration. Interpret the scientific flags using the [7.B fMRIPrep option table](../s7b_sessionwise_preprocessing/README.md#what-the-fmriprep-options-do). Use the [7.B completion checks](../s7b_sessionwise_preprocessing/README.md#run-fmriprep) before moving on to motion QC.
