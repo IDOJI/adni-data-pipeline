@@ -9,6 +9,7 @@ import sys
 import nibabel as nib
 import numpy as np
 import pytest
+import yaml
 
 ROOT=Path(__file__).resolve().parents[1]
 KIT=ROOT/'07_reproducibility'
@@ -31,6 +32,28 @@ def test_complete_example_and_reference_detect_changes(tmp_path):
     with pytest.raises(ValueError,match='ROI values'):toy.verify(second)
     source=root/'inputs/MRIQC.csv';source.write_text(source.read_text()+'\n')
     with pytest.raises(ValueError,match='Changed toy input'):toy.check_inputs(root)
+
+
+def test_manual_publication_requires_completed_pair(tmp_path):
+    toy = mod('toy')
+    fixture = tmp_path / 'fixture'
+    toy.init(fixture)
+    toy.run(fixture, '5d')
+    binding = fixture / 'outputs/5d'
+    plan, = json.loads((binding / '05.execution-plans.json').read_text())
+    template = json.loads((ROOT / '03_config/local_batch.seeded.example.json').read_text())['preprocessing_template']
+    (tmp_path / 'cache').mkdir()
+    (tmp_path / 'license.txt').write_text('Synthetic fixture')
+    template.update(source_templateflow=str(tmp_path / 'cache'), freesurfer_license=str(tmp_path / 'license.txt'))
+    config = tmp_path / 'template.yaml'
+    config.write_text(yaml.safe_dump(template))
+    guard = toy.load_module('pipeline/s5d_bids_identity/guarded_runner_seeded.py')
+    guard.prepare(binding / '07.binding-receipt.json', plan['epi_key'], tmp_path / 'pair', config)
+    publisher = ROOT / 'pipeline/s7b_sessionwise_preprocessing/publish_pairs.py'
+    result = subprocess.run([sys.executable, str(publisher), '--root', str(tmp_path)], capture_output=True, text=True)
+    assert result.returncode != 0 and 'Complete mriqc successfully' in result.stderr
+    assert not (tmp_path / 'runs').exists()
+    assert not (tmp_path / 'results').exists()
 
 
 def test_voxel_tolerances_grid_masks_and_missingness(tmp_path):

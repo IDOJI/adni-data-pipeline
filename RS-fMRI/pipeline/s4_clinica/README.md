@@ -8,13 +8,13 @@
 
 From `RS-fMRI/`, after [setup](../../06_docs/installation.md). Replace example paths and IDs with your inputs.
 
-In an installed Clinica environment:
+In an installed Clinica environment, `--subjects_list` selects the reviewed list produced in Step 3. The three positional paths are the extracted DICOM directory, the original ADNI clinical/conversion tables and the new BIDS output directory, in that order. The example uses the repository’s default data layout.
 
 ```sh
 clinica convert adni-to-bids -m T1 -m FMRI \
-  --subjects_list "$DATA/config/subjects.txt" \
+  --subjects_list "$DATA/jobs/sub2convert.txt" \
   "$DATA/LONI_download/sourcedata" \
-  /ABS/clinica-conversion-tables "$DATA/rawdata"
+  "$DATA/LONI_download/clindata" "$DATA/rawdata"
 ```
 
 For Slurm, configure `paths.slurm_template` with your cluster paths/account, then generate jobs:
