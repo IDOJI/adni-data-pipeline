@@ -80,6 +80,8 @@ Check quantitative QC and native HTML reports before final inclusion. Code tests
 
 ## Reference
 
+[Studies using fMRIPrep and XCP-D](06_docs/fmriprep_xcpd_literature.md) · Compare datasets, software versions and denoising settings with the 7.B → 10 profile.
+
 [Seed settings](06_docs/seed_reproducibility.md) · [Host requirements](06_docs/platform_execution.md) · [Validation](06_docs/validation.md) · [Updates](06_docs/update_guide.md)
 
 Adapted and modified from [statMINDlab/ADNI_fMRI_protocol](https://github.com/statMINDlab/ADNI_fMRI_protocol/tree/e8ed72ce1bd4e471a422ec4886ea536f5bb6f5c3). Original [GPL license](pipeline/LICENSE), [CITATION.cff](pipeline/CITATION.cff) and [attribution](NOTICE.md) are retained.
