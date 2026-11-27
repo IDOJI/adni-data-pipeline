@@ -2,9 +2,23 @@
 
 Convert ADNI images into preprocessed/denoised BOLD, quality reports, ROI signals and analysis tables.
 
-**Start:** [Install](06_docs/installation.md) → [select by acquisition date](06_docs/date_based_selection.md) → [verify exact images and prepare a run](pipeline/s5d_bids_identity/README.md). The [local batch](06_docs/local_batch.md) accepts an independently verified single-pair-per-participant handoff. To practice without ADNI data, use the [public/synthetic examples](07_reproducibility/README.md).
+[Select images by acquisition date](06_docs/date_based_selection.md), then [run a verified session by hand](#run-one-resting-state-session-by-hand) or [run a local batch](06_docs/local_batch.md). To practice, use the [public or synthetic examples](07_reproducibility/README.md).
 
 New local runs use **seed 1123**, **fMRIPrep 25.2.7**, skull stripping and **one numerical thread**. Keep a new runtime for a new seed or source version.
+
+## Run one resting-state session by hand
+
+Start with [installation and your two paths](06_docs/installation.md#paths-for-a-manual-run). Run each stage from the `RS-fMRI/` directory in the same terminal. The stage pages contain the commands, the settings to change and the files to check before continuing.
+
+### Route A — Verified ADNI pair
+
+[5.D · match the EPI and T1w and check intake](pipeline/s5d_bids_identity/README.md) → [6 · run MRIQC](pipeline/s6_mriqc/README.md) → [7.B · run fMRIPrep](pipeline/s7b_sessionwise_preprocessing/README.md) (or [7.C · run it with registration logs](pipeline/s7c_ants_iteration_logging/README.md)) → [8 · inspect motion and surfaces](pipeline/s8_final_qc/README.md) → [8.A · check retained time](pipeline/s8a_motion_duration_qc/README.md) → [7.B · publish the completed pair locally](pipeline/s7b_sessionwise_preprocessing/README.md#publish-the-completed-pair) → [10 · denoise and verify outputs](pipeline/s10_xcpd_integrated_qc/README.md).
+
+Use this route for surface-enabled preprocessing and 36P denoising with global signal regression. To read a command, see [how 7.B corrects distortion and builds surfaces](pipeline/s7b_sessionwise_preprocessing/README.md#what-the-fmriprep-options-do) and [how Step 10 models noise, censors frames and computes connectivity](pipeline/s10_xcpd_integrated_qc/README.md#what-the-xcp-d-options-do). For DICOM downloads, begin at [Steps 1–5](#steps-and-commands). An existing managed cohort uses its [batch controller](06_docs/local_batch.md).
+
+### Route B — One-session BIDS dataset
+
+Follow [7.A · volume-only fMRIPrep and aCompCor XCP-D](pipeline/s7a_volume_workflow/README.md) for a BIDS session with T1w and resting BOLD. The preview guides cover [fMRIPrep volume preprocessing](pipeline/s7a_volume_workflow/README.md#what-the-volume-fmriprep-options-do) and [XCP-D aCompCor denoising](pipeline/s7a_volume_workflow/README.md#what-the-volume-xcp-d-options-do).
 
 ## Structure
 
@@ -35,12 +49,12 @@ Click the code name for its inputs, outputs and execution command. Run commands 
 | 4 | Convert DICOM to BIDS | NIfTI, JSON and conversion records | [Clinica / Slurm helpers](pipeline/s4_clinica/README.md) |
 | 4.B | Fill verified Philips SliceTiming | Updated sidecars and audit TSV | [insert_philips_slicetiming.py](pipeline/s4b_slice_timing/README.md) |
 | 5 | Check converted images and scan parameters | Mastersheet and final_heuristics.tsv | [main.py + run_session_heuristics.py](pipeline/s5_post_clinica_qc/README.md) |
-| 5.C | Audit session-level source handoff; does not authorize a T1 reference | Subject/session CSVs | [run.py](pipeline/s5c_validate_handoff/README.md) |
-| 5.D | Verify an exact EPI–T1 pair and physical scanner consistency | Binding receipt and prepared runtime | [binding.py + guarded_runner_seeded.py](pipeline/s5d_bids_identity/README.md) |
-| 6 | Measure image quality | IQM tables and HTML reports | [run_seeded.py + iqm_seeded.py](pipeline/s6_mriqc/README.md) |
-| 7 | Preprocess T1w and BOLD | Aligned images, confounds and reports | [run_seeded.py](pipeline/s7_fmriprep/README.md) |
+| 5.C | Audit source eligibility and generate session lists | Subject/session CSVs | [run.py](pipeline/s5c_validate_handoff/README.md) |
+| 5.D | Verify a same-day EPI–T1 pair and scanner consistency | Binding receipt and prepared runtime | [binding.py + guarded_runner_seeded.py](pipeline/s5d_bids_identity/README.md) |
+| 6 | Measure image quality | IQM tables and HTML reports | [guarded_runner_seeded.py + iqm_seeded.py](pipeline/s6_mriqc/README.md) |
+| 7 | Preprocess T1w and BOLD | Aligned images, confounds and reports | [Choose the fMRIPrep profile](pipeline/s7_fmriprep/README.md) |
 | 7.A | Run the alternative volume/aCompCor profile | Volume derivatives and denoised BOLD | [pipeline_seeded.py](pipeline/s7a_volume_workflow/README.md) |
-| 7.B | Run sessionwise MRIQC/fMRIPrep in Docker | Volume, surface/CIFTI and FreeSurfer outputs | [run_seeded.py](pipeline/s7b_sessionwise_preprocessing/README.md) |
+| 7.B | Run sessionwise preprocessing and deliver the pair | Volume, surface/CIFTI and FreeSurfer outputs | [run_seeded.py + publish_pairs.py](pipeline/s7b_sessionwise_preprocessing/README.md) |
 | 7.C | Record ANTs registration progress | Iteration logs and progress.json | [run.py](pipeline/s7c_ants_iteration_logging/README.md) |
 | 7.D | Summarize processing time | attempts.tsv, cases.tsv, summary.json | [run.py](pipeline/s7d_processing_timing/README.md) |
 | 8 | Summarize motion and FreeSurfer Euler values | motion_summary.tsv, euler_summary.tsv | [summarize_motion_from_confounds.py](pipeline/s8_final_qc/README.md) |
@@ -70,7 +84,7 @@ S10 uses `dummy_scans=auto` and the explicit `sessionwise-euler-nss-v1` policy i
 
 ## Reference
 
-[Stage-by-stage evidence](06_docs/stage_evidence.md) uses only ADNI official answers and research papers, with answer dates/QIDs, paper DOIs and section locations. It distinguishes direct support from project adaptations and engineering controls. See the [parameter comparison](06_docs/stage_evidence.md#parameter-and-policy-traceability) before describing any configured cutoff as a published ADNI standard.
+[Stage evidence and policy](06_docs/stage_evidence.md) · [Studies using fMRIPrep and XCP-D](06_docs/fmriprep_xcpd_literature.md)
 
 [Seed settings](06_docs/seed_reproducibility.md) · [Host requirements](06_docs/platform_execution.md) · [Validation](06_docs/validation.md) · [Updates](06_docs/update_guide.md)
 

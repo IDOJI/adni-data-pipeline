@@ -6,13 +6,13 @@
 
 ## Run
 
-From `RS-fMRI/`, after [setup](../../06_docs/installation.md). Replace example paths and IDs with your inputs.
+From `RS-fMRI/`, after [setup](../../06_docs/installation.md). `--input` takes the Step 5 heuristics TSV. `--source-qc` takes the whole Step 3.A artifact directory, including its audit and fingerprints. Write to a new `--output-dir` and check the surviving session count in `handoff.json`.
 
 ```sh
 python pipeline/s5c_validate_handoff/run.py \
-  --input "$DATA/qc/step5/final_heuristics.tsv" \
-  --source-qc "$DATA/qc/step3a" \
-  --output-dir "$DATA/qc/step5c"
+  --input "$RESULTS/qc/step5/final_heuristics.tsv" \
+  --source-qc "$RESULTS/qc/step3a" \
+  --output-dir "$RESULTS/qc/step5c"
 ```
 
 Use a new output directory. Blocked/pending cases remain audited. For the cluster fMRIPrep launcher, pass `mriqc_sessions.csv` via `--sessions-csv`; the original cluster MRIQC launcher is subject-scoped.

@@ -1,20 +1,26 @@
-# Stage 8 — Motion and anatomy QC
+# Stage 8 — Motion and anatomical quality
 
-**What:** Extract motion measures from fMRIPrep confounds and Euler values from FreeSurfer logs.
+The motion script reads framewise displacement (FD) and DVARS from fMRIPrep confounds. The Euler script reads left and right hemisphere values from FreeSurfer reconstruction logs. Run these after [7.B](../s7b_sessionwise_preprocessing/README.md) succeeds.
 
-**Output:** `motion_summary.tsv`, motion time series and `euler_summary.tsv`.
-
-## Run
-
-From `RS-fMRI/`, after [setup](../../06_docs/installation.md). Replace example paths and IDs with your inputs.
+**Motion.** `--derivatives-dir` is the fMRIPrep dataset root containing `sub-*/ses-*/func/`. `--output-dir` receives the summary and per-frame table. The paths below follow the [manual run layout](../../06_docs/installation.md#paths-for-a-manual-run).
 
 ```sh
 python pipeline/s8_final_qc/summarize_motion_from_confounds.py \
-  --derivatives-dir /ABS/fmriprep --output-dir "$DATA/qc/step8"
-python pipeline/s8_final_qc/extract_euler_from_freesurfer.py \
-  --freesurfer-dir /ABS/fmriprep/sourcedata/freesurfer \
-  --output-tsv "$DATA/qc/step8/euler_summary.tsv"
+  --derivatives-dir "$CASE/derivatives/fmriprep" --output-dir "$RESULTS/qc/step8"
 ```
+
+**Euler values.** `--freesurfer-dir` is the parent of the reconstructed subjects. `--output-tsv` is a file. Run from the QC directory so temporary files from the optional FreeSurfer fallback stay there.
+
+```sh
+(
+  cd "$RESULTS/qc/step8" &&
+  python "$ADNI_PIPELINE/s8_final_qc/extract_euler_from_freesurfer.py" \
+    --freesurfer-dir "$CASE/derivatives/fmriprep/sourcedata/freesurfer" \
+    --output-tsv "$RESULTS/qc/step8/euler_summary.tsv"
+)
+```
+
+Check `motion_summary.tsv`, `motion_timeseries.tsv` and `euler_summary.tsv` for the expected session. Missing Euler values need review. Continue to [8.A · retained duration](../s8a_motion_duration_qc/README.md).
 
 [S10](../s10_xcpd_integrated_qc/README.md) collects these metrics for completed pairs and combines them with MRIQC and visual review for cohort imaging QC.
 

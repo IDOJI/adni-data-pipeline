@@ -1,18 +1,16 @@
-# Stage 8.A — Retained duration
+# Stage 8.A — Retained low-motion duration
 
-**What:** Check low-motion time using actual BOLD TR/frame counts and fMRIPrep confounds.
+This step matches the original BOLD frame count and repetition time to the fMRIPrep confounds. It writes a frame mask and reports whether at most 30% of frames exceed 0.5 mm FD and at least 300 seconds remain. It also reports initial non-steady-state frames separately.
 
-**Output:** `paper_motion_summary.tsv`, original-frame masks and `paper_motion_provenance.json`.
-
-## Run
-
-From `RS-fMRI/`, after [setup](../../06_docs/installation.md). Replace example paths and IDs with your inputs.
+Use the two inputs from the **same session**. `--bids-root` is the raw BIDS copy, `--derivatives-root` is the fMRIPrep output and `--output-dir` is a new QC directory. The [manual path setup](../../06_docs/installation.md#paths-for-a-manual-run) supplies `CASE` and `RESULTS`.
 
 ```sh
 python pipeline/s8a_motion_duration_qc/run.py \
-  --bids-root "$DATA/rawdata" --derivatives-root /ABS/fmriprep \
-  --output-dir "$DATA/qc/motion-duration-run-001"
+  --bids-root "$CASE/bids" --derivatives-root "$CASE/derivatives/fmriprep" \
+  --output-dir "$RESULTS/qc/step8a"
 ```
+
+Read `paper_motion_summary.tsv`, the frame masks and `paper_motion_provenance.json`. Keep them with the original time series. For the manual ADNI route, [publish the completed pair](../s7b_sessionwise_preprocessing/README.md#publish-the-completed-pair) before Step 10. XCP-D applies its own FD and minimum-duration thresholds.
 
 Checks FD > 0.5 mm in ≤30% of frames and at least 300 seconds retained. Initial non-steady-state removal is reported separately. This reports masks without editing images; XCP-D uses its own censoring settings.
 
