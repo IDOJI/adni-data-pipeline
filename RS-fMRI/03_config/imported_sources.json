@@ -171,5 +171,12 @@
       }
     ],
     "scope": "Existing explicit-pair queue compatibility, pinned-upstream sessionwise runner, observation and publication; private plans/settings remain external"
+  },
+  "research_date_pairing": {
+    "source": "Research EPI-specific T1 correspondence policy (2026-11-01)",
+    "source_sha256": "9a2cf47abd824b51b84a179d698933c81e8cf4784ae3f6fb6f21c26523d77130",
+    "destination": "pipeline/s3b_image_selection/pairing.py",
+    "adaptation": "Collection-driven, per-image date-based proposals; source-QC evidence, independent T1 pool and unresolved ties preserved; no private paths or historical data dependencies; numerical equivalence not claimed",
+    "date": "2026-11-17"
   }
 }

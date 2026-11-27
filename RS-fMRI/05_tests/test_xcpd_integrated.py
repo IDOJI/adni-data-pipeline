@@ -118,6 +118,52 @@ def test_missing_final_flag():
     r=finalrow();r.update(mriqc_exclude_flag=None,visual_review_required=False)
     assert p.decide_final(r,True)[0]=='pending_review'
 
+
+def test_detected_nonsteady_frames_require_removal():
+    frame = pd.DataFrame({'non_steady_state_outlier00': [1, 0, 0, 0],
+                          'non_steady_state_outlier01': [0, 1, 0, 0]})
+    assert p.dummy_scan_evidence(frame, 'auto')['expected_dummy_volumes'] == 2
+    with pytest.raises(ValueError, match='retains detected'):
+        p.dummy_scan_evidence(frame, 0)
+    frame.iloc[1, 1] = np.nan
+    with pytest.raises(ValueError, match='finite and binary'):
+        p.dummy_scan_evidence(frame, 'auto')
+
+
+def test_noncontiguous_flags_match_xcpd_auto_initial_block():
+    frame = pd.DataFrame({'non_steady_state_outlier00': [1, 0, 1, 0, 0]})
+    evidence = p.dummy_scan_evidence(frame, 'auto')
+    assert evidence['detected_nonsteady_volumes'] == 2
+    assert evidence['expected_dummy_volumes'] == 3
+
+
+def test_small_site_requires_explicit_anatomical_review():
+    r = finalrow()
+    r.update(euler_qc_flag=None, euler_qc_status='insufficient_reference',
+             visual_qc_status='pass', reviewer='reviewer', review_date='2026-11-17')
+    assert p.decide_final(r, True)[0] == 'pending_review'
+    r.update(euler_visual_qc_status='pass', euler_visual_qc_reason='Reconstruction and T1/BOLD alignment reviewed')
+    assert p.decide_final(r, True)[0] == 'include'
+    r['euler_qc_status'] = 'invalid_metric'
+    assert p.decide_final(r, True)[0] == 'pending_review'
+
+
+def test_incomplete_mriqc_cannot_pass_even_with_false_excluded(cfg, tmp_path):
+    t = tmp_path / 'flags.tsv'
+    pd.DataFrame([{'sub': row()['sub'], 'ses': row()['ses'], 'excluded_any': False,
+                   'qc_metrics_complete': False}]).to_csv(t, sep='\t', index=False)
+    cfg['mriqc_flags_file'] = str(t)
+    assert p.get_mriqc_flag(row(), cfg) == (None, 'missing_metric')
+
+
+def test_old_qc_policy_requires_new_explicit_configuration(cfg, tmp_path):
+    cfg.pop('qc_policy_version')
+    cfg['root'] = str(tmp_path / 'runtime')
+    path = tmp_path / 'old.json'; p.save(path, cfg)
+    with pytest.raises(ValueError, match='new run ID/runtime'):
+        p.Pipeline(path)
+    assert not (tmp_path / 'runtime').exists()
+
 @pytest.mark.parametrize('status',['failed','partial'])
 def test_failed_partial_not_success(cfg,tmp_path,status):
     r=finalrow();r['xcpd_status']=status
@@ -136,6 +182,7 @@ def fixture_outputs(tmp_path,cfg,nret=90,low=False):
               'linc_qc':cfg['linc_qc'],'abcc_qc':cfg['abcc_qc'],'output_interpolated':False}
     (root/'xcp_d.toml').write_text('[execution]\nconfounds_config="/data/36P.yml"\natlases=["4S256Parcels"]\n[workflow]\n'+'\n'.join(k+' = '+json.dumps(v) for k,v in workflow.items()))
     source=tmp_path/'input.nii.gz';nib.save(nib.Nifti1Image(np.ones((2,2,2,100),dtype='float32'),np.eye(4)),source);r['source_bold_file']=str(source)
+    confounds=tmp_path/'source_confounds.tsv';pd.DataFrame({'framewise_displacement':[0.]+[.1]*99}).to_csv(confounds,sep='\t',index=False);r['source_confounds_file']=str(confounds)
     img=nib.Nifti1Image(np.ones((2,2,2,nret),dtype='float32'),np.eye(4))
     nib.save(img,folder/(sp+'_desc-denoised_bold.nii.gz'))
     qc=dict(mean_fd=.1,mean_fd_post_censoring=.08,mean_dvars_initial=2.,mean_dvars_final=1.,num_dummy_volumes=0,
@@ -160,6 +207,36 @@ def test_valid_output(tmp_path,cfg):
     q=p.validate_outputs(tmp_path,r,cfg,0)
     assert q['xcpd_status']=='success',q
     assert q['remaining_duration_sec']==270 and q['functional_outputs_valid']
+
+
+def test_auto_dummy_output_counts_match_original_confounds(tmp_path, cfg):
+    cfg['dummy_scans'] = 'auto'
+    r, folder = fixture_outputs(tmp_path, cfg)
+    source = pd.read_csv(r['source_confounds_file'], sep='\t')
+    source['non_steady_state_outlier00'] = [1, 1] + [0] * 98
+    source.to_csv(r['source_confounds_file'], sep='\t', index=False)
+    invalid = p.validate_outputs(tmp_path, r, cfg, 0)
+    assert any('Actual dummy removal' in e for e in invalid['xcpd_errors'])
+    qcfile = next(folder.glob('*_desc-linc_qc.tsv'))
+    qc = pd.read_csv(qcfile, sep='\t')
+    qc['num_dummy_volumes'] = 2; qc['num_censored_volumes'] = 8
+    qc.to_csv(qcfile, sep='\t', index=False)
+    pd.DataFrame({'framewise_displacement': [.1] * 90 + [.6] * 8}).to_csv(next(folder.glob('*_motion.tsv')), sep='\t', index=False)
+    pd.DataFrame({'framewise_displacement': [0] * 90 + [1] * 8}).to_csv(next(folder.glob('*_outliers.tsv')), sep='\t', index=False)
+    valid = p.validate_outputs(tmp_path, r, cfg, 0)
+    assert valid['xcpd_status'] == 'success', valid
+    assert valid['expected_dummy_volumes'] == valid['n_removed_dummy_volumes'] == 2
+    qc['num_dummy_volumes'] = 2.5
+    qc.to_csv(qcfile, sep='\t', index=False)
+    invalid = p.validate_outputs(tmp_path, r, cfg, 0)
+    assert any('counts must be integers' in e for e in invalid['xcpd_errors'])
+
+
+def test_new_seeded_example_selects_automatic_dummy_removal():
+    cfg = p.load(Path(p.__file__).resolve().parents[2] / '03_config/xcpd_linc.seeded.example.json')
+    args = p.xcp_args(cfg, row())
+    assert args[args.index('--dummy-scans') + 1] == 'auto'
+    assert cfg['qc_policy_version'] == p.QC_POLICY
 
 def test_duration_short(tmp_path,cfg):
     r,_=fixture_outputs(tmp_path,cfg,nret=70)
@@ -206,6 +283,27 @@ def test_finalization_detects_missing_real_outputs(tmp_path,cfg):
     p.save(attempt/'output_manifest.json',{'missing.nii.gz':'abc'})
     with pytest.raises(ValueError,match='missing or changed'):
         app.verify_final_output_files({'xcpd_status':'success','xcpd_attempt':str(attempt)})
+
+
+def test_finalization_assigns_euler_by_session_not_subject(tmp_path, cfg):
+    cfg.pop('_config_id'); cfg['root'] = str(tmp_path)
+    path = tmp_path / 'cfg.json'; p.save(path, cfg); app = p.Pipeline(path)
+    cases = [(f'sub-SYNTHETIC{i}', 'ses-1', -100) for i in range(9)]
+    cases += [('sub-TARGET', 'ses-1', -100), ('sub-TARGET', 'ses-2', -324)]
+    flags = []
+    for sub, ses, euler in cases:
+        pair = tmp_path / 'results' / sub / ses; pair.mkdir(parents=True)
+        p.save(pair / 'pair_metadata.json', {'subject': sub.removeprefix('sub-')})
+        r = row()
+        r.update(sub=sub, ses=ses, avg_euler=euler, site='site', source_pair=str(pair),
+                 config_id=app.config_id, candidate=True, freesurfer_subject=sub + '_' + ses)
+        p.save(app.stage_dir(pair) / 'pre_qc.json', {'config_id': app.config_id, 'rows': [r]})
+        flags.append({'sub': sub, 'ses': ses, 'excluded_any': False, 'qc_metrics_complete': True})
+    cohort = tmp_path / 'flags.tsv'; p.tsv(cohort, flags)
+    rows = app.aggregate(cohort_ready=True, mriqc_flags=str(cohort))
+    target = {r['ses']: r['euler_qc_flag'] for r in rows if r['sub'] == 'sub-TARGET'}
+    assert target == {'ses-1': 0, 'ses-2': 1}
+    assert all(r['ANALYSIS_READY'] is False for r in rows)
 
 def test_roi_coverage_warning_not_invented_exclusion(tmp_path,cfg):
     r,_=fixture_outputs(tmp_path,cfg,low=True)

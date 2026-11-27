@@ -13,15 +13,18 @@ export RECEIPT="$DATA/binding/07.binding-receipt.json"
 <details>
 <summary>Create a receipt if you have the source evidence but no receipt yet</summary>
 
-Change the entries below only if your input layout differs. `images` is the candidate image registry; `epi_manifest` lists proposed EPI/T1 pairs; `pairing_receipt` authenticates those two tables. `hash_evidence` contains independent conversion fingerprints with `SOURCE_PTID`, `STUDY_DATE`, `MODALITY`, `SOURCE_IMAGE_ID` and `NIFTI_SHA256`. `bids_roots` points to the dataset containing the actual NIfTI files and sidecars (use `rawdata` if that is your Clinica output). The JSON copy and binding audits go under `RESULTS`.
+Set `STEP3B` to the output directory from a fresh [3.B selection](../s3b_image_selection/README.md). Adjust the BIDS and conversion-evidence paths to your inputs. `images` is the candidate image registry; `epi_manifest` lists proposed EPI/T1 pairs; `pairing_receipt` authenticates those two tables. `hash_evidence` contains independent conversion fingerprints with `SOURCE_PTID`, `STUDY_DATE`, `MODALITY`, `SOURCE_IMAGE_ID` and `NIFTI_SHA256`. `bids_roots` points to the dataset containing the actual NIfTI files and sidecars. The hash evidence must independently link each converted file to its source image. The JSON and binding audits go under `RESULTS`.
 
 ```sh
+export STEP3B="$DATA/qc/step3b"
 python - <<'PY'
 import json, os
 from pathlib import Path
 data, out = Path(os.environ["DATA"]), Path(os.environ["RESULTS"])
-cfg = dict(images=str(data/"candidate-audit.csv"), epi_manifest=str(data/"04.epi-analysis-manifest.csv"),
-           pairing_receipt=str(data/"pairing-run-manifest.json"), bids_roots=[str(data/"bids")],
+selection = Path(os.environ["STEP3B"])
+cfg = dict(images=str(selection/"00.candidate-images.csv"),
+           epi_manifest=str(selection/"04.epi-analysis-manifest.csv"),
+           pairing_receipt=str(selection/"07.run-manifest.json"), bids_roots=[str(data/"rawdata")],
            hash_evidence=[str(data/"hash-evidence.csv")], output_dir=str(out/"binding"))
 with (out/"binding.json").open("x") as f:
     json.dump(cfg, f, indent=2)
@@ -82,3 +85,21 @@ python pipeline/s5d_bids_identity/guarded_runner_seeded.py check --config "$CFG"
 python pipeline/s5d_bids_identity/guarded_runner_seeded.py intake --config "$CFG" &&
 cat "$CASE/results/step5/intake_decisions.tsv"
 ```
+
+The template uses [seed 1123 and OMP1](../../06_docs/seed_reproducibility.md). Unresolved identity or source-review cases stay held.
+
+## Readiness boundary
+
+Binding verifies the exact EPI and proposed T1, including actual dates, unique UIDs, independent NIfTI hashes and BIDS header consistency. It checks source eligibility for both modalities and rejects duplicate EPI image assignments. A BIDS file with the same visit label is not a replacement for a missing proposed Image ID.
+
+Scan-level source/JSON contradictions and scanner differences across EPI and T1 block execution. Both physical files must report comparable manufacturer and field strength; model is compared when available and otherwise recorded as unknown. Compare normalized vendor names and numeric strengths. A scanner match is not registration QC. Rebuild old 3.B v1 and 5.D receipts before using this path; unversioned Research pairing receipts still require the current physical checks.
+
+The current executable path requires a unique, eligible `same_day_proposed` pair, documented EPI QC, no pairing-review hold and the reviewed GO/2/3 protocol scope. Cross-date candidates, top ties and protocol extensions remain held even if files exist. A 3.B review window does not authorize cross-date execution. See the [date-based selection guide](../../06_docs/date_based_selection.md) for the distinction between inventory, proposal and execution.
+
+`PREPROCESSING_READY` is a technical handoff decision. `ANALYSIS_READY` remains false; anatomical quality, BOLD–T1 registration, denoising, motion/coverage checks and clinical/final inclusion still require their respective stages. Original acquisition dates and source provenance remain unchanged.
+
+Prepare one runtime per EPI key. The [local batch](../../06_docs/local_batch.md) accepts a separately verified handoff with one pair per participant.
+
+## Evidence and limits
+
+Sources: [ADNI FAQ answers](https://adni.loni.usc.edu/help-faqs/faqs/); [ADNI EPI–T1 pairing answer](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=434); [Gorgolewski et al. (2016)](https://doi.org/10.1038/sdata.2016.44). The [Stage 5.D evidence record](../../06_docs/stage_evidence.md#stage-5-d) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. These references do not certify the current configuration or any individual image as analysis-ready.

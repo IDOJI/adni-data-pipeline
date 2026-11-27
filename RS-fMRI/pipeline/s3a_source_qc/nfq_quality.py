@@ -141,8 +141,12 @@ def candidate_qc(candidates, spine, evidence, holds):
             status, reason = 'pass', 'raw_overallqc_1_2_3'
         elif not ev:
             status, reason = 'unknown', 'no_unique_raw_nfq_match'
+        elif not any(item['quality_field_present'] for item in ev):
+            status, reason = 'unknown', 'raw_overallqc_column_absent'
+        elif not grade:
+            status, reason = 'unknown', 'raw_overallqc_blank'
         else:
-            status, reason = 'unknown', 'raw_overallqc_absent_or_undefined'
+            status, reason = 'unknown', 'raw_overallqc_undefined_value'
         output.append(dict(
             IMAGE_ID=iid, PTID=candidate['PTID'], MRI_STUDY_DATE=candidate['MRI_STUDY_DATE'],
             NFQ_RAW_QC_STATUS=status, NFQ_RAW_OVERALLQC=grade, NFQ_RAW_REASON=reason,

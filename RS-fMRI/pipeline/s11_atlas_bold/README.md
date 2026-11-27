@@ -40,3 +40,7 @@ python pipeline/s11_atlas_bold/run.py extract \
 ```
 
 Use full BIDS filenames from your actual run. Create frame/run mapping evidence with [adapter commands](adapters.md); censored frames and rewritten session labels require the corresponding mapping. Atlas and BOLD must share a template space; resampling only adjusts the grid. This stage extracts signals, without additional denoising or FC estimation.
+
+## Evidence and limits
+
+Sources: [Schaefer et al. (2018)](https://doi.org/10.1093/cercor/bhx179); [Mehta et al. (2024)](https://doi.org/10.1162/imag_a_00257). The [Stage 11 evidence record](../../06_docs/stage_evidence.md#stage-11) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. These references do not certify the current configuration or any individual image as analysis-ready.

@@ -126,3 +126,7 @@ python pipeline/s7a_volume_workflow/pipeline_seeded.py --config "$VOL" verify \
 ```
 
 Look for the same successful verification status, then review the denoised BOLD and report under `$RESULTS/xcpd_output/`. Attempt records and command lines are in `$RESULTS/logs/`. The separate [output audit](audit_outputs.py) expects a staged archive layout with `bids/`, `derivatives/` and a staging manifest; use its `--help` for that layout.
+
+## Evidence and limits
+
+Sources: [Behzadi et al. (2007)](https://doi.org/10.1016/j.neuroimage.2007.04.042); [Esteban et al. (2019)](https://doi.org/10.1038/s41592-018-0235-4); [Mehta et al. (2024)](https://doi.org/10.1162/imag_a_00257). The [Stage 7.A evidence record](../../06_docs/stage_evidence.md#stage-7-a) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. These references do not certify the current configuration or any individual image as analysis-ready.

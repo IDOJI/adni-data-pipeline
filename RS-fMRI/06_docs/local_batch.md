@@ -4,6 +4,8 @@
 
 **Output:** Per-case derivatives/logs, published pair results, XCP-D/QC outputs and `status.html` under a new external runtime. Final clinical/research inclusion remains a separate step.
 
+For new collection exports, start with [3.B date-based selection](../pipeline/s3b_image_selection/README.md) and [5.D exact BIDS binding](../pipeline/s5d_bids_identity/README.md). This controller accepts **one pair per participant per runtime**; it is not an adapter for the complete EPI inventory and does not consume the 3.B CSV directly. Preserve all proposed EPI rows and use separate 5.D guarded runtimes per EPI when a participant has multiple acquisitions. Never collapse them by VISCODE or replace an existing participant entry with a later pair.
+
 ## Run
 
 From `RS-fMRI/` after [setup](installation.md):
@@ -15,6 +17,8 @@ cp 03_config/xcpd_linc.seeded.example.json /ABS/private-config/xcpd.json
 ```
 
 Edit the copies: set the handoff/source-review paths and fingerprints, fresh `root`, shared compute settings, image/license/template paths, and `xcpd_template=/ABS/private-config/xcpd.json`. Keep seed **1123** and `omp_nthreads=1` in both stages.
+
+The current XCP-D template requires `qc_policy_version=sessionwise-euler-nss-v1`, automatic non-steady-state removal and explicit Euler reference settings. The default minimum of 10 independent reference participants is a project safeguard, not a universal published cutoff. Existing frozen runtimes are not migrated in place; missing/old policy versions reject before creating a new S10 runtime.
 
 ```sh
 # Verify inputs and prepare the new runtime; no imaging yet.

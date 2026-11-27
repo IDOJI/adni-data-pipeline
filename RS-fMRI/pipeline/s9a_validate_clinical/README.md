@@ -19,3 +19,7 @@ python pipeline/s9a_validate_clinical/run.py \
 ```
 
 Nearest-date ties and missing evidence remain explicit. A dementia label alone is not confirmed AD etiology.
+
+## Evidence and limits
+
+Sources: [ADNI imaging–diagnosis answer](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=2401); [ADNI diagnosis-code answer](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=1756); [ADNI dementia-etiology answer](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=209). The [Stage 9.A evidence record](../../06_docs/stage_evidence.md#stage-9-a) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. These references do not certify the current configuration or any individual image as analysis-ready.

@@ -26,3 +26,7 @@ python pipeline/s7d_processing_timing/run.py \
 ```
 
 7.B/S10 update these reports automatically. Preprocessing = MRIQC + fMRIPrep; postprocessing = XCP-D. Stage sums include retries; wall span includes waiting. Missing timings stay missing. The separate [Docker observer](../../06_docs/processing_timing.md) measures active container time.
+
+## Evidence and limits
+
+Sources: [Esteban et al. (2019)](https://doi.org/10.1038/s41592-018-0235-4); [Mehta et al. (2024)](https://doi.org/10.1162/imag_a_00257). The [Stage 7.D evidence record](../../06_docs/stage_evidence.md#stage-7-d) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. This stage is operational instrumentation; no paper is claimed to validate its logs/timing as an imaging-quality measure.

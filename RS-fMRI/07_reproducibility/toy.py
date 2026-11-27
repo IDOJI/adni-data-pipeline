@@ -90,7 +90,7 @@ def init(root):
     for mod, iid, kind, suffix, values in [('T1', '100', 'anat', 'T1w', np.zeros((4,4,4), np.float32)), ('EPI', '101', 'func', 'task-rest_run-1_bold', data)]:
         stem = bids / SUB / SES / kind / (STEM + '_' + suffix)
         path = Path(str(stem) + '.nii.gz'); image(path, values)
-        meta = dict(SeriesInstanceUID='synthetic.' + iid, AcquisitionDateTime='2020-01-01T12:00:00', ImageID=iid)
+        meta = dict(Manufacturer='Synthetic vendor', MagneticFieldStrength=3.0, SeriesInstanceUID='synthetic.' + iid, AcquisitionDateTime='2020-01-01T12:00:00', ImageID=iid)
         if mod == 'EPI': meta.update(TaskName='rest', RepetitionTime=3., SliceTiming=[0., .75, 1.5, 2.25], SliceEncodingDirection='k', PhaseEncodingDirection='j')
         write_json(Path(str(stem) + '.json'), meta)
         registry.append(dict(PTID='999_S_9999', MRI_STUDY_DATE='2020-01-01', MODALITY=mod, IMAGE_ID=iid, SERIES_UID=meta['SeriesInstanceUID'], SEARCH_PHASE='ADNI 3', ELIGIBLE='True', QC_STATUS='pass', EXCLUSION_REASONS=''))

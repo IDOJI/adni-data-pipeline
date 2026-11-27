@@ -1,6 +1,9 @@
 {
-  "run_id": "20261101-xcpd262-linc-nifti-v1",
-  "pipeline_version": "1.0.0",
+  "run_id": "xcpd262-linc-nifti-explicit-dummy-qc-v2",
+  "pipeline_version": "1.1.0",
+  "qc_policy_version": "sessionwise-euler-nss-v1",
+  "euler_min_reference_subjects": 10,
+  "euler_threshold": 5.0,
   "root": "/ABSOLUTE/PATH/ADNI_DATA/pair_runtime",
   "repo": null,
   "image": "pennlinc/xcp_d@sha256:a919b121d1da8e090bfb3594f49ffeb5ddf2ab491327b04a7b8a1f304b64e7ca",

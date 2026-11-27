@@ -13,3 +13,7 @@ python pipeline/s7c_ants_iteration_logging/run.py \
 ```
 
 The fMRIPrep attempt under `$CASE/logs/` contains `ants_logging.json` with the effective Docker command, and `ants_iterations/` with stdout, stderr, iteration tables and progress records. Verbose ANTs logging records progress during registration. Interpret the scientific flags using the [7.B fMRIPrep option table](../s7b_sessionwise_preprocessing/README.md#what-the-fmriprep-options-do). Use the [7.B completion checks](../s7b_sessionwise_preprocessing/README.md#run-fmriprep) before moving on to motion QC.
+
+## Evidence and limits
+
+Sources: [Esteban et al. (2019)](https://doi.org/10.1038/s41592-018-0235-4). The [Stage 7.C evidence record](../../06_docs/stage_evidence.md#stage-7-c) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. This stage is operational instrumentation; no paper is claimed to validate its logs/timing as an imaging-quality measure.

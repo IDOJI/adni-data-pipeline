@@ -54,13 +54,17 @@ def process_confounds(confounds_path, fd_thresh):
 
     # FD_P: prefer the fMRIPrep column, otherwise compute it
     if "framewise_displacement" in df.columns:
-        fd_p = df["framewise_displacement"].fillna(0.0).values
+        fd_p = pd.to_numeric(df['framewise_displacement'], errors='raise').to_numpy(dtype=float).copy()
+        if len(fd_p) and np.isnan(fd_p[0]):
+            fd_p[0] = 0.0
     else:
         fd_p = compute_fd_power_from_params(
             df,
             trans_cols=["trans_x", "trans_y", "trans_z"],
             rot_cols=["rot_x", "rot_y", "rot_z"],
         )
+    if not len(fd_p) or not np.isfinite(fd_p).all() or (fd_p < 0).any():
+        raise ValueError('FD must be finite/nonnegative; only the first undefined frame may become zero')
 
     # DVARS: prefer std_dvars, fall back to dvars, else NaN
     if "std_dvars" in df.columns:
