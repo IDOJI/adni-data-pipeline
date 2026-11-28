@@ -1,0 +1,4 @@
+neuroCombat==0.2.12
+numpy==1.26.4
+pandas==2.2.3
+scipy==1.13.1

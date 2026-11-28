@@ -4,6 +4,8 @@
 
 **Output:** A mastersheet plus `final_heuristics.tsv`, `missing_t1w.tsv` and `missing_data.tsv`.
 
+The four-stage study command uses the [verified EPI–T1 pair check](../s5d_bids_identity/README.md) after direct conversion. This optional mastersheet workflow reads historical conversion tables.
+
 ## Run
 
 From `RS-fMRI/`, after [setup](../../06_docs/installation.md). In the private YAML, `paths.clinica_bids_dir` identifies your BIDS root and `paths.clinica_conversion_info_dir` its Clinica conversion tables. The first command builds the mastersheet in a private working directory. `--input-csv` in the second command must point to that exact table.

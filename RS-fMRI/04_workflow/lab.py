@@ -30,11 +30,19 @@ def git(*args, cwd=ROOT):
 def doctor():
     from protocol_source import inspect_protocol
     result = inspect_protocol(ROOT)
-    for step in ['s1_setup_account', 's2_download', 's3_organize', 's4_clinica',
-                 's4b_slice_timing', 's5_post_clinica_qc', 's6_mriqc', 's7_fmriprep',
-                 's8_final_qc', 's9_clinical_imaging_merge']:
+    stages = (
+        's1_setup_account', 's2_download', 's3_organize', 's3a_source_qc', 's3b_image_selection',
+        's4_dcm2niix', 's4b_slice_timing', 's5_post_clinica_qc', 's5c_validate_handoff',
+        's5d_bids_identity', 's6_mriqc', 's7_fmriprep', 's7a_volume_workflow',
+        's7b_sessionwise_preprocessing', 's7c_ants_iteration_logging', 's7d_processing_timing',
+        's8_final_qc', 's8a_motion_duration_qc', 's9_clinical_imaging_merge', 's9a_validate_clinical',
+        's9b_validate_inclusion', 's10_xcpd_integrated_qc', 's11_atlas_bold', 's12_metrics_summary',
+        's13_reproducibility', 's14_fc_harmonization',
+    )
+    for step in stages:
         if not (PIPELINE / step / 'README.md').is_file():
             raise ValueError('Missing integrated protocol step: ' + step)
+    result['documented_stages'] = list(stages)
     return result
 
 
@@ -224,7 +232,7 @@ def commands(config, session_handoff=None, archive_root=None, metrics_status=Non
             'caveats': ['Step 6 is subject-scoped and may process other BIDS sessions; subset group IQMs before outlier fitting.',
                         'Upstream --dry-run can write job files; it is not a read-only command.',
                         'HPC settings are not fully honored by all upstream scripts. Inspect generated Slurm jobs.',
-                        'Step 4 templates contain original cluster paths and mail directives; prepare a separate lab template before submitting.',
+                        'For Step 4 use start/02_bids.py STUDY convert with the Stage 1 selection receipt.',
                         'Step 4b defaults to dry-run; inspect identity and slice axis before applying.',
                         'Step 5b, MRIQC group/outliers, final QC and clinical merge require explicit input arguments; see README.']}
 
@@ -246,12 +254,22 @@ def main():
     e.add_argument('--archive-root', required=True)
     e.add_argument('--status')
     e.add_argument('--watch', action='store_true')
+    h = sub.add_parser('harmonize-fc', help='Audit or fit cross-sectional ComBat on verified Step 10 FC')
+    h.add_argument('--config', required=True)
+    h.add_argument('--audit-only', action='store_true')
     a = p.parse_args()
     try:
         if a.action == 'doctor':
             result = doctor()
         elif a.action == 'prepare-config':
             result = render_config(a.lab_config, a.output_dir, a.handoff)
+        elif a.action == 'harmonize-fc':
+            sys.path.insert(0, str(PIPELINE))
+            from s14_fc_harmonization.run import run
+            result = run(a.config, a.audit_only)
+            if result['status'] == 'blocked' and not a.audit_only:
+                print(json.dumps(result, indent=2, ensure_ascii=False))
+                p.exit(2)
         elif a.action == 'export-results':
             doctor()
             child = subprocess.run(metrics_summary_command(a.archive_root, a.status, a.watch), check=False)

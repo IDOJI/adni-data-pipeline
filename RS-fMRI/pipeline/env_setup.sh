@@ -10,20 +10,13 @@
 # ========================
 # === USER CONFIG (edit) =
 # ========================
-# Mode: choose "python" or "conda"
-#MODE="python"   # set to "python" to load HPC python module; "conda" to load HPC conda module + activate clinica env
-
 # Required paths (set these to your project/cluster locations)
 ADNI_BASE="/N/project/cfn-rady/andrea-dev/ADNI"                        # e.g. /N/project/ADNI
-REPO_ROOT="/N/project/cfn-rady/andrea-dev/ADNI/code/ADNI_fMRI_protocol"                    # path to repo root (contains env/env_clinica.yml)
+REPO_ROOT="/N/project/cfn-rady/andrea-dev/ADNI/code/ADNI_fMRI_protocol"                    # path to repo root
 CONFIG_PATH="/N/project/cfn-rady/andrea-dev/ADNI/code/ADNI_fMRI_protocol/config/config_adni.yaml"            # full path to pipeline YAML config (this allows multiple configs)
-
-# Path to clinica conda environment (prefix)
-PATH_TO_CLIN_ENV="/N/project/cfn-commons/neuroimaging_utils/python-envs/env_clinica_dcm2niix2024"
 
 # HPC module names (adjust to your cluster's module names if different)
 HPC_PY_MODULE="python"      # e.g. python/3.10
-HPC_CONDA_MODULE="conda" # module that provides conda (e.g. anaconda, miniconda, conda)
 
 # ========================
 # === End USER CONFIG ====
@@ -65,7 +58,6 @@ fi
 
 # Export core variables
 export ADNI_BASE REPO_ROOT CONFIG_PATH
-export PATH_TO_CLIN_ENV
 
 # Check config file exists
 if [ ! -f "$CONFIG_PATH" ]; then
@@ -74,49 +66,10 @@ if [ ! -f "$CONFIG_PATH" ]; then
 fi
 
 # -----------------------------
-# check that clinica env is working
-_info "Testing clinica conda env: will attempt to module load '$HPC_CONDA_MODULE' and activate conda env at prefix: $PATH_TO_CLIN_ENV"
-# Load conda module
-if ! module load "$HPC_CONDA_MODULE" 2>/dev/null; then
-  _warn "module load $HPC_CONDA_MODULE failed. Ensure your cluster provides a conda/anaconda module named: $HPC_CONDA_MODULE"
+# The study converter calls dcm2niix directly from PATH.
+if ! command -v dcm2niix >/dev/null 2>&1; then
+  _warn "Install or load dcm2niix before running the DICOM conversion stage."
 fi
-
-# Check if the prefix folder exists (this is how prefix-style conda envs are usually represented)
-if [ -d "$PATH_TO_CLIN_ENV" ]; then
-  _info "Conda env prefix directory exists: $PATH_TO_CLIN_ENV"
-  # attempt to activate
-  if command -v conda >/dev/null 2>&1; then
-    # shellcheck disable=SC1090
-    # ensure conda is initialised in this shell: use 'conda activate' (module should have provided it)
-    if conda activate "$PATH_TO_CLIN_ENV" 2>/dev/null; then
-      _info "Activated conda env: $PATH_TO_CLIN_ENV"
-    else
-      _warn "conda activate $PATH_TO_CLIN_ENV failed. You may need to 'module load $HPC_CONDA_MODULE' in your login shell first."
-    fi
-  else
-    _warn "conda command not available after loading module $HPC_CONDA_MODULE."
-  fi
-else
-  # env missing -> print the exact instructions requested
-  cat <<EOF
-
-[NOTICE] Clinica conda environment not found at:
-${PATH_TO_CLIN_ENV}
-
-To create it, run the following commands (on the cluster):
-
-module load conda
-conda env create --prefix ${PATH_TO_CLIN_ENV} --file ${REPO_ROOT}/env/env_clinica.yml
-
-After creation you can activate with:
-module load ${HPC_CONDA_MODULE}
-conda activate ${PATH_TO_CLIN_ENV}
-
-EOF
-  # Do not error out hard; return non-zero so caller can detect
-  return 2 2>/dev/null || exit 2
-fi
-
 
 # Load python module if in python mode
 _info "Loading module '$HPC_PY_MODULE'"
@@ -191,7 +144,6 @@ cat <<EOF
   ADNI_BASE         = $ADNI_BASE
   REPO_ROOT         = $REPO_ROOT
   CONFIG_PATH       = $CONFIG_PATH
-  PATH_TO_CLIN_ENV  = $PATH_TO_CLIN_ENV
 
 Derived directories were read from config and ensured to exist.
 Use config with:

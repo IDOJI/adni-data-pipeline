@@ -31,7 +31,7 @@ flowchart TD
     K -->|Verified| L["MRIQC and fMRIPrep, then imaging and clinical QC"]
 ```
 
-Metadata exports and source QC can be reviewed before a large imaging download. If images have already been downloaded, 3.B can instead reconcile that inventory. Neither route changes original source tables. The metadata stage writes only external artifacts and never invokes a downloader, Clinica, MRIQC or fMRIPrep.
+Metadata exports and source QC can be reviewed before a large imaging download. If images have already been downloaded, 3.B can instead reconcile that inventory. Neither route changes original source tables. The metadata stage writes only external artifacts and never invokes a downloader, dcm2niix, MRIQC or fMRIPrep.
 
 The [3.B example configuration](../03_config/image_selection.example.json) accepts explicit collection files, their search modalities and per-row phases, the 3.A output directory and a new output directory. Source QC is linked through `artifact.json` and `image_qc.tsv`. Collection identity conflicts remain blocked, unverified quality remains pending, and the output receipt binds all artifacts for later verification.
 
@@ -82,7 +82,7 @@ This ordering is an explicit project adaptation of the documented Research selec
 
 ## Conversion and exact binding
 
-The Clinica paper describes ADNI conversion and selection among available acquisitions; the ADNI protocol preprint reports conversion/selection issues. Neither paper guarantees that every proposed Image ID survives the installed converter. Reconcile actual conversion output with 3.B rather than equating successful BIDS conversion with complete image retention. [Routier et al. (2021), ADNI conversion section](https://doi.org/10.3389/fninf.2021.689675); [Rutherford et al. (2026), Step 4, preprint](https://doi.org/10.21203/rs.3.rs-11132707/v1).
+The earlier Clinica workflow described ADNI conversion and selection among available acquisitions; the ADNI protocol preprint reports conversion/selection issues. Neither paper guarantees that every proposed Image ID survives the installed converter. Our [direct dcm2niix converter](../pipeline/s4_dcm2niix/README.md) records one outcome for every selected Image ID. [Routier et al. (2021), ADNI conversion section](https://doi.org/10.3389/fninf.2021.689675); [Rutherford et al. (2026), Step 4, preprint](https://doi.org/10.21203/rs.3.rs-11132707/v1).
 
 Reconcile the source inventory with conversion records and the actual BIDS files. Step 5.D consumes `00.candidate-images.csv`, `04.epi-analysis-manifest.csv` and `07.run-manifest.json`, together with independently established Image ID/date/modality-to-NIfTI-hash evidence. It verifies exact UIDs, participant identity, dates, file hashes and headers before preparing a pair. A proposed image that is absent, ambiguous or inconsistent stays held; another scan with the same VISCODE is not a substitute.
 

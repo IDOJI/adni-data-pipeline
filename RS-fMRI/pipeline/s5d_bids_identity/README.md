@@ -1,5 +1,9 @@
 # Stage 5.D — Verify and prepare one EPI–T1 pair
 
+For the [stage 2 walkthrough](../../README.md#convert), set your study path and run `python start/02_bids.py "$STUDY" bind` from `RS-fMRI/`.
+
+The [direct converter](../s4_dcm2niix/README.md) writes the required conversion fingerprints during stage 2.
+
 Start here for an ADNI resting-state EPI and same-day T1w that have passed source review. The binding program checks participant, scan date, image IDs, series UIDs, hashes and headers. It checks the BOLD phase-encoding axis/sign (`PhaseEncodingDirection`) and the acquisition time of each slice (`SliceTiming`) separately.
 
 ### 1. Choose the binding receipt

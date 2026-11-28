@@ -1,6 +1,6 @@
 # Stage 3 — DICOM inventory
 
-**What:** Inventory extracted DICOM folders and build the conversion subject list.
+**What:** Inventory extracted DICOM folders and build an optional list of participants.
 
 **Output:** `<raw_dicom_dir>/unzipped_dicom_dirs_inventory.csv` and the configured subject-list text file.
 
@@ -8,14 +8,16 @@
 
 From `RS-fMRI/`, after [setup](../../06_docs/installation.md). Replace example paths and IDs with your inputs.
 
-In your [private lab configuration](../../06_docs/installation.md#configuration), set `paths.raw_dicom_dir` to the directory whose immediate children are the extracted participant folders. `paths.raw_subject_list` is the output text file read by Step 4; its parent must exist. The inventory command writes a CSV inside the DICOM directory, and the list command appends IDs. Use a writable staging copy, a fresh list filename and paths without spaces for these legacy shell scripts.
+The current converter reads the selected Image IDs directly and inventories their DICOM folders automatically. To run the optional inventory separately, use the following commands.
+
+In your [private lab configuration](../../06_docs/installation.md#configuration), set `paths.raw_dicom_dir` to the directory whose immediate children are the extracted participant folders. `paths.raw_subject_list` is an optional output text file for older participant-based tools; its parent must exist. The inventory command writes a CSV inside the DICOM directory, and the list command appends IDs. Use a writable staging copy, a fresh list filename and paths without spaces for these legacy shell scripts.
 
 ```sh
 bash pipeline/s3_organize/create_dicom_dir_csv.sh --config "$PIPELINE_CONFIG"
 bash pipeline/s3_organize/make_subject_list_for_conversions.sh --config "$PIPELINE_CONFIG"
 ```
 
-Compare the inventory against the downloaded collection CSV before [conversion](../s4_clinica/README.md).
+Compare the inventory against the downloaded collection CSV before [conversion](../s4_dcm2niix/README.md).
 
 ## Evidence and limits
 

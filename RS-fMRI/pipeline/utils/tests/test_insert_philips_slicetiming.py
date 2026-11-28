@@ -450,6 +450,25 @@ def test_unusable_timing_cannot_hide_an_identity_collision(tmp_path: Path) -> No
     assert "SliceTiming" not in json.loads(js.read_text())
 
 
+@pytest.mark.parametrize("sidecar_uid,status", [("1.2.999", "would_write"), ("1.2.888", "unmatched")])
+def test_direct_date_session_requires_exact_nfq_identity(tmp_path, sidecar_uid, status):
+    cfg, bids, csv_path, report = _base_setup(tmp_path)
+    js = _bold_json_path(bids, "ADNI999S9999", "20200201")
+    _write_json(js, {"Manufacturer": "Philips", "RepetitionTime": 1.2, "SeriesNumber": 11,
+                     "SeriesInstanceUID": sidecar_uid})
+    row = {"RID": "9999", "SERIESNUMBER": "11", "MANUFACTURER": "Philips", "REPETITIONTIME": "1200",
+           "SLICETIMING": _abs_string(STD_REL), "SERIES_UID": "1.2.999", "StudyDate": "02/01/2020"}
+    with csv_path.open("w", newline="") as stream:
+        writer = csv.DictWriter(stream, fieldnames=row)
+        writer.writeheader()
+        writer.writerows([row, dict(row, StudyDate="01/01/2020", SERIES_UID="1.2.888")])
+    assert _run(cfg, bids, csv_path, report, dry_run=True) == {status: 1}
+    assert "SliceTiming" not in json.loads(js.read_text())
+    if status == "would_write":
+        assert _run(cfg, bids, csv_path, report) == {"written": 1}
+        assert json.loads(js.read_text())["SliceTiming"] == STD_REL
+
+
 @pytest.mark.parametrize("raw", ["nan_1", "0_inf", "-inf_0"])
 def test_nonfinite_slice_timing_is_not_usable(raw: str) -> None:
     with pytest.raises(ValueError, match="nonfinite"):

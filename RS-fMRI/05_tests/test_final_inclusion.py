@@ -155,3 +155,36 @@ def test_explicit_imaging_not_included_cannot_be_promoted(tmp_path, status):
     row.update(final_qc_status=status, final_include='False')
     table(p, [row]); refresh(args[1], p.name); gate.process(*args, tmp_path / 'out')
     assert result(tmp_path / 'out')['INCLUSION_STATUS'] == 'hold'
+
+
+def test_normalized_image_reuse_across_runs_holds_both(tmp_path):
+    args = fixture(tmp_path)
+    path = args[1] / 'clinical_validation.tsv'
+    row, = gate.read(path)
+    table(path, [row, {**row, 'IMAGE_ID': 'i00101', 'run': '2'}])
+    refresh(args[1], path.name)
+    gate.process(*args, tmp_path / 'out')
+    assert all(r['INCLUSION_STATUS'] == 'hold' and 'image_id_reused' in r['INCLUSION_REASONS']
+               for r in gate.read(tmp_path / 'out/inclusion_audit.tsv'))
+
+
+def test_malformed_legacy_clinical_identity_stays_held(tmp_path):
+    args = fixture(tmp_path)
+    path = args[1] / 'clinical_validation.tsv'
+    row, = gate.read(path)
+    table(path, [{**row, 'IMAGE_ID': 'II101', 'CLINICAL_STATUS': 'hold'}])
+    refresh(args[1], path.name)
+    gate.process(*args, tmp_path / 'out')
+    assert result(tmp_path / 'out')['INCLUSION_STATUS'] == 'hold'
+
+
+def test_image_id_hold_preserves_an_independent_clinical_exclusion(tmp_path):
+    args = fixture(tmp_path)
+    path = args[1] / 'clinical_validation.tsv'
+    row, = gate.read(path)
+    row.update(CLINICAL_STATUS='hold',
+               CLINICAL_REASONS='image_id_reused_for_multiple_runs;diagnosis_gap_over_window')
+    table(path, [row])
+    refresh(args[1], path.name)
+    gate.process(*args, tmp_path / 'out')
+    assert result(tmp_path / 'out')['INCLUSION_STATUS'] == 'excluded'

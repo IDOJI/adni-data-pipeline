@@ -50,11 +50,11 @@ Each stage README links to its entry here. Source IDs resolve to the exact ADNI 
 
 <a id="stage-4"></a>
 
-### Stage 4 — s4_clinica
+### Stage 4 — s4_dcm2niix
 
-**Evidence and location:** P03 describes Clinica conversion; P02 describes the BIDS format; P01 Step 4 reports ADNI conversion/selection problems. [P03](#p03), [P02](#p02), [P01](#p01).
+The converter reads one selected IDA series at a time. dcm2niix extracts the NIfTI and acquisition metadata. The wrapper names the BIDS files and records the original Image ID, DICOM instance hashes, series UID and NIfTI hash. Each selected ID gets an audit row. [Converter and options](https://github.com/rordenlab/dcm2niix) · [BIDS MRI specification](https://bids-specification.readthedocs.io/en/stable/modality-specific-files/magnetic-resonance-imaging-data.html) · [Implementation](../pipeline/s4_dcm2niix/README.md)
 
-**Implementation and limits:** Audit which Image IDs actually survive conversion. The papers do not prove that a current converter retains every proposed scan or implements our preserve-all policy.
+The project assigns separate run numbers to same-day repeats and holds ambiguous outputs for review. Published ADNI workflows provide historical context for auditing scan retention. [Rutherford et al., Step 4](#p01) · [Routier et al.](#p03)
 
 <a id="stage-4-b"></a>
 
@@ -199,6 +199,12 @@ Each stage README links to its entry here. Source IDs resolve to the exact ADNI 
 **Evidence and location:** P22 describes anatomical segmentation/volumetry; P15 describes cortical thickness; P13 defines ReHo; P14 describes ALFF; P10 describes derivative production. [P22](#p22), [P15](#p15), [P13](#p13), [P14](#p14), [P10](#p10).
 
 **Implementation and limits:** This stage exports already calculated archive values and their provenance; it does not compute those methods again. A populated scalar or report link is not proof of biological validity. Retain NA and source units.
+
+<a id="stage-14"></a>
+
+### Stage 14 — s14_fc_harmonization
+
+Yu et al. evaluated ComBat on multisite FC. Blujus et al. used upper-triangle Fisher-z features in ADNI. This implementation uses a reviewed site/scanner batch, 4S256 connectomes and one acquisition per participant. Batch size, coverage and visit rules belong to this analysis design. [Yu et al.](https://doi.org/10.1002/hbm.24241) · [Blujus et al.](https://doi.org/10.1002/hbm.70622) · [Alternatives and implementation repositories](fc_harmonization.md).
 
 ## Parameter and policy traceability
 

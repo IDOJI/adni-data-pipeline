@@ -268,3 +268,32 @@ def test_qc_error_cannot_supply_static_value(tmp_path):
     clinical.process(*inputs, tmp_path / 'out')
     out = clinical.read(tmp_path / 'out/clinical_validation.tsv')[0]
     assert out['BIOLOGICAL_SEX'] == '' and out['SEX_SUBJECT_STATIC_FILL_COUNT'] == '0'
+
+
+@pytest.mark.parametrize('aliases,status', [
+    ({'Image_ID': 'II101'}, 'hold'),
+    ({'Image_ID': 'I101', 'IMAGE_ID': '102'}, 'hold'),
+    ({'Image_ID': 'i00101', 'IMAGE_ID': '101'}, 'pass'),
+])
+def test_scan_link_aliases_use_the_selection_identifier(tmp_path, aliases, status):
+    inputs = fixture(tmp_path)
+    link = clinical.read(inputs[1])[0]
+    write(inputs[1], [{**link, **aliases}])
+    clinical.process(*inputs, tmp_path / 'out')
+    row, = clinical.read(tmp_path / 'out/clinical_validation.tsv')
+    assert row['CLINICAL_STATUS'] == status
+    if status == 'hold':
+        assert 'invalid_or_conflicting_scan_image_id' in row['CLINICAL_REASONS']
+    else:
+        assert row['IMAGE_ID'] == '101'
+
+
+@pytest.mark.parametrize('field', ['IMAGE_ID', 'SOURCE_IMAGE_ID', 'epi_image_id'])
+def test_scan_links_cannot_replace_a_different_included_image(tmp_path, field):
+    inputs = fixture(tmp_path)
+    row, = clinical.read(inputs[0])
+    write(inputs[0], [{**row, field: 'I102'}])
+    clinical.process(*inputs, tmp_path / 'out')
+    result, = clinical.read(tmp_path / 'out/clinical_validation.tsv')
+    assert result['CLINICAL_STATUS'] == 'hold'
+    assert 'included_scan_image_id_conflict' in result['CLINICAL_REASONS']

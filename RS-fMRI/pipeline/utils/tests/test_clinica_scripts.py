@@ -13,7 +13,12 @@ from pathlib import Path
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-CLINICA_DIR = REPO_ROOT / "s4_clinica"
+CLINICA_DIR = REPO_ROOT.parent / "provenance/legacy_clinica/s4_clinica"
+
+
+@pytest.fixture(autouse=True)
+def archived_config_helper(monkeypatch):
+    monkeypatch.setenv("PYTHONPATH", str(REPO_ROOT))
 
 
 def test_create_slurm_script_per_sub_creates_per_subject_files(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:

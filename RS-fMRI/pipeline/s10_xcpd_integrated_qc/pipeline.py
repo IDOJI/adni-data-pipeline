@@ -683,7 +683,19 @@ class Pipeline:
     def verify_complete_pair(self, pair):
         spec = importlib.util.spec_from_file_location('offload_gate', Path(__file__).with_name('offload_completed.py'))
         mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
-        return mod.verify_completed_pair(self.root, Path(pair), set())
+        pair = Path(pair)
+        if self.cfg.get('verified_case_archives'):
+            # Each acquisition keeps its own stage logs, including repeat visits.
+            meta = load(pair / 'pair_metadata.json')
+            image_id = str(meta['epi_image_id'])
+            if not image_id.isdecimal() or pair != self.root / 'results' / meta['ptid'] / meta['pair_id']:
+                raise ValueError('Unexpected study archive identity')
+            case = self.root / 'cases' / ('I' + image_id)
+            target = case / 'results' / pair.parent.name / pair.name
+            if not pair.is_symlink() or pair.resolve() != target or case.resolve() != case:
+                raise ValueError('Study archive points outside its verified case')
+            return mod.verify_completed_pair(case, target, set())
+        return mod.verify_completed_pair(self.root, pair, set())
 
     def prepare(self, pair):
         self.verify_complete_pair(pair)
