@@ -18,4 +18,4 @@ For new ADNI selections, complete [3.B date-based proposals](../../01-selection/
 
 ## Evidence and limits
 
-Sources: [Esteban et al. (2019)](https://doi.org/10.1038/s41592-018-0235-4). The [Stage 7 evidence record](../../docs/stage_evidence.md#stage-7) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. These references do not certify the current configuration or any individual image as analysis-ready.
+Sources: [Esteban et al. (2019)](https://doi.org/10.1038/s41592-018-0235-4). The [Stage 7 evidence record](../../support/docs/stage_evidence.md#stage-7) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. These references do not certify the current configuration or any individual image as analysis-ready.

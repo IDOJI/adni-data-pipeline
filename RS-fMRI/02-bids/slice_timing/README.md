@@ -6,7 +6,7 @@
 
 ## Run
 
-From `RS-fMRI/`, after [setup](../../docs/installation.md). Replace example paths and IDs with your inputs.
+From `RS-fMRI/`, after [setup](../../support/docs/installation.md). Replace example paths and IDs with your inputs.
 
 For date-based sessions such as `ses-YYYYMMDD`, the NFQ row must match the participant RID, scan date and exact series UID. For the default study layout, preview the proposed changes from your terminal:
 
@@ -54,4 +54,4 @@ validation of this adapter or a substitute for reviewing the actual acquisition.
 
 ## Evidence and limits
 
-Sources: [ADNI NFQ/slice-order answer](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=1822); [Sladky et al. (2011)](https://doi.org/10.1016/j.neuroimage.2011.06.078); [Rutherford et al. (2026)](https://doi.org/10.21203/rs.3.rs-11132707/v1). The [Stage 4.B evidence record](../../docs/stage_evidence.md#stage-4-b) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. These references do not certify the current configuration or any individual image as analysis-ready.
+Sources: [ADNI NFQ/slice-order answer](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=1822); [Sladky et al. (2011)](https://doi.org/10.1016/j.neuroimage.2011.06.078); [Rutherford et al. (2026)](https://doi.org/10.21203/rs.3.rs-11132707/v1). The [Stage 4.B evidence record](../../support/docs/stage_evidence.md#stage-4-b) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. These references do not certify the current configuration or any individual image as analysis-ready.

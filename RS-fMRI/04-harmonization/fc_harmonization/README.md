@@ -59,4 +59,4 @@ Set a different `output_dir` in `fit.json`. Review the audit first. The audit ca
 
 ## Evidence
 
-See the [stage source register](../../docs/stage_evidence.md#stage-14) and [method comparison, ADNI applications and software repositories](../docs/fc_harmonization.md). The baseline calls [neuroCombat](https://github.com/Jfortin1/neuroCombat) 0.2.12. Only synthetic data are used to test the model in this repository.
+See the [stage source register](../../support/docs/stage_evidence.md#stage-14) and [method comparison, ADNI applications and software repositories](../docs/fc_harmonization.md). The baseline calls [neuroCombat](https://github.com/Jfortin1/neuroCombat) 0.2.12. Only synthetic data are used to test the model in this repository.

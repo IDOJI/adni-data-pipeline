@@ -1,6 +1,6 @@
 # ADNI Data Pipeline
 
-Follow a resting-state brain scan from download to analysis. Start by [setting up your study folder](RS-fMRI/docs/setup.md). Then open one step at a time.
+Follow a resting-state brain scan from download to analysis. Start by [setting up your study folder](RS-fMRI/support/docs/setup.md). Then open one step at a time.
 
 | Step | What you get |
 |---|---|
@@ -11,4 +11,4 @@ Follow a resting-state brain scan from download to analysis. Start by [setting u
 
 Working with genetic data? Open the [SNP guide](SNP/README.md).
 
-[Practice data](RS-fMRI/07_reproducibility/README.md) · [Methods](RS-fMRI/docs/protocol-index.md) · [Credits](RS-fMRI/NOTICE.md) · [Citation](RS-fMRI/pipeline/CITATION.cff) · [License](LICENSE)
+[Practice data](RS-fMRI/support/reproducibility/README.md) · [Methods](RS-fMRI/support/docs/protocol-index.md) · [Credits](RS-fMRI/support/NOTICE.md) · [Citation](RS-fMRI/support/pipeline/CITATION.cff) · [License](LICENSE)

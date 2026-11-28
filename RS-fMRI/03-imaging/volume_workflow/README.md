@@ -4,7 +4,7 @@ Use this profile for a BIDS session with T1w and resting BOLD. fMRIPrep produces
 
 ### Configure your session
 
-Set [your input and results paths](../../docs/installation.md#paths-for-a-manual-run). The example expects `$DATA/bids/dataset_description.json`, one `sub-*/ses-*/` folder with `func/*_task-rest*_bold.nii.gz` and its BIDS metadata, and a T1w under the session or subject `anat/` folder. Verify acquisition metadata for SyN correction.
+Set [your input and results paths](../../support/docs/installation.md#paths-for-a-manual-run). The example expects `$DATA/bids/dataset_description.json`, one `sub-*/ses-*/` folder with `func/*_task-rest*_bold.nii.gz` and its BIDS metadata, and a T1w under the session or subject `anat/` folder. Verify acquisition metadata for SyN correction.
 
 | Field in the [seeded example](config.seeded.example.json) | What to set in your private copy |
 |---|---|
@@ -111,7 +111,7 @@ python 03-imaging/volume_workflow/pipeline_seeded.py --config "$VOL" dry-run \
 
 **Where to change a value.** In your private `volume.json`, the `postprocessing` fields `fd_threshold_mm`, `minimum_retained_seconds`, `high_pass_hz`, `low_pass_hz` and `smoothing_fwhm_mm` set the corresponding values above. The separate 30% censored-fraction criterion belongs to the [output audit](audit_outputs.py). The runner sets the aCompCor model in code. [XCP-D processing details](https://xcp-d.readthedocs.io/en/26.2.0/workflows.html) · [XCP-D options](https://xcp-d.readthedocs.io/en/26.2.0/usage.html)
 
-**Execution settings for both programs.** The example gives Docker 8 CPUs and 24 GiB. `--nprocs 8 --omp-nthreads 1 --mem-mb 20000` sets the application budgets. Both programs use `--random-seed 1123`, `--fs-license-file`, a stage-specific `-w /work`, `--notrack` and `--stop-on-first-crash`. The output mount switches to `xcpd_output/` for XCP-D. [How to read Docker and runtime options](../../docs/installation.md#read-a-docker-preview)
+**Execution settings for both programs.** The example gives Docker 8 CPUs and 24 GiB. `--nprocs 8 --omp-nthreads 1 --mem-mb 20000` sets the application budgets. Both programs use `--random-seed 1123`, `--fs-license-file`, a stage-specific `-w /work`, `--notrack` and `--stop-on-first-crash`. The output mount switches to `xcpd_output/` for XCP-D. [How to read Docker and runtime options](../../support/docs/installation.md#read-a-docker-preview)
 
 **Start postprocessing** after checking the options in the preview.
 
@@ -129,4 +129,4 @@ Look for the same successful verification status, then review the denoised BOLD 
 
 ## Evidence and limits
 
-Sources: [Behzadi et al. (2007)](https://doi.org/10.1016/j.neuroimage.2007.04.042); [Esteban et al. (2019)](https://doi.org/10.1038/s41592-018-0235-4); [Mehta et al. (2024)](https://doi.org/10.1162/imag_a_00257). The [Stage 7.A evidence record](../../docs/stage_evidence.md#stage-7-a) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. These references do not certify the current configuration or any individual image as analysis-ready.
+Sources: [Behzadi et al. (2007)](https://doi.org/10.1016/j.neuroimage.2007.04.042); [Esteban et al. (2019)](https://doi.org/10.1038/s41592-018-0235-4); [Mehta et al. (2024)](https://doi.org/10.1162/imag_a_00257). The [Stage 7.A evidence record](../../support/docs/stage_evidence.md#stage-7-a) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. These references do not certify the current configuration or any individual image as analysis-ready.

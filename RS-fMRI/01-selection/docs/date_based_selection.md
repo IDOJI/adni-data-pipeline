@@ -1,6 +1,6 @@
 # Date-based EPI and T1 reference selection
 
-Scientific references here are restricted to ADNI official answers and research papers. The [complete stage evidence register](../../docs/stage_evidence.md) records answer IDs/dates, paper DOIs/sections, and which decisions remain project policies.
+Scientific references here are restricted to ADNI official answers and research papers. The [complete stage evidence register](../../support/docs/stage_evidence.md) records answer IDs/dates, paper DOIs/sections, and which decisions remain project policies.
 
 Stage 3.B inventories images by participant, actual acquisition date, Image ID and source QC. Visit codes remain provenance. The objective is to retain the available evidence and propose an auditable anatomical reference for every EPI, before any image is approved for preprocessing.
 
@@ -39,7 +39,7 @@ The [3.B example configuration](../config/image_selection.example.json) accepts 
 
 | Checkpoint | What is checked | Basis and limits |
 |---|---|---|
-| 2 / 3.A: source identity | Read the MRIQC Study Files spine, including original series type, description and scanner; join source quality, NFQ and known failures independently. | [ADNI Image ID correspondence (A10)](../../docs/stage_evidence.md#a10) and [grade/chosen answers (A05/A09)](../../docs/stage_evidence.md#stage-3-a). The four-key intersection is the Research workflow, not an ADNI grading recommendation. |
+| 2 / 3.A: source identity | Read the MRIQC Study Files spine, including original series type, description and scanner; join source quality, NFQ and known failures independently. | [ADNI Image ID correspondence (A10)](../../support/docs/stage_evidence.md#a10) and [grade/chosen answers (A05/A09)](../../support/docs/stage_evidence.md#stage-3-a). The four-key intersection is the Research workflow, not an ADNI grading recommendation. |
 | 3.B: dates and phase | Use IDA **Study Date** and per-row **Phase**. The MRI protocol phase is a separate observation. Never substitute Archive Date, VISCODE or a visit label. | [ADNI QID 434](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=434) discusses anatomical acquisition dates; [QID 2126](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=2126) distinguishes visit codes from elapsed time. CSV aliases and mixed-file checks are implementation rules. |
 | 3.B: series and download | Require source T1w or source BOLD with positive resting evidence and no contrary description. Exclude perfusion/diffusion, scouts and confirmed MoCoSeries. Ambiguous names stay in review. Exact identity and absence of a blocking finding are required. Confirmed targets missing only grade evidence may be downloaded for inspection; execution still requires passing source QC. | [Arani et al., §§2.6–2.8 and Table 1](https://doi.org/10.1002/alz.14162) distinguish ASL, diffusion and task-free EPI-BOLD. The text rules, positive confirmation and pre-download QC gate are project safeguards. |
 | 3.B / 5.D: scanner | Compare Search protocol and spine information on each image. Compare independent BIDS metadata to source and across the proposed pair; known conflict holds, absent model stays unknown, missing physical manufacturer or strength holds. | [Arani et al., §2.8](https://doi.org/10.1002/alz.14162) describe scanner/protocol variation; [Gorgolewski et al., BIDS metadata](https://doi.org/10.1038/sdata.2016.44) describe metadata representation. Neither paper prescribes these hold rules. |
@@ -114,7 +114,7 @@ ADNI QID 434 permits considering adjacent-time anatomy; it does not require ever
 | 7 | [Esteban et al. (2019)](https://doi.org/10.1038/s41592-018-0235-4), Methods/Table 1 | The paper supports fMRIPrep's methods. The current 25.2.7 pin, seed/thread settings and exact-image view are engineering choices; no release-specific bug-fix claim is being justified by this older paper. |
 | S10 denoising | [Ciric et al. (2017)](https://doi.org/10.1016/j.neuroimage.2017.03.020), compared models and QC–FC results; [Mehta et al. (2024)](https://doi.org/10.1162/imag_a_00257), §2.13 | 36P/GSR/censoring has method evidence and trade-offs. FD 0.3 mm/240 s are defaults described in the final XCP-D paper, not proven ADNI-optimal thresholds. |
 
-Full parameter comparisons, filtering/regression evidence and operational-stage limits are in the [stage register](../../docs/stage_evidence.md#parameter-and-policy-traceability). Cohort QC–FC, distance dependence, retained duration and group differences still need assessment. Use a fresh runtime and `sessionwise-euler-nss-v1`; existing jobs/results are not migrated by this documentation update.
+Full parameter comparisons, filtering/regression evidence and operational-stage limits are in the [stage register](../../support/docs/stage_evidence.md#parameter-and-policy-traceability). Cohort QC–FC, distance dependence, retained duration and group differences still need assessment. Use a fresh runtime and `sessionwise-euler-nss-v1`; existing jobs/results are not migrated by this documentation update.
 
 ## Validation scope
 

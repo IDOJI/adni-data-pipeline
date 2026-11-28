@@ -34,7 +34,7 @@ Check the native HTML report, `*_desc-preproc_bold.nii.gz` and `*_desc-confounds
 
 Head-motion estimation and BOLD-to-anatomy registration are part of the workflow. Slice-timing correction depends on usable `SliceTiming` metadata. Those times describe when each slice was acquired. `PhaseEncodingDirection` identifies an axis and sign used for distortion correction. Check the run report to see which corrections were actually applied. [fMRIPrep 25.2.7 processing details](https://fmriprep.org/en/25.2.7/workflows.html) · [Option reference](https://fmriprep.org/en/25.2.7/usage.html)
 
-**Where the values come from.** The private 5.D YAML supplies `runs`, `output_spaces` and `resources`. The [command builder](run.py) sets the field-map policy and CIFTI request. The [seed policy](../../workflow/seed_policy.py) adds the skull-stripping flag. The published local profile uses `--nprocs 2 --omp-nthreads 1 --mem-mb 4000`. For the meaning of those settings, `-w`, `--notrack`, `--stop-on-first-crash` and the Docker flags, see [execution controls](../../docs/installation.md#read-a-docker-preview).
+**Where the values come from.** The private 5.D YAML supplies `runs`, `output_spaces` and `resources`. The [command builder](run.py) sets the field-map policy and CIFTI request. The [seed policy](../../support/workflow/seed_policy.py) adds the skull-stripping flag. The published local profile uses `--nprocs 2 --omp-nthreads 1 --mem-mb 4000`. For the meaning of those settings, `-w`, `--notrack`, `--stop-on-first-crash` and the Docker flags, see [execution controls](../../support/docs/installation.md#read-a-docker-preview).
 
 ### Publish the completed pair
 
@@ -71,4 +71,4 @@ The manual publisher above expects the verified 5.D layout.
 
 ## Evidence and limits
 
-Sources: [Esteban et al. (2019)](https://doi.org/10.1038/s41592-018-0235-4); [ADNI EPI–T1 pairing answer](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=434). The [Stage 7.B evidence record](../../docs/stage_evidence.md#stage-7-b) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. These references do not certify the current configuration or any individual image as analysis-ready.
+Sources: [Esteban et al. (2019)](https://doi.org/10.1038/s41592-018-0235-4); [ADNI EPI–T1 pairing answer](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=434). The [Stage 7.B evidence record](../../support/docs/stage_evidence.md#stage-7-b) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. These references do not certify the current configuration or any individual image as analysis-ready.

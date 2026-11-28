@@ -1,1 +1,0 @@
-../03-imaging/docs/fmriprep_xcpd_literature.md

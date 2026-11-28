@@ -8,7 +8,7 @@ The image table also retains the original MRIQC series type, description, manufa
 
 ## Run
 
-From `RS-fMRI/`, after [setup](../../docs/installation.md). `--mriqc-table` is the original ADNI Study File. Set the remaining file arguments to the matching study phase, deletion log and NFQ download for your data freeze. In `--nfq GO2_3=...`, the text before `=` labels the source; the filename after it is the table to read.
+From `RS-fMRI/`, after [setup](../../support/docs/installation.md). `--mriqc-table` is the original ADNI Study File. Set the remaining file arguments to the matching study phase, deletion log and NFQ download for your data freeze. In `--nfq GO2_3=...`, the text before `=` labels the source; the filename after it is the table to read.
 
 ```sh
 python 01-selection/source_qc/run.py \
@@ -24,4 +24,4 @@ python 01-selection/source_qc/run.py \
 
 ## Evidence and limits
 
-Sources: [ADNI repeated T1 and grade answers](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=89); [ADNI chosen-series answer](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=454); [ADNI NFQ/slice-order answer](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=1822); [ADNI4 ARC quality answer](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=2541). The [Stage 3.A evidence record](../../docs/stage_evidence.md#stage-3-a) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. These references do not certify the current configuration or any individual image as analysis-ready.
+Sources: [ADNI repeated T1 and grade answers](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=89); [ADNI chosen-series answer](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=454); [ADNI NFQ/slice-order answer](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=1822); [ADNI4 ARC quality answer](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=2541). The [Stage 3.A evidence record](../../support/docs/stage_evidence.md#stage-3-a) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. These references do not certify the current configuration or any individual image as analysis-ready.

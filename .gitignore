@@ -53,25 +53,25 @@ license.txt
 # Private execution configs and generated imaging artifacts
 **/*.local.json
 **/*.local.yaml
-RS-fMRI/pipeline/**/config.json
+RS-fMRI/support/pipeline/**/config.json
 *.nii
 *.nii.gz
 *.dtseries.nii
 *.sif
 
 # Explicit user-approved CC0 public MRI sample; retain all other imaging exclusions.
-!/RS-fMRI/07_reproducibility/public_data/ds000030-1.0.0/sub-10159/anat/sub-10159_T1w.nii.gz
-!/RS-fMRI/07_reproducibility/public_data/ds000030-1.0.0/sub-10159/func/sub-10159_task-rest_bold.nii.gz
+!/RS-fMRI/support/reproducibility/public_data/ds000030-1.0.0/sub-10159/anat/sub-10159_T1w.nii.gz
+!/RS-fMRI/support/reproducibility/public_data/ds000030-1.0.0/sub-10159/func/sub-10159_task-rest_bold.nii.gz
 
 # Original result/assets may remain in an initialized live clone, never as imported source.
-/RS-fMRI/pipeline/.claude/
-/RS-fMRI/pipeline/.github/
-/RS-fMRI/pipeline/WARP.md
-/RS-fMRI/pipeline/**/*.png
-/RS-fMRI/pipeline/**/*.svg
-/RS-fMRI/pipeline/**/*.html
-/RS-fMRI/pipeline/**/*.ipynb
-/RS-fMRI/pipeline/s4_clinica/adni_subs.txt
+/RS-fMRI/support/pipeline/.claude/
+/RS-fMRI/support/pipeline/.github/
+/RS-fMRI/support/pipeline/WARP.md
+/RS-fMRI/support/pipeline/**/*.png
+/RS-fMRI/support/pipeline/**/*.svg
+/RS-fMRI/support/pipeline/**/*.html
+/RS-fMRI/support/pipeline/**/*.ipynb
+/RS-fMRI/support/pipeline/s4_clinica/adni_subs.txt
 
 # Local R dependency libraries; never publish installed packages.
 .R-library/
@@ -82,3 +82,66 @@ RS-fMRI/0[1-4]-*/**/*.png
 RS-fMRI/0[1-4]-*/**/*.svg
 RS-fMRI/0[1-4]-*/**/*.html
 RS-fMRI/0[1-4]-*/**/*.ipynb
+
+# Local compatibility links from RS-fMRI/support/setup.py
+/RS-fMRI/03_config
+/RS-fMRI/04_workflow
+/RS-fMRI/05_tests
+/RS-fMRI/06_docs
+/RS-fMRI/07_reproducibility
+/RS-fMRI/NOTICE.md
+/RS-fMRI/Repository instructions.md
+/RS-fMRI/config
+/RS-fMRI/docs
+/RS-fMRI/pipeline
+/RS-fMRI/provenance
+/RS-fMRI/start
+/RS-fMRI/support/config/fc_harmonization.example.json
+/RS-fMRI/support/config/image_selection.example.json
+/RS-fMRI/support/config/local_batch.example.json
+/RS-fMRI/support/config/local_batch.seeded.example.json
+/RS-fMRI/support/config/thread_reproducibility.example.json
+/RS-fMRI/support/config/xcpd_linc.example.json
+/RS-fMRI/support/config/xcpd_linc.seeded.example.json
+/RS-fMRI/support/docs/atlas_library.md
+/RS-fMRI/support/docs/data_preparation.md
+/RS-fMRI/support/docs/date_based_selection.md
+/RS-fMRI/support/docs/fc_harmonization.md
+/RS-fMRI/support/docs/fmriprep_xcpd_literature.md
+/RS-fMRI/support/docs/local_batch.md
+/RS-fMRI/support/docs/processing_timing.md
+/RS-fMRI/support/docs/seed_reproducibility.md
+/RS-fMRI/support/docs/xcpd_consolidation.md
+/RS-fMRI/support/start/01_select.py
+/RS-fMRI/support/start/02_bids.py
+/RS-fMRI/support/start/03_process.py
+/RS-fMRI/support/start/04_harmonize.py
+/RS-fMRI/tests
+/RS-fMRI/workflow
+/RS-fMRI/stages/
+/RS-fMRI/support/pipeline/s10_xcpd_integrated_qc
+/RS-fMRI/support/pipeline/s11_atlas_bold
+/RS-fMRI/support/pipeline/s12_metrics_summary
+/RS-fMRI/support/pipeline/s13_reproducibility
+/RS-fMRI/support/pipeline/s14_fc_harmonization
+/RS-fMRI/support/pipeline/s1_setup_account
+/RS-fMRI/support/pipeline/s2_download
+/RS-fMRI/support/pipeline/s3_organize
+/RS-fMRI/support/pipeline/s3a_source_qc
+/RS-fMRI/support/pipeline/s3b_image_selection
+/RS-fMRI/support/pipeline/s4_dcm2niix
+/RS-fMRI/support/pipeline/s4b_slice_timing
+/RS-fMRI/support/pipeline/s5_post_clinica_qc
+/RS-fMRI/support/pipeline/s5c_validate_handoff
+/RS-fMRI/support/pipeline/s5d_bids_identity
+/RS-fMRI/support/pipeline/s6_mriqc
+/RS-fMRI/support/pipeline/s7_fmriprep
+/RS-fMRI/support/pipeline/s7a_volume_workflow
+/RS-fMRI/support/pipeline/s7b_sessionwise_preprocessing
+/RS-fMRI/support/pipeline/s7c_ants_iteration_logging
+/RS-fMRI/support/pipeline/s7d_processing_timing
+/RS-fMRI/support/pipeline/s8_final_qc
+/RS-fMRI/support/pipeline/s8a_motion_duration_qc
+/RS-fMRI/support/pipeline/s9_clinical_imaging_merge
+/RS-fMRI/support/pipeline/s9a_validate_clinical
+/RS-fMRI/support/pipeline/s9b_validate_inclusion
