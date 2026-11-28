@@ -4,6 +4,8 @@ For the [stage 2 walkthrough](../../README.md#convert), set your study path and 
 
 The [direct converter](../dcm2niix/README.md) writes the required conversion fingerprints during stage 2.
 
+For existing BIDS with independent conversion records, run `python 02-bids/run.py "$STUDY" bind --bids "/path/to/rawdata" --evidence "/path/to/conversion-hashes.csv"`. If the original selection receipt is outside the study folder, add `--selection "/path/to/07.run-manifest.json"`.
+
 Start here for an ADNI resting-state EPI and same-day T1w that have passed source review. The binding program checks participant, scan date, image IDs, series UIDs, hashes and headers. It checks the BOLD phase-encoding axis/sign (`PhaseEncodingDirection`) and the acquisition time of each slice (`SliceTiming`) separately.
 
 ### 1. Choose the binding receipt
