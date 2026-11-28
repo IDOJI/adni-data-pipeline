@@ -1,14 +1,10 @@
 # Resting-state fMRI
 
-<a id="setup"></a>[Set up your study folder](docs/setup.md), then open the stage you need. Each guide includes inputs, terminal commands and the output to check.
+<a id="setup"></a>**First visit?** [Set up your study folder](docs/setup.md). You will use that same folder in all four steps.
 
-| Stage | What you do |
-|---|---|
-| <a id="select"></a>[01 · Select scans](01-selection/README.md) | Check source QC and pair each resting scan with a same-day T1. |
-| <a id="convert"></a>[02 · Download and convert](02-bids/README.md) | Convert selected DICOMs with dcm2niix and verify each Image ID. |
-| <a id="process"></a>[03 · Process and review](03-imaging/README.md) | Run MRIQC, fMRIPrep and XCP-D. Review imaging and clinical eligibility. |
-| <a id="harmonize"></a>[04 · Harmonize connectivity](04-harmonization/README.md) | Fit scanner ComBat on eligible XCP-D connectivity matrices. |
+1. <a id="select"></a>[Choose the scans](01-selection/README.md) — get the Image IDs.
+2. <a id="convert"></a>[Download and convert](02-bids/README.md) — check each image against its ID.
+3. <a id="process"></a>[Process and check](03-imaging/README.md) — review image quality and decide which scans to keep.
+4. <a id="harmonize"></a>[Adjust for scanner differences](04-harmonization/README.md) — compare brain connections across scanners.
 
-<a id="structure"></a><a id="steps-and-commands"></a>[Protocol and configuration index](docs/protocol-index.md) · [Practice with public data](07_reproducibility/README.md) · [Validation](docs/validation.md) · [Attribution](NOTICE.md)
-
-Shared [configuration](config/), [workflow tools](workflow/), [tests](tests/) and [documentation](docs/) support the four stage folders. Earlier numbered paths are compatibility links. The [atlas library](03-imaging/atlas_bold/README.md) is part of the imaging stage.
+<a id="structure"></a><a id="steps-and-commands"></a>[Methods and code](docs/protocol-index.md) · [Practice with public data](07_reproducibility/README.md) · [Validation](docs/validation.md) · [Credits](NOTICE.md)
