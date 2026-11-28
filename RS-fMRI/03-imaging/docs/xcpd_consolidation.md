@@ -36,6 +36,12 @@ python 03-imaging/validate_clinical/run.py \
   --output-dir /ABSOLUTE/PATH/clinical/run-001
 ```
 
+## Use existing study results
+
+Pass `--binding` to `python 03-imaging/run.py "$STUDY" run` to use a previous binding receipt. If multiple acquisitions share a dated output, review the scans and pass a text file with one reviewed EPI key per line via `--pairs`. Find per-scan logs under `03-imaging/cases/I<image-id>/` in the study folder.
+
+If the cohort quality flags are already reviewed, pass their TSV via `--mriqc-flags` to `finalize`. To run `clinical` from existing outputs, pass the cohort's finalized `final_qc_master.tsv` via `--final-qc`, the source-QC directory via `--source-qc`, and the audited image-date links with ages via `--scan-links`.
+
 ## Scope not yet generalized
 
 The live S6/S7 queue, raw-zip staging, flat-derivative-to-published-pair adapters, automatic intersections of source QC/8.A/clinical criteria for an actual cohort, and real Slurm/CIFTI execution require separate work. Do not bypass pair-receipt contracts or fabricate metadata to label previous calculations successful. Step 7.A (no FreeSurfer) and S10 (Euler required) are not directly compatible profiles.
