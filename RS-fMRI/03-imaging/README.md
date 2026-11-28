@@ -4,15 +4,18 @@
 
 Use the verified pairs from step 2. This local route needs Docker, a FreeSurfer license, a populated TemplateFlow cache and a Docker-shared study folder on a compatible Mac volume such as APFS. [Imaging setup](../support/docs/installation.md#paths-for-a-manual-run)
 
-Use the same study folder you used in step 1.
+Set `BIDS` to the same BIDS folder you verified in step 2. If you saved it elsewhere, replace the example value with that path.
 
 ```sh
 cd "/absolute/path/to/adni-data-pipeline/RS-fMRI"
 source .venv/bin/activate
 export STUDY="/absolute/path/to/my ADNI study"
+export BIDS="$STUDY/02-bids/rawdata"
 
-python 03-imaging/run.py "$STUDY" run
+python 03-imaging/run.py "$STUDY" run --bids "$BIDS"
 ```
+
+The command checks this folder against the step 2 binding receipt before starting Docker. If you used `--binding-dir` in step 2, add `--binding "/path/to/07.binding-receipt.json"` for that receipt.
 
 If the Docker engine is unavailable, `run` starts Docker Desktop in the background on macOS and waits up to 3 minutes. If Docker is already ready, processing starts immediately.
 
