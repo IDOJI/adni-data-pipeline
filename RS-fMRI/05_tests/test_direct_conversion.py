@@ -145,6 +145,12 @@ def test_partial_and_split_conversion_keeps_only_verified_outputs(tmp_path, monk
     assert not list(dataset.glob('sub-*/ses-*/func/*.nii.gz'))
     evidence, = read(direct.verify_conversion(dataset, receipt))
     assert evidence['SOURCE_IMAGE_ID'] == '100'
+    sidecar = (dataset / evidence['BIDS_NIFTI']).with_suffix('').with_suffix('.json')
+    original = sidecar.read_text()
+    sidecar.write_text(json.dumps(dict(json.loads(original), ImageID='201')))
+    with pytest.raises(ValueError, match='changed at the recorded BIDS path'):
+        direct.verify_conversion(dataset, receipt)
+    sidecar.write_text(original)
     (dataset / direct.EVIDENCE / 'series/I100.json').write_text('{}')
     with pytest.raises(ValueError, match='DICOM source evidence changed'):
         direct.verify_conversion(dataset, receipt)

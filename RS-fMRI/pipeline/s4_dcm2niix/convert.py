@@ -246,6 +246,9 @@ def verify_conversion(dataset, receipt):
         output = dataset / row['BIDS_NIFTI']
         if not output.resolve().is_relative_to(dataset.resolve()) or not output.is_file():
             raise ValueError('Recorded BIDS file is missing or moved for I' + iid)
+        meta = binding.read_json(output.with_suffix('').with_suffix('.json'))
+        if meta.get('ImageID') != iid or meta.get('SeriesInstanceUID') != row['SERIES_UID']:
+            raise ValueError('Image ID or series UID changed at the recorded BIDS path for I' + iid)
         path = directory / 'series' / ('I' + iid + '.json')
         if sha(path) != row['DICOM_MANIFEST_SHA256']:
             raise ValueError('DICOM source evidence changed for I' + iid)
