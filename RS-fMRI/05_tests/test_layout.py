@@ -36,7 +36,7 @@ def test_numbered_directories_and_integrated_source_declaration_agree():
 
 
 def test_document_links_resolve_and_imported_code_hash_is_preserved():
-    files = [REPO / 'README.md', ROOT / 'README.md', *sorted((ROOT / '06_docs').glob('*.md')),
+    files = [REPO / 'README.md', ROOT / 'README.md', *sorted((ROOT / '06_docs').glob('*.md')), *sorted((ROOT / 'stages').rglob('*.md')),
              *sorted((ROOT / 'pipeline').glob('*/README.md'))]
     for path in files:
         for target in re.findall(r'\]\(([^)]+)\)', path.read_text()):
@@ -47,7 +47,7 @@ def test_document_links_resolve_and_imported_code_hash_is_preserved():
     imported = json.loads((ROOT / '03_config/imported_sources.json').read_text())['motion_duration_qc']
     assert hashlib.sha256((ROOT / imported['destination']).read_bytes()).hexdigest() == imported['sha256']
     # The external data hierarchy and upstream source schema keep their names.
-    assert 'ADNI_DATA/config/' in (ROOT / 'README.md').read_text()
+    assert 'ADNI_DATA/config/' in (ROOT / '06_docs/protocol-index.md').read_text()
     assert (ROOT / 'pipeline/config/config_adni.yaml').is_file()
 
 
@@ -69,12 +69,13 @@ def test_ci_pytest_and_private_configuration_paths_are_current():
 
 def test_protocol_document_links_resolve_to_owned_sources():
     lock = json.loads((ROOT / '03_config/upstream.lock.json').read_text())
-    text = (ROOT / 'README.md').read_text()
+    index = ROOT / '06_docs/protocol-index.md'
+    text = index.read_text()
     links = re.findall(r'\[([^]]+)\]\(([^)]+)\)', text)
-    original_steps = [(label, url) for label, url in links if url.startswith('pipeline/s') and url.endswith('/README.md')]
-    documented = {url.split('/')[1] for _, url in original_steps}
+    original_steps = [(label, url) for label, url in links if url.startswith('../pipeline/s') and url.endswith('/README.md')]
+    documented = {url.split('/')[2] for _, url in original_steps}
     expected = {p.name for p in (ROOT / 'pipeline').glob('s*') if (p / 'README.md').is_file()}
     assert documented == expected
     for label, url in original_steps + [(label, url) for label, url in links if label == 'CITATION.cff']:
-        assert url.startswith(lock['path'] + '/'), (label, url)
-        assert (ROOT / url).is_file()
+        assert url.startswith('../' + lock['path'] + '/'), (label, url)
+        assert (index.parent / url).is_file()
