@@ -154,10 +154,14 @@ def process(source_qc, clinical, confirmed_st_absence, output_dir, conversion_fa
         if duplicates[iid] > 1:
             holds.append('image_id_reused_for_multiple_runs')
         if row['CLINICAL_STATUS'] != 'pass':
-            reasons = set(row.get('CLINICAL_REASONS', '').split(';'))
-            if (row['IMAGE_ID'] and not iid) or reasons & {'invalid_or_conflicting_scan_image_id', 'image_id_reused_for_multiple_runs'}:
+            reasons = set(filter(None, row.get('CLINICAL_REASONS', '').split(';')))
+            identity_errors = {'included_scan_image_id_conflict', 'invalid_or_conflicting_scan_image_id',
+                               'image_id_reused_for_multiple_runs'}
+            identity_issue = bool((row['IMAGE_ID'] and not iid) or reasons & identity_errors)
+            if identity_issue:
                 holds.append('clinical_scan_identity_unverified')
-            else:
+            companion_reasons = {'missing_or_ambiguous_scan_identity', 'scan_date_not_verified'}
+            if not identity_issue or reasons - identity_errors - companion_reasons:
                 blocked.append('clinical_conditions_not_met')
         else:
             gap = float(row.get('DX_DATE_DIFF_DAYS', 'inf') or 'inf')

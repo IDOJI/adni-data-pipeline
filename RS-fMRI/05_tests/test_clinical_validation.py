@@ -286,3 +286,14 @@ def test_scan_link_aliases_use_the_selection_identifier(tmp_path, aliases, statu
         assert 'invalid_or_conflicting_scan_image_id' in row['CLINICAL_REASONS']
     else:
         assert row['IMAGE_ID'] == '101'
+
+
+@pytest.mark.parametrize('field', ['IMAGE_ID', 'SOURCE_IMAGE_ID', 'epi_image_id'])
+def test_scan_links_cannot_replace_a_different_included_image(tmp_path, field):
+    inputs = fixture(tmp_path)
+    row, = clinical.read(inputs[0])
+    write(inputs[0], [{**row, field: 'I102'}])
+    clinical.process(*inputs, tmp_path / 'out')
+    result, = clinical.read(tmp_path / 'out/clinical_validation.tsv')
+    assert result['CLINICAL_STATUS'] == 'hold'
+    assert 'included_scan_image_id_conflict' in result['CLINICAL_REASONS']

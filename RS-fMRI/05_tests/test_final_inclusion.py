@@ -176,3 +176,15 @@ def test_malformed_legacy_clinical_identity_stays_held(tmp_path):
     refresh(args[1], path.name)
     gate.process(*args, tmp_path / 'out')
     assert result(tmp_path / 'out')['INCLUSION_STATUS'] == 'hold'
+
+
+def test_image_id_hold_preserves_an_independent_clinical_exclusion(tmp_path):
+    args = fixture(tmp_path)
+    path = args[1] / 'clinical_validation.tsv'
+    row, = gate.read(path)
+    row.update(CLINICAL_STATUS='hold',
+               CLINICAL_REASONS='image_id_reused_for_multiple_runs;diagnosis_gap_over_window')
+    table(path, [row])
+    refresh(args[1], path.name)
+    gate.process(*args, tmp_path / 'out')
+    assert result(tmp_path / 'out')['INCLUSION_STATUS'] == 'excluded'

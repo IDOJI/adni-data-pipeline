@@ -16,6 +16,8 @@ Open the original fMRIPrep HTML and toggle between the BOLD reference and T1w. F
 
 Provins et al. describe this exact panel in §2.4.3.6 and give exclusion criteria in Table 3. Their Figure 2B–C shows frontal signal loss that is conspicuous in one plane and subtle in another. Supplementary Figure 11 illustrates residual distortion. Their decisions reflect a whole-brain voxel-wise study. [Paper, figures and supplement](https://doi.org/10.3389/fnimg.2022.1073734).
 
+For a side-by-side example of anatomical alignment under a left/right flip, see Glen et al., Figure 2. The axial images overlay tissue edges on the two candidate orientations. Compare corresponding internal structures across slices. [Figure 2 and interpretation](https://doi.org/10.3389/fninf.2020.00018).
+
 ## Paper-by-paper methods
 
 FD is framewise displacement. A run-level FD exclusion or interpolation of a high-motion frame has a different effect from omitting that frame in the final time series. Filter frequencies are in Hz, and smoothing widths are FWHM.

@@ -142,9 +142,12 @@ def nearest(items, scan, direction='nearest'):
     return [r for r in candidates if abs((r[2] - scan).days) == gap], gap
 
 
+ID_FIELDS = ('IMAGE_ID', 'Image_ID', 'image_id', 'SOURCE_IMAGE_ID', 'epi_image_id')
+
+
 def image_id(row):
     try:
-        values = {canonical_id(row[k]) for k in ('IMAGE_ID', 'Image_ID', 'image_id') if row.get(k)}
+        values = {canonical_id(row[k]) for k in ID_FIELDS if row.get(k)}
     except ValueError:
         return ''
     return values.pop() if len(values) == 1 else ''
@@ -247,7 +250,10 @@ def process(included, scan_links, dxsum, ptdemog, output_dir, apoe=None, adsl=No
         row.update(INPUT_ROW=input_row, PTID=ptid, IMAGE_ID='', MRI_STUDY_DATE='',
                    ANALYSIS_READY=False, BIOLOGICAL_AD_STATUS='not_inferred')
         reasons = []
-        if any(any(r.get(k) for k in ('IMAGE_ID', 'Image_ID', 'image_id')) and not image_id(r) for _, r in matches):
+        linked_ids = {entry[0] for entry in identity}
+        if any(scan.get(k) for k in ID_FIELDS) and (not image_id(scan) or linked_ids != {image_id(scan)}):
+            reasons.append('included_scan_image_id_conflict')
+        if any(any(r.get(k) for k in ID_FIELDS) and not image_id(r) for _, r in matches):
             reasons.append('invalid_or_conflicting_scan_image_id')
         if any(len(link_uids(r)) > 1 for _, r in matches):
             reasons.append('conflicting_scan_link_uid')
