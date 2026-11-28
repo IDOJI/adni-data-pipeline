@@ -79,9 +79,9 @@ def existing(path):
     return path
 
 
-def selection_receipt(study):
+def selection_receipt(study, override=None):
     from s5d_bids_identity.binding import proof_files
-    path = study / '01-selection' / 'images' / '07.run-manifest.json'
+    path = existing(override or study / '01-selection/images/07.run-manifest.json')
     return path, proof_files(path)
 
 

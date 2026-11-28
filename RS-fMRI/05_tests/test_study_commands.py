@@ -57,11 +57,21 @@ def test_default_study_select_convert_bind_clinical(tmp_path):
     # Use native binding and real synthetic NIfTIs, substituting only the third-party converter.
     review = study / 'review'
     review.mkdir()
-    shutil.copy(tmp_path / 'hashes.csv', review / 'conversion-hashes.csv')
     for iid in ('I100', 'I200'):
         dcm = study / 'LONI_download/sourcedata/999_S_9999/series/2020-01-01_12_00' / iid
         dcm.mkdir(parents=True)
         (dcm / 'image.dcm').write_bytes(b'synthetic DICOM placeholder')
+    info = bids / 'conversion_info/v0'
+    info.mkdir(parents=True)
+    scans = []
+    for iid, name, suffix in [('100', 't1', 'T1w'), ('200', 'fmri', 'bold')]:
+        source = next((study / 'LONI_download/sourcedata').glob('*/*/*/I' + iid))
+        write(info / (name + '_paths.tsv'), [dict(Subject_ID='999_S_9999', VISCODE='bl', Image_ID=iid,
+                                                 Scan_Date='2020-01-01', Path=str(source))])
+        nifti = next(bids.glob('sub-*/ses-*/*/*_' + suffix + '.nii.gz'))
+        session = nifti.parents[1]
+        scans.append(dict(filename=str(nifti.relative_to(session)), scan_id=iid))
+    write(session / 'sub-999S9999_ses-20200101_scans.tsv', scans)
     exe = tmp_path / 'clinica'
     exe.write_text("""#!/bin/sh
 if [ "$3" = "--help" ]; then
@@ -76,6 +86,9 @@ cp -R "$STUDY_FIXTURE" "${11}"
     exe.chmod(0o700)
     env = dict(os.environ, PATH=str(tmp_path) + os.pathsep + os.environ['PATH'], STUDY_FIXTURE=str(bids))
     cli('02_bids.py', study, 'convert', env=env)
+    recorded = read(study / '02-bids/conversion-hashes.csv')
+    assert {r['SOURCE_IMAGE_ID']: r['NIFTI_SHA256'] for r in recorded} == {
+        r['SOURCE_IMAGE_ID'].lstrip('I'): r['NIFTI_SHA256'] for r in read(tmp_path / 'hashes.csv')}
     for _ in range(2):
         assert 'Verified pairs: 1' in cli('02_bids.py', study, 'bind').stdout
     assert 'exists' in cli('02_bids.py', study, 'convert', env=env, success=False).stderr
@@ -149,3 +162,29 @@ def test_study_routes_visit_to_its_own_execution_records(tmp_path):
 
 def test_finalize_requires_explicit_review(tmp_path):
     assert '--cohort-complete' in cli('03_process.py', tmp_path, 'finalize', success=False).stderr
+
+
+def test_conversion_fingerprints_hold_ambiguous_or_conflicting_mappings(tmp_path, monkeypatch):
+    monkeypatch.syspath_prepend(str(START))
+    from support.conversion import fingerprints
+    bids = tmp_path / 'rawdata'
+    session = bids / 'sub-ADNI999S9999/ses-M000'
+    folder = session / 'func'
+    folder.mkdir(parents=True)
+    output = folder / 'sub-ADNI999S9999_ses-M000_task-rest_bold.nii.gz'
+    output.write_bytes(b'synthetic')
+    table = bids / 'conversion_info/v0/fmri_paths.tsv'
+    table.parent.mkdir(parents=True)
+    dicom = tmp_path / 'dicom'
+    source = dicom / '999_S_9999/rest/2020-01-01_12_00/I200'
+    source.mkdir(parents=True)
+    row = dict(Subject_ID='999_S_9999', VISCODE='bl', Image_ID='200', Scan_Date='2020-01-01', Path=str(source))
+    scans = session / 'example_scans.tsv'
+    scan = dict(filename='func/' + output.name, scan_id='200')
+    registry = [dict(IMAGE_ID='200', PTID='999_S_9999', MODALITY='EPI', MRI_STUDY_DATE='2020-01-01')]
+    for inputs, outputs in [([row, row], [scan]), ([row], [scan, scan]),
+                            ([dict(row, Scan_Date='2020-02-01')], [scan]), ([row], [dict(scan, scan_id='n/a')])]:
+        write(table, inputs)
+        write(scans, outputs)
+        assert fingerprints(bids, dicom, registry, tmp_path) == 0
+        assert not (tmp_path / 'conversion-hashes.csv').exists()

@@ -43,7 +43,7 @@ def add_scan_age(study, links, folder):
 def clinical_qc(args, folder):
     master = finalized_master(args.study, args.final_qc)
     included = existing(master.with_name('final_included_runs.tsv'))
-    tables = args.tables or args.study / 'LONI_download/clindata'
+    tables = (args.tables or args.study / 'LONI_download/clindata').expanduser().resolve()
     links = (existing(args.scan_links) if args.scan_links else
              add_scan_age(args.study, master.with_name('clinical_scan_links.tsv'), folder))
     source = (args.source_qc or args.study / '01-selection/source-qc').expanduser().resolve()

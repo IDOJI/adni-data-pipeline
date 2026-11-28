@@ -5,7 +5,7 @@ import shutil
 import subprocess
 
 from support.study import existing, fixed_text, parser, run, selection_receipt, settings, stage_folder
-from _shared import read
+from _shared import new_output, read
 from s3b_image_selection.selection_identity import image_id, scan_date
 from s5d_bids_identity import binding
 
@@ -29,7 +29,7 @@ def subjects(dicom, registry):
 
 
 def bids(args):
-    receipt, selection = selection_receipt(args.study)
+    receipt, selection = selection_receipt(args.study, args.selection)
     outputs = selection['outputs']
     with stage_folder(args.study, '02-bids') as folder:
         bids_root = (args.bids or folder / 'rawdata').expanduser().resolve()
@@ -40,12 +40,12 @@ def bids(args):
                 raise ValueError(f'Missing clinical tables directory: {tables}')
             if bids_root.exists():
                 raise ValueError(f'BIDS output exists: {bids_root}. Use bind for existing BIDS.')
-            from _shared import new_output
             new_output(bids_root, [dicom, tables, receipt])
             exe = shutil.which('clinica')
             if not exe:
                 raise ValueError('Install Clinica and dcm2niix and put their executables on PATH.')
-            listed = subjects(dicom, read(outputs['candidates']['path']))
+            registry = read(outputs['candidates']['path'])
+            listed = subjects(dicom, registry)
             subject_file = fixed_text(folder / 'subjects.txt', '\n'.join(listed) + '\n')
             help_text = subprocess.check_output([exe, 'convert', 'adni-to-bids', '--help'], text=True)
             modality = re.search(r'\b(fMRI|FMRI)\b', help_text)
@@ -61,16 +61,25 @@ def bids(args):
             if (not (bids_root / 'dataset_description.json').is_file()
                     or any(not any(bids_root.glob(pattern)) for pattern in required)):
                 raise ValueError(f'Clinica did not produce both T1w and BOLD. Check conversion records at {bids_root}')
-            print(f'BIDS folder: {bids_root}. Check conversion records before running bind.')
+            from support.conversion import fingerprints
+            count = fingerprints(bids_root, dicom, registry, folder)
+            print(f'BIDS folder: {bids_root}. Recorded {count} conversion fingerprints.')
+            if not count:
+                print('No unique Clinica source-to-output records. Supply independent --evidence for bind.')
             return
         if not bids_root.is_dir():
             raise ValueError(f'Missing BIDS directory: {bids_root}')
-        config = settings(folder / 'binding.json', dict(
+        captured = folder / 'conversion-hashes.csv'
+        default_evidence = captured if captured.exists() else args.study / 'review/conversion-hashes.csv'
+        evidence = existing(args.evidence or default_evidence)
+        bind_dir = (args.binding_dir or folder / 'binding').expanduser().resolve()
+        bound = bind_dir / '07.binding-receipt.json'
+        if not bound.is_file() and not (bind_dir / 'settings.json').is_file():
+            new_output(bind_dir, [bids_root, receipt, evidence])
+            bind_dir.mkdir(parents=True)
+        config = settings(bind_dir / 'settings.json', dict(
             images=outputs['candidates']['path'], epi_manifest=outputs['epi']['path'],
-            pairing_receipt=receipt, bids_roots=[bids_root],
-            hash_evidence=[existing(args.evidence or args.study / 'review/conversion-hashes.csv')],
-            output_dir=folder / 'binding'))
-        bound = folder / 'binding/07.binding-receipt.json'
+            pairing_receipt=receipt, bids_roots=[bids_root], hash_evidence=[evidence], output_dir=bind_dir))
         if bound.exists():
             saved = binding.proof_files(bound)['outputs']
             for plan in binding.read_json(saved['plans']['path']):
@@ -78,13 +87,18 @@ def bids(args):
             summary = binding.read_json(saved['summary']['path'])
         else:
             summary = binding.run(config)
-        print(f"Verified pairs: {summary['preprocessing_ready']}. Review {folder / 'binding'}")
+        print(f"Verified pairs: {summary['preprocessing_ready']}. Review {bind_dir}")
         if not summary['preprocessing_ready']:
             raise ValueError('No pairs are ready for imaging. See 04.epi-execution-manifest.csv.')
 
 
 if __name__ == '__main__':
     cli = parser(__doc__, ('convert', 'bind'))
-    for flag in ('dicom', 'tables', 'bids', 'xml', 'evidence'):
-        cli.add_argument('--' + flag, type=Path, help='Path to ' + flag + ' input or BIDS destination')
+    for flag, label in [('selection', 'Existing Step 3.B selection receipt'),
+                        ('dicom', 'Extracted DICOM directory'), ('tables', 'ADNI clinical/conversion tables'),
+                        ('bids', 'New conversion destination or existing BIDS dataset'),
+                        ('xml', 'Optional IDA XML metadata directory for Clinica'),
+                        ('evidence', 'Independent conversion hash CSV or source-mapping JSON'),
+                        ('binding-dir', 'Fresh folder for revised binding results')]:
+        cli.add_argument('--' + flag, type=Path, help=label)
     run(cli, bids)

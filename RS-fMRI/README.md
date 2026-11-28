@@ -39,7 +39,7 @@ Your private study folder/
 
 ## 1 · 🔎 Select the scans
 
-**Bring** the two IDA collection CSVs and the original ADNI source-quality tables. Use `collections/T1.csv` for structural scans and `collections/EPI.csv` for resting-state scans. Include **Phase**, **acquisition date**, **Image ID**, **participant ID** and description in each export. Include **Age at the scan** if you plan to harmonize connectivity. Place `MRIQC.csv`, `MAYO_ADNI3.csv`, `MAYO_GO2.csv`, `DELMRSCANS.csv` and `NFQ.csv` in `LONI_download/clindata/`. Here `MRIQC.csv` is a table supplied by ADNI. The MRIQC software runs in stage 3.
+**Bring** the two IDA collection CSVs and the original ADNI source-quality tables. Use `collections/T1.csv` for structural scans and `collections/EPI.csv` for resting-state scans. Include **Phase**, **acquisition date**, **Image ID**, **participant ID** and description in each export. Include **Age at the scan** if you plan to harmonize connectivity. Place `MRIQC.csv`, `MAYO_ADNI3.csv`, `MAYO_GO2.csv`, `DELMRSCANS.csv` and `NFQ.csv` in `LONI_download/clindata/`. The script lists missing optional tables. Check which source files apply to your ADNI phases before using the download list. Here `MRIQC.csv` is a table supplied by ADNI. The MRIQC software runs in stage 3.
 
 ```sh
 python start/01_select.py "$STUDY"
@@ -57,13 +57,20 @@ python start/01_select.py "$STUDY"
 python start/02_bids.py "$STUDY" convert
 ```
 
-**Check the conversion**, then run the second command. Use the converter's source records to reconcile ID, participant, date and series UID. Supply your independently recorded fingerprints in `review/conversion-hashes.csv` with columns `SOURCE_PTID,STUDY_DATE,MODALITY,SOURCE_IMAGE_ID,NIFTI_SHA256`. The last column is the SHA-256 of the converted NIfTI linked to that original image. A filename alone cannot supply this evidence. For a Philips acquisition with missing slice timing, review the [source-based repair procedure](pipeline/s4b_slice_timing/README.md) before binding. [Conversion checks](pipeline/s4_clinica/README.md#reconcile-conversion-with-the-image-inventory) · [Evidence format](pipeline/s5d_bids_identity/README.md)
+**Verify the converted files.** At the end of a fresh conversion the script looks at Clinica's source-path tables and per-session scan lists. For each unique match it saves a file fingerprint in `02-bids/conversion-hashes.csv`. The next command uses these fingerprints to check the actual BIDS images, dates, series IDs and matching T1 references. For Philips scans with missing slice timing, follow the [source-based repair procedure](pipeline/s4b_slice_timing/README.md) before binding.
 
 ```sh
 python start/02_bids.py "$STUDY" bind
 ```
 
-**Open** `02-bids/binding/04.epi-execution-manifest.csv` to see which pairs can proceed and why others were held. The BIDS files are in `02-bids/rawdata/`. **Already have BIDS?** Skip `convert` and run `bind` with `--bids "/path/to/rawdata" --evidence "/path/to/conversion-hashes.csv"`. It still checks the original stage 1 selection.
+**Open** `02-bids/binding/04.epi-execution-manifest.csv` to see which pairs can proceed and why others were held. The BIDS files are in `02-bids/rawdata/`. **Already have BIDS?** Skip `convert` and run `bind` with `--bids "/path/to/rawdata" --evidence "/path/to/conversion-hashes.csv"`. It checks the original stage 1 selection. If that lives elsewhere, add `--selection "/path/to/07.run-manifest.json"`.
+
+<details>
+<summary>What if my conversion has missing records?</summary>
+
+The script prints how many NIfTI fingerprints it recorded. If Clinica did not record a unique source and output for an image, that image needs independent conversion evidence. Supply your verified CSV using `--evidence`, with columns `SOURCE_PTID,STUDY_DATE,MODALITY,SOURCE_IMAGE_ID,NIFTI_SHA256`. For corrected inputs, use `bind --binding-dir` with a fresh directory after the study path (for example, `python start/02_bids.py "$STUDY" bind --binding-dir "$STUDY/02-bids/rechecked"`). Pass its new receipt to stage 3 with `--binding`. Keep the original acquisition-to-file records. [Conversion review](pipeline/s4_clinica/README.md#reconcile-conversion-with-the-image-inventory) · [Evidence format](pipeline/s5d_bids_identity/README.md)
+
+</details>
 
 <a id="process"></a>
 

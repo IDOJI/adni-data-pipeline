@@ -10,11 +10,19 @@ from s5d_bids_identity.binding import proof_files
 
 def select(args):
     data = args.study
-    tables = args.tables or data / 'LONI_download/clindata'
-    sources = {k: existing(path or tables / filename) for k, path, filename in [
-        ('MRIQC', args.mriqc, 'MRIQC.csv'), ('ADNI3_QC', args.adni3_qc, 'MAYO_ADNI3.csv'),
-        ('GO2_QC', args.go2_qc, 'MAYO_GO2.csv'), ('DELETED', args.deleted, 'DELMRSCANS.csv')]}
-    nfq = {str(i): existing(path) for i, path in enumerate(args.nfq or [tables / 'NFQ.csv'], 1)}
+    tables = (args.tables or data / 'LONI_download/clindata').expanduser().resolve()
+    sources = {'MRIQC': existing(args.mriqc or tables / 'MRIQC.csv')}
+    for name, override, filename in [('ADNI3_QC', args.adni3_qc, 'MAYO_ADNI3.csv'),
+                                     ('GO2_QC', args.go2_qc, 'MAYO_GO2.csv'),
+                                     ('DELETED', args.deleted, 'DELMRSCANS.csv')]:
+        if override or (tables / filename).is_file():
+            sources[name] = existing(override or tables / filename)
+        else:
+            print(f'Source QC has no {filename}. Check whether this table applies to your study.')
+    nfq_paths = args.nfq or ([tables / 'NFQ.csv'] if (tables / 'NFQ.csv').is_file() else [])
+    nfq = {str(i): existing(path) for i, path in enumerate(nfq_paths, 1)}
+    if not nfq:
+        print('No NFQ table supplied. EPI scans lack documented NFQ grades.')
     collections = [dict(modality=m, path=str(existing(path or data / 'collections' / (m + '.csv'))))
                    for m, path in [('T1', args.t1), ('EPI', args.epi)]]
     with stage_folder(data, '01-selection') as folder:
