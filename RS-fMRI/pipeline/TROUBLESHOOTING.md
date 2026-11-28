@@ -11,8 +11,7 @@ tooling or notes to help. See each step's `README.md` for full detail.
   Most scripts also accept `--config /path/to/other.yaml`, and many take explicit
   `--*` path overrides.
 - **`ModuleNotFoundError` / wrong Python.** Activate the `env_adni` environment
-  (`env/env_adni.yml`) for the utilities, QC/analysis scripts, and tests. Step 4
-  (Clinica) uses the separate `env/env_clinica.yml`.
+  (`env/env_adni.yml`) for the utilities, QC/analysis scripts, and tests. For stage 2, activate the study environment and check that `command -v dcm2niix` prints a path.
 
 ## Step 2–3 — Download & organize
 
@@ -24,12 +23,10 @@ tooling or notes to help. See each step's `README.md` for full detail.
   inventories directories matching the ADNI `NNN_S_NNNN` convention and warns
   about (skips) the rest.
 
-## Step 4 — Clinica (DICOM→BIDS)
+## Step 4 — DICOM to BIDS with dcm2niix
 
-- **Clinica fails to convert some DICOMs.** Known, recurring Clinica DICOM
-  conversion errors are catalogued in `s4_clinica/known_clinica_DICOM_errors.csv`.
-- **Paths hardcoded to another cluster.** The per-subject/merge helpers resolve
-  paths from the config; edit the YAML rather than the scripts.
+- **An Image ID is missing.** Check the ID in the stage 1 download list and the extracted participant/series/date/Image ID directory. Pass its participant-folder root with `convert --dicom`.
+- **A series is held.** Open `02-bids/rawdata/sourcedata/conversion/conversion-audit.tsv`. Once dcm2niix has run, its output is in the adjacent `series/I<number>.log`. Use a fresh destination after correcting an input. [Conversion guide](s4_dcm2niix/README.md)
 
 ## Step 4b — Philips SliceTiming
 

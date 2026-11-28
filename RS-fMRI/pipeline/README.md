@@ -5,7 +5,7 @@ For the copy-and-paste commands, start with the [four-stage study guide](../READ
 | Study stage | Processing folders |
 |---|---|
 | 🔎 [1 · Select scans](../README.md#select) | [Source quality records](s3a_source_qc/README.md) → [collection audit and date-based pairing](s3b_image_selection/README.md) |
-| 📦 [2 · Download and convert](../README.md#convert) | [IDA download](s2_download/README.md) → [Clinica](s4_clinica/README.md) → [Philips slice timing when needed](s4b_slice_timing/README.md) → [verify the converted image pairs](s5d_bids_identity/README.md) |
+| 📦 [2 · Download and convert](../README.md#convert) | [IDA download](s2_download/README.md) → [dcm2niix by Image ID](s4_dcm2niix/README.md) → [Philips slice timing when needed](s4b_slice_timing/README.md) → [verify the converted image pairs](s5d_bids_identity/README.md) |
 | 🧠 [3 · Process and review](../README.md#process) | [Check acquisition settings](s5_post_clinica_qc/README.md) → [MRIQC](s6_mriqc/README.md) → [fMRIPrep](s7b_sessionwise_preprocessing/README.md) → [motion and surface QC](s8_final_qc/README.md) → [XCP-D and final imaging QC](s10_xcpd_integrated_qc/README.md) → [clinical checks](s9a_validate_clinical/README.md) → [eligibility](s9b_validate_inclusion/README.md) |
 | 📊 [4 · Harmonize connectivity](../README.md#harmonize) | [Fit cross-sectional ComBat on XCP-D connectivity](s14_fc_harmonization/README.md) |
 

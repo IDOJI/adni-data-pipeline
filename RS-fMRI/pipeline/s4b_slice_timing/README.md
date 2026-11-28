@@ -8,7 +8,15 @@
 
 From `RS-fMRI/`, after [setup](../../06_docs/installation.md). Replace example paths and IDs with your inputs.
 
-In the private YAML, set `paths.clinica_bids_dir` to the converted BIDS tree, `paths.adni_fmri_metadata_csv` to the matching NFQ table and `slice_timing.report_tsv` to your audit filename. Keep the original sidecars. Inspect the dry-run report before applying changes to the working BIDS copy. `SliceTiming` gives per-slice acquisition times; `PhaseEncodingDirection` requires separate evidence for the axis and sign.
+For date-based sessions such as `ses-YYYYMMDD`, the NFQ row must match the participant RID, scan date and exact series UID. For the default study layout, preview the proposed changes from your terminal:
+
+```sh
+python pipeline/s4b_slice_timing/insert_philips_slicetiming.py --dry-run \
+  --bids-dir "$STUDY/02-bids/rawdata" --metadata-csv "$STUDY/LONI_download/clindata/NFQ.csv" \
+  --report-tsv "$STUDY/review/philips-slice-timing.tsv"
+```
+
+If you use a private YAML, set `paths.clinica_bids_dir` to the converted BIDS tree, `paths.adni_fmri_metadata_csv` to the matching NFQ table and `slice_timing.report_tsv` to your audit filename. Keep the original sidecars. Inspect the dry-run report before applying changes to the working BIDS copy. `SliceTiming` gives per-slice acquisition times; `PhaseEncodingDirection` requires separate evidence for the axis and sign.
 
 ```sh
 # Preview the proposed changes.

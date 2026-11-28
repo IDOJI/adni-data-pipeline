@@ -30,7 +30,7 @@ def cohort_plans(receipt, pairs):
     if not plans:
         raise ValueError('No verified pairs for imaging.')
     if any(p['subject'] != 'ADNI' + p['ptid'].replace('_', '') for p in plans):
-        raise ValueError('The local publisher requires Clinica subject labels of the form sub-ADNI... .')
+        raise ValueError('The local publisher requires ADNI subject labels of the form sub-ADNI... .')
     for fields in [('ptid', 'date'), ('subject', 'session')]:
         identities = {tuple(p[f] for f in fields) for p in plans}
         if len(identities) != len(plans):

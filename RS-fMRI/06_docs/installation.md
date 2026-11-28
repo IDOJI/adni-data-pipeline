@@ -11,7 +11,7 @@ python -m pip install -r requirements.txt -r pipeline/s5_post_clinica_qc/require
 python 04_workflow/lab.py doctor
 ```
 
-For imaging, install Docker Desktop (macOS) or Docker Engine (Linux), obtain a FreeSurfer license and load the pinned container images. fMRIPrep runs inside Docker; a separate host fMRIPrep installation is unnecessary. Cloning the repository alone does not install these dependencies. Clinica/dcm2niix and R are needed only for their stages.
+For imaging, install Docker Desktop (macOS) or Docker Engine (Linux), obtain a FreeSurfer license and load the pinned container images. fMRIPrep runs inside Docker; a separate host fMRIPrep installation is unnecessary. Cloning the repository alone does not install these dependencies. Stage 2 calls the dcm2niix executable. Install it once (macOS: `brew install dcm2niix`, Ubuntu: `sudo apt install dcm2niix`) and check that `command -v dcm2niix` prints its path. R is used by optional analysis utilities. [dcm2niix installation](https://github.com/rordenlab/dcm2niix#install)
 
 Return to the [four-stage guide](../README.md#setup) to set your study path. The local study publisher uses the macOS clone-copy command on a compatible volume. [Platform notes](platform_execution.md)
 
@@ -97,4 +97,4 @@ export PIPELINE_CONFIG="$DATA/config/run-001/pipeline.yaml"
 export ADNI_CONFIG="$PIPELINE_CONFIG"
 ```
 
-This YAML supports DICOM/Clinica and shared tools. Local Docker imaging uses the separate [batch JSON](local_batch.md). See [host requirements](platform_execution.md) and [seed settings](seed_reproducibility.md).
+This YAML supplies paths to the optional utilities. The four-stage conversion command reads its inputs from your study folder. Local Docker imaging uses the separate [batch JSON](local_batch.md). See [host requirements](platform_execution.md) and [seed settings](seed_reproducibility.md).

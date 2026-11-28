@@ -34,7 +34,7 @@ Each link gives the function, outputs and commands; no separate command copy is 
 | <a id="s2"></a>2 | [Download images and Study Files](../pipeline/s2_download/README.md) |
 | <a id="s3"></a>3 | [Inventory downloaded DICOMs](../pipeline/s3_organize/README.md) |
 | <a id="s3a"></a>3.A | [Check source QC, NFQ and image identity](../pipeline/s3a_source_qc/README.md) |
-| <a id="s4"></a>4 | [Convert DICOM to BIDS](../pipeline/s4_clinica/README.md) |
+| <a id="s4"></a>4 | [Convert DICOM to BIDS](../pipeline/s4_dcm2niix/README.md) |
 | <a id="s4b"></a>4.B | [Fill verified Philips SliceTiming](../pipeline/s4b_slice_timing/README.md) |
 | <a id="s5ab"></a>5 | [Check converted images and scan parameters](../pipeline/s5_post_clinica_qc/README.md) |
 | <a id="s5c"></a>5.C | [Create MRIQC/fMRIPrep input lists](../pipeline/s5c_validate_handoff/README.md) |

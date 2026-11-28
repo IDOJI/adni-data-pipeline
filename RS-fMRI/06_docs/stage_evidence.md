@@ -50,11 +50,11 @@ Each stage README links to its entry here. Source IDs resolve to the exact ADNI 
 
 <a id="stage-4"></a>
 
-### Stage 4 — s4_clinica
+### Stage 4 — s4_dcm2niix
 
-**Evidence and location:** P03 describes Clinica conversion; P02 describes the BIDS format; P01 Step 4 reports ADNI conversion/selection problems. [P03](#p03), [P02](#p02), [P01](#p01).
+The converter reads one selected IDA series at a time. dcm2niix extracts the NIfTI and acquisition metadata. The wrapper names the BIDS files and records the original Image ID, DICOM instance hashes, series UID and NIfTI hash. Each selected ID gets an audit row. [Converter and options](https://github.com/rordenlab/dcm2niix) · [BIDS MRI specification](https://bids-specification.readthedocs.io/en/stable/modality-specific-files/magnetic-resonance-imaging-data.html) · [Implementation](../pipeline/s4_dcm2niix/README.md)
 
-**Implementation and limits:** Audit which Image IDs actually survive conversion. The papers do not prove that a current converter retains every proposed scan or implements our preserve-all policy.
+The project assigns separate run numbers to same-day repeats and holds ambiguous outputs for review. Published ADNI workflows provide historical context for auditing scan retention. [Rutherford et al., Step 4](#p01) · [Routier et al.](#p03)
 
 <a id="stage-4-b"></a>
 

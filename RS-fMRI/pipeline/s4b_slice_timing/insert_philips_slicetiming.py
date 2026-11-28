@@ -1,8 +1,8 @@
-"""Insert SliceTiming into Philips BOLD sidecars after Clinica BIDS conversion.
+"""Insert SliceTiming into Philips BOLD sidecars after DICOM to BIDS conversion.
 
 Background
 ----------
-dcm2niix (and therefore Clinica) frequently cannot recover slice-acquisition
+dcm2niix frequently cannot recover slice-acquisition
 timing from Philips DICOMs, so the BOLD JSON sidecars it writes for Philips
 scans have no ``SliceTiming`` field. Without it, fMRIPrep cannot perform
 slice-time correction.
@@ -13,15 +13,15 @@ Its ``SLICETIMING`` column stores each slice's *absolute* acquisition clock time
 (seconds-of-day, underscore separated). BIDS ``SliceTiming`` wants times relative
 to the start of each volume, so we subtract the minimum of the array.
 
-This step runs after ``s4_clinica`` (once the merged BIDS tree exists) and before
-``s5_post_clinica_qc``. It only touches scans whose sidecar ``Manufacturer``
+This step runs after DICOM-to-BIDS conversion and before pair verification. It only touches scans whose sidecar ``Manufacturer``
 matches ``slice_timing.manufacturers`` and (by default) that lack SliceTiming.
 
 Matching
 --------
 Each Philips ``*_bold.json`` is matched to an ADNI metadata row by:
   * subject: the numeric RID parsed from ``sub-ADNI<site>S<rid>`` == metadata ``RID``
-  * session: the BIDS ``ses-<label>`` == metadata ``VISCODE2`` mapped to a session
+  * session: a date-based session requires an exact source date and series UID;
+    for a visit-labeled BIDS session use metadata ``VISCODE2`` mapped to a session
              label (``bl`` -> ``M000``, ``m<NN>`` -> ``M0NN``)
   * exact series number when supplied; a conflicting number never falls back
   * matching series UID and scan date when present in both sources
@@ -48,6 +48,7 @@ import os
 import re
 import shutil
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
@@ -96,9 +97,11 @@ _SESSION_RE = re.compile(r"^m(\d+)$", re.IGNORECASE)
 
 
 def viscode_to_session(viscode2: str) -> Optional[str]:
-    """Map an ADNI VISCODE2 to a Clinica BIDS session label (without ``ses-``)."""
+    """Read a date session label or convert an ADNI visit to its BIDS label."""
 
     v = str(viscode2).strip().lower()
+    if re.fullmatch(r"\d{8}", v):
+        return v
     if v in ("bl", "m0", "m00", "m000"):
         return "M000"
     m = _SESSION_RE.match(v)
@@ -165,6 +168,8 @@ def identity_value(row: Dict[str, Any], fields: Iterable[str], *, date=False) ->
             value = value.split("T", 1)[0].split(" ", 1)[0]
             if re.fullmatch(r"\d{8}", value):
                 value = f"{value[:4]}-{value[4:6]}-{value[6:]}"
+            elif "/" in value:
+                value = datetime.strptime(value, "%m/%d/%Y").date().isoformat()
         values.add(value)
     if len(values) > 1:
         raise ValueError("Conflicting acquisition identity fields: " + ", ".join(fields))
@@ -188,7 +193,7 @@ def load_metadata_index(
     index: Dict[Tuple[int, str], List[MetadataRecord]] = {}
     with csv_path.open(newline="") as f:
         reader = csv.DictReader(f)
-        required = {"RID", "VISCODE2", "MANUFACTURER", "REPETITIONTIME", "SLICETIMING"}
+        required = {"RID", "MANUFACTURER", "REPETITIONTIME", "SLICETIMING"}
         missing = required - set(reader.fieldnames or [])
         if missing:
             raise ValueError(
@@ -202,7 +207,8 @@ def load_metadata_index(
             except (ValueError, KeyError):
                 continue
             session = viscode_to_session(row.get("VISCODE2", ""))
-            if session is None:
+            day = identity_value(row, ("StudyDate", "STUDYDATE", "SERIESDATE", "SCANDATE", "MRI_STUDY_DATE", "Scan_Date"), date=True)
+            if not session and not day:
                 continue
             try:
                 rel = parse_abs_slice_timing(row.get("SLICETIMING", ""))
@@ -214,16 +220,17 @@ def load_metadata_index(
                 tr_s = float("nan")
             rec = MetadataRecord(
                 rid=rid,
-                session=session,
+                session=session or day.replace("-", ""),
                 series_number=str(row.get("SERIESNUMBER", "")).strip(),
                 tr_s=tr_s,
                 rel_times=rel,
                 pattern=acquisition_pattern(rel) if rel else "invalid",
                 series_uid=identity_value(row, ("SeriesInstanceUID", "SERIESINSTANCEUID", "SERIES_UID")),
-                scan_date=identity_value(row, ("StudyDate", "SERIESDATE", "SCANDATE"), date=True),
+                scan_date=day,
                 source_row=source_row,
             )
-            index.setdefault((rid, session), []).append(rec)
+            for label in {session, day.replace("-", "")} - {None, ""}:
+                index.setdefault((rid, label), []).append(rec)
     return index
 
 
@@ -354,12 +361,20 @@ def process_sidecar(
 
     try:
         series_uid = identity_value(data, ("SeriesInstanceUID", "SERIES_UID"))
-        scan_date = identity_value(data, ("StudyDate", "SeriesDate", "AcquisitionDateTime"), date=True)
+        scan_date = identity_value(data, ("StudyDate", "SeriesDate", "AcquisitionDate", "AcquisitionDateTime"), date=True)
     except ValueError as exc:
         rec_row.update(status="identity_conflict", message=str(exc))
         return rec_row
+    candidates = index.get((rid, session), [])
+    if re.fullmatch(r"\d{8}", session):
+        # Date-labelled direct BIDS must bind the NFQ timing to the original series.
+        day = f"{session[:4]}-{session[4:6]}-{session[6:]}"
+        if (scan_date and scan_date != day) or not series_uid:
+            rec_row.update(status="identity_conflict", message="Date session or source UID is unverified")
+            return rec_row
+        candidates = [c for c in candidates if c.series_uid == series_uid and c.scan_date == day]
     record, why = choose_record(
-        index.get((rid, session), []),
+        candidates,
         series_number=str(data.get("SeriesNumber", "")).strip() or None,
         n_slices=n_slices,
         tr_s=tr_json,

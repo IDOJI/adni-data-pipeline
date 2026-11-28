@@ -3,7 +3,7 @@
 
 project:
   name: "ADNI_rs_fMRI"
-  description: "ADNI 2 / GO / 3 resting-state fMRI preprocessing with Clinica, MRIQC, and fMRIPrep."
+  description: "ADNI 2 / GO / 3 resting-state fMRI preprocessing with dcm2niix, MRIQC, and fMRIPrep."
   author: "Saige Rutherford"
 
 # ---- Base locations (override by environment variables in your scripts) ----
@@ -40,8 +40,8 @@ paths:
   # acquisition times used to repair missing SliceTiming on Philips scans.
   adni_fmri_metadata_csv: "${ADNI_BASE}/LONI_download/clindata/MAYOADIRL_MRI_FMRI_NFQ.csv"
 
-  # Step 4: Clinica BIDS conversion
-  slurm_template: "${REPO_ROOT}/s4_clinica/adni_clinica.slurm"
+  # Legacy config keys for pre-existing BIDS datasets and archived jobs
+  slurm_template: ""  # Only for archived, explicitly configured jobs
   slurm_jobs_dir: "${ADNI_BASE}/jobs"
   clinica_bids_dir: "${ADNI_BASE}/rawdata"
   clinica_bids_individual_dir: ""  # Optional per-subject Clinica BIDS root
@@ -122,7 +122,7 @@ fmriprep:
   mem_gb: 32
 
 # ---- Step 4b: repair missing SliceTiming on Philips BOLD scans ----
-# dcm2niix/Clinica do not populate SliceTiming for many Philips rs-fMRI scans.
+# dcm2niix may omit SliceTiming for many Philips rs-fMRI scans.
 # insert_philips_slicetiming.py fills it from the ADNI fMRI metadata CSV
 # (paths.adni_fmri_metadata_csv).
 slice_timing:

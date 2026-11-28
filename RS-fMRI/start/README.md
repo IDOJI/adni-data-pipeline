@@ -5,7 +5,7 @@ Open the [setup and folder map](../README.md#setup), activate the environment an
 | Stage | Script | Walkthrough |
 |---|---|---|
 | 🔎 Select images | [01_select.py](01_select.py) | [Source files and download list](../README.md#select) |
-| 📦 Convert and verify | [02_bids.py](02_bids.py) | [IDA download, BIDS and pair checks](../README.md#convert) |
+| 📦 Convert and verify | [02_bids.py](02_bids.py) | [Per-ID dcm2niix conversion, file audit and pair checks](../README.md#convert) |
 | 🧠 Process and review | [03_process.py](03_process.py) | [MRIQC, fMRIPrep, XCP-D and final QC](../README.md#process) |
 | 📊 Harmonize connectivity | [04_harmonize.py](04_harmonize.py) | [Scanner map, audit and ComBat](../README.md#harmonize) |
 

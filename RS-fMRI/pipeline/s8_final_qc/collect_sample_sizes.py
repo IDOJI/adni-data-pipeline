@@ -62,7 +62,7 @@ BidsId = Tuple[str, str]  # (sub, ses)
 # --------------------------------------------------------------------------- #
 STAGE_META = [
     ("start",        "Unzip & organize DICOMs",  "s3_organize/",        "Clean directory tree; check integrity"),
-    ("clinica",      "BIDS-convert via Clinica", "s4_clinica/",         "NIfTI + JSON + sidecars"),
+    ("clinica",      "Convert DICOM to BIDS", "s4_dcm2niix/",         "NIfTI + JSON + sidecars"),
     ("postclinica",  "Post-Clinica QC",          "s5_post_clinica_qc/", "TR/coverage/duration checks"),
     ("mriqc",        "MRIQC",                    "s6_mriqc/",           "All IQMs present"),
     ("postmriqc",    "Post-MRIQC QC",            "s6_mriqc/",           "Robust outlier detection"),

@@ -5,8 +5,8 @@
 #   python -m venv .venv && source .venv/bin/activate
 #   pip install -r requirements.txt
 #
-# Note: the neuroimaging tools themselves (Clinica, dcm2niix, MRIQC, fMRIPrep,
-# FreeSurfer) are run via conda (env/env_clinica.yml) and containers, not pip.
+# Note: the neuroimaging tools themselves (dcm2niix, MRIQC, fMRIPrep,
+# FreeSurfer) are run via their own executables and containers, not pip.
 
 # Scientific stack
 numpy

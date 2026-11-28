@@ -26,7 +26,7 @@ Your private study folder/
 ├── LONI_download/
 │   ├── clindata/            ADNI Study Files (CSV)
 │   └── sourcedata/          Extracted DICOMs, starting with the participant folders
-├── review/                  Conversion evidence, reviewed exclusions and scanner labels
+├── review/                  Reviewed exclusions, scanner labels and external conversion evidence
 ├── license.txt              Your FreeSurfer license (stage 3)
 ├── templateflow/            Populated local template cache (stage 3)
 ├── 01-selection/            Created by stage 1
@@ -51,26 +51,21 @@ python start/01_select.py "$STUDY"
 
 ## 2 · 📦 Download the images and convert them to BIDS
 
-**In the ADNI portal**, sign in and download the Image IDs from stage 1 in DICOM format. Extract them under `LONI_download/sourcedata/<participant>/<series>/<date>/<ImageID>/`. Put Clinica's required clinical/conversion Study Files in `clindata/` alongside the quality tables. Install Clinica and dcm2niix so the terminal can find both programs. [Clinica's download and conversion guide](https://aramislab.paris.inria.fr/clinica/docs/public/latest/Converters/ADNI2BIDS/)
+**📥 Download.** In ADNI IDA, request the Image IDs in `01-selection/images/09.download-candidates.txt` as DICOM. Extract the download so that `$STUDY/LONI_download/sourcedata/` contains the participant folders, with `<participant>/<series>/<date>/I<number>/` underneath. If the download is elsewhere, add `--dicom "/path/to/participant-folders"` to the conversion command.
 
 ```sh
 python start/02_bids.py "$STUDY" convert
 ```
 
-**Verify the converted files.** At the end of a fresh conversion the script looks at Clinica's source-path tables and per-session scan lists. For each unique match it saves a file fingerprint in `02-bids/conversion-hashes.csv`. The next command uses these fingerprints to check the actual BIDS images, dates, series IDs and matching T1 references. For Philips scans with missing slice timing, follow the [source-based repair procedure](pipeline/s4b_slice_timing/README.md) before binding.
+**🔍 Check the download.** Open `02-bids/rawdata/sourcedata/conversion/conversion-audit.tsv`. There is one row per selected ID. For each match, the script runs dcm2niix on that ID alone and records the original series UID, the BIDS filename and a SHA-256 fingerprint in `conversion-hashes.csv` beside the audit. Repeat scans on the same date get separate run numbers. Missing, conflicting or split series have a reason in the audit. If you correct the download, use a [fresh output directory](pipeline/s4_dcm2niix/README.md). For Philips scans that need slice timing, review the [source-based repair guide](pipeline/s4b_slice_timing/README.md) before the next command.
 
 ```sh
 python start/02_bids.py "$STUDY" bind
 ```
 
-**Open** `02-bids/binding/04.epi-execution-manifest.csv` to see which pairs can proceed and why others were held. The BIDS files are in `02-bids/rawdata/`. **Already have BIDS?** Skip `convert` and run `bind` with `--bids "/path/to/rawdata" --evidence "/path/to/conversion-hashes.csv"`. It checks the original stage 1 selection. If that lives elsewhere, add `--selection "/path/to/07.run-manifest.json"`.
+**✅ Check which pairs can proceed.** Open `02-bids/binding/04.epi-execution-manifest.csv`. Binding checks the actual NIfTI against the recorded fingerprint, the acquisition identity, source QC and the proposed same-day T1 reference. Stage 3 reads the resulting binding receipt.
 
-<details>
-<summary>What if my conversion has missing records?</summary>
-
-The script prints how many NIfTI fingerprints it recorded. If Clinica did not record a unique source and output for an image, that image needs independent conversion evidence. Supply your verified CSV using `--evidence`, with columns `SOURCE_PTID,STUDY_DATE,MODALITY,SOURCE_IMAGE_ID,NIFTI_SHA256`. For corrected inputs, use `bind --binding-dir` with a fresh directory after the study path (for example, `python start/02_bids.py "$STUDY" bind --binding-dir "$STUDY/02-bids/rechecked"`). Pass its new receipt to stage 3 with `--binding`. Keep the original acquisition-to-file records. [Conversion review](pipeline/s4_clinica/README.md#reconcile-conversion-with-the-image-inventory) · [Evidence format](pipeline/s5d_bids_identity/README.md)
-
-</details>
+**Already have BIDS and independent conversion records?** Run `python start/02_bids.py "$STUDY" bind --bids "/path/to/rawdata" --evidence "/path/to/conversion-hashes.csv"`. If the selection receipt is elsewhere, add `--selection "/path/to/07.run-manifest.json"`. [Evidence formats](pipeline/s5d_bids_identity/README.md)
 
 <a id="process"></a>
 
@@ -154,9 +149,9 @@ Click the code name for its inputs, outputs and execution command. Run commands 
 | 3 | Inventory downloaded DICOMs | Inventory CSV and subject list | [create_dicom_dir_csv.sh](pipeline/s3_organize/README.md) |
 | 3.A | Check source QC, NFQ and image identity | image_qc.tsv | [run.py](pipeline/s3a_source_qc/README.md) |
 | 3.B | Preserve collection images and propose T1 references by actual scan date | Row-level phase/scanner inventory, strict download list, pairing manifest and optional historical ID comparison | [run.py](pipeline/s3b_image_selection/README.md) |
-| 4 | Convert DICOM to BIDS | NIfTI, JSON and conversion records | [Clinica / Slurm helpers](pipeline/s4_clinica/README.md) |
+| 4 | Convert DICOM to BIDS | NIfTI, JSON and conversion records | [Convert each Image ID with dcm2niix](pipeline/s4_dcm2niix/README.md) |
 | 4.B | Fill verified Philips SliceTiming | Updated sidecars and audit TSV | [insert_philips_slicetiming.py](pipeline/s4b_slice_timing/README.md) |
-| 5 | Check converted images and scan parameters | Mastersheet and final_heuristics.tsv | [main.py + run_session_heuristics.py](pipeline/s5_post_clinica_qc/README.md) |
+| 5 | Optional historical mastersheet and scan-parameter checks | Mastersheet and final_heuristics.tsv | [main.py + run_session_heuristics.py](pipeline/s5_post_clinica_qc/README.md) |
 | 5.C | Audit source eligibility and generate session lists | Subject/session CSVs | [run.py](pipeline/s5c_validate_handoff/README.md) |
 | 5.D | Verify a same-day EPI–T1 pair and scanner consistency | Binding receipt and prepared runtime | [binding.py + guarded_runner_seeded.py](pipeline/s5d_bids_identity/README.md) |
 | 6 | Measure image quality | IQM tables and HTML reports | [guarded_runner_seeded.py + iqm_seeded.py](pipeline/s6_mriqc/README.md) |
@@ -209,7 +204,7 @@ Keep data, private configuration and results outside this repository, for exampl
 | Alternative volume profile | [config.seeded.example.json](pipeline/s7a_volume_workflow/config.seeded.example.json) |
 | Post-XCP-D FC harmonization | [fc_harmonization.example.json](03_config/fc_harmonization.example.json) · [methods and sources](06_docs/fc_harmonization.md) |
 | Optional thread/tolerance experiment | [thread_reproducibility.example.json](03_config/thread_reproducibility.example.json) |
-| DICOM/Clinica and shared paths | [lab_config.example.yaml](03_config/lab_config.example.yaml) · [generate YAML](06_docs/installation.md#configuration) |
+| Shared paths for optional utilities | [lab_config.example.yaml](03_config/lab_config.example.yaml) · [generate YAML](06_docs/installation.md#configuration) |
 
 Check quantitative QC and native HTML reports before final inclusion. Code tests and successful processing alone do not approve research inclusion.
 
