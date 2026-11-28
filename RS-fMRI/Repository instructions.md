@@ -1,7 +1,7 @@
 # Repository instructions
 
-- `pipeline/` is ordinary editable source adapted and modified from statMINDlab/ADNI_fMRI_protocol. Original baseline/source hashes and the 153-commit history index remain under `config/`; changes are reviewed with this repository.
-- The unified `pipeline/` contains all maintained stages, including s1–s12 and interstitial steps. Do not make a historical Research Selection Table a required input or the authoritative selection source.
+- The integrated protocol is ordinary editable source adapted and modified from statMINDlab/ADNI_fMRI_protocol. Original baseline/source hashes and the 153-commit history index remain under `config/`; changes are reviewed with this repository.
+- Maintain each method in its numbered study directory. Shared utilities and compatibility links live in `pipeline/`. Keep the old-to-new paths in `config/stage-paths.json` in sync with the source tree. Do not make a historical Research Selection Table a required input or the authoritative selection source.
 - Update execution order and each stage's input/output/validation contract in both the root README and the step README.
 - Keep data, raw clinical tables, real participant lists, private configuration, execution results and license files outside the repository. Use synthetic examples only.
 - Review original-repository updates on a test branch with local code, provenance, docs and tests. Installation must not automatically follow the original remote branch.
