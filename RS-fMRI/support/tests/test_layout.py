@@ -26,7 +26,7 @@ def test_stage_layout_and_compatibility_paths():
     names = ('config', 'workflow', 'tests', 'docs')
     for number, name in enumerate(names, 3):
         assert (ROOT / f'{number:02}_{name}').is_dir()
-        assert (ROOT / f'{number:02}_{name}').resolve() == ROOT / name
+        assert (ROOT / f'{number:02}_{name}').resolve() == ROOT / 'support' / name
     stages = ['01-selection', '02-bids', '03-imaging', '04-harmonization']
     former_scripts = ['01_select.py', '02_bids.py', '03_process.py', '04_harmonize.py']
     for stage, script in zip(stages, former_scripts):

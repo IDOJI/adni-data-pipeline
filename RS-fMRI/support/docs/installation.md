@@ -12,7 +12,7 @@ python -m pip install -r requirements.txt -r 02-bids/post_clinica_qc/requirement
 python support/workflow/lab.py doctor
 ```
 
-Already have a clone? Run `python3 support/setup.py` once after updating. This creates the local paths used by earlier commands.
+Already have a clone? Run `python3 support/setup.py` once after updating. This creates the local paths used by earlier commands. If setup reports a conflict, move the named file or folder to a safe location before retrying.
 
 For imaging, install Docker Desktop (macOS) or Docker Engine (Linux), obtain a FreeSurfer license and load the pinned container images. fMRIPrep runs inside Docker; a separate host fMRIPrep installation is unnecessary. Cloning the repository alone does not install these dependencies. Stage 2 calls the dcm2niix executable. Install it once (macOS: `brew install dcm2niix`, Ubuntu: `sudo apt install dcm2niix`) and check that `command -v dcm2niix` prints its path. R is used by optional analysis utilities. [dcm2niix installation](https://github.com/rordenlab/dcm2niix#install)
 

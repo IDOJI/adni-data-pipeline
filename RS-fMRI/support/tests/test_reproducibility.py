@@ -193,7 +193,7 @@ def test_missing_bundle_never_falls_back_to_network(tmp_path,monkeypatch):
 
 def test_git_ignore_exception_only_allows_two_approved_nii_files():
     public=mod('public');spec=public.specification()
-    prefix='RS-fMRI/07_reproducibility/'+spec['bundled_path']+'/'
+    prefix='RS-fMRI/support/reproducibility/'+spec['bundled_path']+'/'
     for entry in spec['files']:
         if entry['path'].endswith('.nii.gz'):
             r=subprocess.run(['git','-C',str(ROOT.parent),'check-ignore','--no-index','--quiet',prefix+entry['path']])
