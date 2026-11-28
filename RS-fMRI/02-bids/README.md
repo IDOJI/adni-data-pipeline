@@ -6,7 +6,13 @@ Turn each selected scan into a file the analysis tools can read. BIDS is the fol
 
 **Convert** one Image ID at a time with dcm2niix.
 
+Use the same study folder you used in step 1.
+
 ```sh
+cd "/absolute/path/to/adni-data-pipeline/RS-fMRI"
+source .venv/bin/activate
+export STUDY="/absolute/path/to/my ADNI study"
+
 python 02-bids/run.py "$STUDY" convert
 ```
 

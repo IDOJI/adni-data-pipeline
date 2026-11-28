@@ -6,7 +6,13 @@ Use ComBat to adjust 4S256 connectivity measurements for scanner differences whi
 
 **Check the groups first.**
 
+Use the same study folder you used in step 1.
+
 ```sh
+cd "/absolute/path/to/adni-data-pipeline/RS-fMRI"
+source .venv/bin/activate
+export STUDY="/absolute/path/to/my ADNI study"
+
 python 04-harmonization/run.py "$STUDY" audit
 ```
 
