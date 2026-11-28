@@ -21,11 +21,15 @@ def git(repo, *args):
 def checkout(tmp_path):
     repo = tmp_path / 'repository'
     root = repo / 'RS-fMRI'
-    manifest = json.loads((ROOT / '03_config/protocol_sources.json').read_text())
-    for name in manifest['files']:
-        target = root / 'pipeline' / name
+    # A new checkout contains today's owned source. The historical import manifest
+    # also lists files that were subsequently archived or replaced.
+    for entry in git(ROOT, 'ls-files', '--stage', '-z', '--', 'pipeline/').split(b'\0'):
+        if not entry.startswith((b'100644 ', b'100755 ')):
+            continue
+        name = entry.split(b'\t', 1)[1].decode()
+        target = root / name
         target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(ROOT / 'pipeline' / name, target)
+        shutil.copy2(ROOT / name, target)
     (root / '03_config').mkdir()
     for name in ('upstream.lock.json', 'protocol_sources.json', 'protocol_history.json'):
         shutil.copy2(ROOT / '03_config' / name, root / '03_config' / name)
@@ -41,7 +45,9 @@ def test_fresh_native_checkout_needs_no_upstream_git_or_network(checkout):
     assert not (root / 'pipeline/.git').exists()
     result = source.inspect_protocol(root)
     assert result['distribution'] == 'integrated-source'
-    assert result['protocol_clean'] and result['protocol_files'] == 76
+    assert result['protocol_clean']
+    assert result['protocol_files'] == source.inspect_protocol(ROOT)['protocol_files']
+    assert (root / 'pipeline/s4_dcm2niix/convert.py').is_file()
     assert result['original_history_commits'] == 153
     assert result['repository_commit'] == git(repo, 'rev-parse', 'HEAD').decode().strip()
 
