@@ -1,6 +1,6 @@
 # 🧭 Find a processing stage
 
-For the copy-and-paste commands, start with the [four-stage study guide](../README.md). The numbered folders here contain the methods those commands call. Lettered stages such as 3.A and 5.D keep their original names so existing commands and run records remain traceable.
+For the copy-and-paste commands, start with the [four-stage study guide](../README.md). Implementation files live in the four study-stage directories. The historical paths here keep earlier commands and run records usable.
 
 | Study stage | Processing folders |
 |---|---|

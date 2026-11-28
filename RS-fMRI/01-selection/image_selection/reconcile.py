@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 
 import sys
-sys.path.insert(0, str((Path(__file__).resolve().parents[2] / 'pipeline')))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'pipeline'))
 from selection_identity import VERSION, image_id, scan_date
 from _shared import finish, new_output, read, sha, snapshot, unchanged, write
 

@@ -42,7 +42,7 @@ python 07_reproducibility/public.py xcpd --root "$PUBLIC_ROOT" \
 | `xcpd/derivatives/` | Denoised BOLD, ROI/FC, ReHo/ALFF and HTML reports |
 | `logs/`, `comparison_identity.json` | Execution records, images, source and settings |
 
-Profile: fMRIPrep 25.2.7, sessionwise anatomy, FreeSurfer/CIFTI, SyN-SDC; XCP-D 26.2.0, 36P/GSR, FD 0.3 mm, minimum 240 s. [Seed 1123 and OMP1](../docs/seed_reproducibility.md) apply. The public sample does not supply ADNI clinical/source-QC evidence or final research inclusion.
+Profile: fMRIPrep 25.2.7, sessionwise anatomy, FreeSurfer/CIFTI, SyN-SDC; XCP-D 26.2.0, 36P/GSR, FD 0.3 mm, minimum 240 s. [Seed 1123 and OMP1](../03-imaging/docs/seed_reproducibility.md) apply. The public sample does not supply ADNI clinical/source-QC evidence or final research inclusion.
 
 ## Compare two runs
 

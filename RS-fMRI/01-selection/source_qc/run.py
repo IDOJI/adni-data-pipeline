@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 import sys
 
-sys.path.insert(0, str((Path(__file__).resolve().parents[2] / 'pipeline')))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'pipeline'))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _shared import finish, new_output, read, snapshot, unchanged, write, sha
 import qc_registry as qc

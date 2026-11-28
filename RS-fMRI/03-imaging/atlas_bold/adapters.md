@@ -7,7 +7,7 @@ Run from `RS-fMRI/`. Replace example paths and IDs with the same raw and process
 Produces `acquisition_frames.tsv` and `artifact.json` in `--output-dir`. Set `--dummy-volumes` to the actual number removed.
 
 ```sh
-python pipeline/s11_atlas_bold/adapters.py frames \
+python 03-imaging/atlas_bold/adapters.py frames \
   --raw-bold /DATA/bids/sub-ADNI999S9999/ses-M000/func/sub-ADNI999S9999_ses-M000_task-rest_bold.nii.gz \
   --raw-json /DATA/bids/sub-ADNI999S9999/ses-M000/func/sub-ADNI999S9999_ses-M000_task-rest_bold.json \
   --bold /DATA/xcp_d/sub-ADNI999S9999/ses-M000/func/sub-ADNI999S9999_ses-M000_task-rest_space-MNI152NLin6Asym_desc-denoised_bold.nii.gz \
@@ -21,7 +21,7 @@ python pipeline/s11_atlas_bold/adapters.py frames \
 Produces `linked_run.tsv` and `artifact.json` in `--output-dir`.
 
 ```sh
-python pipeline/s11_atlas_bold/adapters.py link-run \
+python 03-imaging/atlas_bold/adapters.py link-run \
   --inclusion /DATA/qc/step9b --image-id 999999999 \
   --raw-bold /DATA/bids/sub-ADNI999S9999/ses-M000/func/sub-ADNI999S9999_ses-M000_task-rest_bold.nii.gz \
   --raw-json /DATA/bids/sub-ADNI999S9999/ses-M000/func/sub-ADNI999S9999_ses-M000_task-rest_bold.json \

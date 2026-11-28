@@ -9,15 +9,15 @@ cd /ABSOLUTE/PATH/adni-data-pipeline/RS-fMRI
 source .venv/bin/activate
 
 # Read-only inspection of a private, prepared handoff plan:
-python 04_workflow/independent_repository.py \
+python workflow/independent_repository.py \
   --plan /ABSOLUTE/PATH/runtime/service_handoff/migration/plan.json check
 
 # Deferred cutover: finish the captured cohort, then migrate and remain stopped.
-python 04_workflow/independent_repository.py \
+python workflow/independent_repository.py \
   --plan /ABSOLUTE/PATH/runtime/service_handoff/migration/plan.json watch
 
 # Separate operational quota; does not change imaging arguments or thread counts.
-python 04_workflow/cpu_budget.py --root /ABSOLUTE/PATH/runtime --cpus 1.5 watch
+python workflow/cpu_budget.py --root /ABSOLUTE/PATH/runtime --cpus 1.5 watch
 ```
 
 These are administration commands, not another preprocessing stage. They do not launch new imaging calculations. A private plan must identify the captured cohort, expected source hashes, staged replacement hashes, exact service labels, historical scientific configuration and the new repository-owned environment. Do not put participant lists, actual service plans or execution receipts in the public repository.
@@ -28,7 +28,7 @@ These are administration commands, not another preprocessing stage. They do not 
 2. Prepare `.venv` inside `RS-fMRI` with the same installed package versions. When copying an existing environment locally, create a fresh interpreter environment first, copy installed packages without links into the old checkout, regenerate console scripts with the new interpreter, and verify imported module paths. Preserve the old environment while calculations run. Keep the installed R library in ignored `.R-library/` and set `R_LIBS_USER` to that directory.
 3. Wait for no managed imaging containers, no captured subject-worker locks, verified external archive manifests and S12 export manifests for successful subjects. Terminal failures remain failures with their original caches and receipts preserved; they are not silently relaunched under a different runner identity.
 4. At the idle boundary, disable the explicitly captured ADNI services, compare expected source hashes, install reviewed owned-source replacements, bind source paths and regenerate deployment fingerprints. Source changes by another owner hold the migration rather than being overwritten.
-5. Repoint all service interpreters to the new `.venv`, all executable Python sources to this repository, and the CPU service to `04_workflow/cpu_budget.py`. Keep every service disabled after the handoff. A later explicit request is required to resume subject admission.
+5. Repoint all service interpreters to the new `.venv`, all executable Python sources to this repository, and the CPU service to `workflow/cpu_budget.py`. Keep every service disabled after the handoff. A later explicit request is required to resume subject admission.
 6. Run imports, `lab.py doctor`, the queue source check and the XCP-D compatibility check. On macOS these checks deny reads of the old checkout using a child-process sandbox, without moving or deleting it. Save private verification receipts and report completion only after the checks pass.
 
 ## Historical identity and effective source

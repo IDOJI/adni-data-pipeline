@@ -9,7 +9,7 @@
 From `RS-fMRI/`, after [setup](../../docs/installation.md). `--input` takes the Step 5 heuristics TSV. `--source-qc` takes the whole Step 3.A artifact directory, including its audit and fingerprints. Write to a new `--output-dir` and check the surviving session count in `handoff.json`.
 
 ```sh
-python pipeline/s5c_validate_handoff/run.py \
+python 02-bids/validate_handoff/run.py \
   --input "$RESULTS/qc/step5/final_heuristics.tsv" \
   --source-qc "$RESULTS/qc/step3a" \
   --output-dir "$RESULTS/qc/step5c"

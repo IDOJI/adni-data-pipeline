@@ -7,8 +7,8 @@ git clone https://github.com/IDOJI/adni-data-pipeline.git
 cd adni-data-pipeline/RS-fMRI
 python3 -m venv .venv
 source .venv/bin/activate
-python -m pip install -r requirements.txt -r pipeline/s5_post_clinica_qc/requirements.txt -r pipeline/s14_fc_harmonization/requirements.txt
-python 04_workflow/lab.py doctor
+python -m pip install -r requirements.txt -r 02-bids/post_clinica_qc/requirements.txt -r 04-harmonization/fc_harmonization/requirements.txt
+python workflow/lab.py doctor
 ```
 
 For imaging, install Docker Desktop (macOS) or Docker Engine (Linux), obtain a FreeSurfer license and load the pinned container images. fMRIPrep runs inside Docker; a separate host fMRIPrep installation is unnecessary. Cloning the repository alone does not install these dependencies. Stage 2 calls the dcm2niix executable. Install it once (macOS: `brew install dcm2niix`, Ubuntu: `sudo apt install dcm2niix`) and check that `command -v dcm2niix` prints its path. R is used by optional analysis utilities. [dcm2niix installation](https://github.com/rordenlab/dcm2niix#install)
@@ -45,8 +45,8 @@ Load the pinned Docker images once. This block reads their digests from the repo
 python - <<'PY'
 import json, subprocess
 from pathlib import Path
-batch = json.loads(Path("03_config/local_batch.seeded.example.json").read_text())
-xcp = json.loads(Path("03_config/xcpd_linc.seeded.example.json").read_text())
+batch = json.loads(Path("config/local_batch.seeded.example.json").read_text())
+xcp = json.loads(Path("config/xcpd_linc.seeded.example.json").read_text())
 for reference in [*batch["pinned_images"].values(), xcp["image"]]:
     subprocess.run(["docker", "pull", "--platform", "linux/amd64", reference], check=True)
 for stage, reference in batch["pinned_images"].items():
@@ -85,16 +85,16 @@ After setting `DATA` and `RESULTS` above, make your private lab configuration:
 
 ```sh
 mkdir -p "$DATA/config"
-cp 03_config/lab_config.example.yaml "$DATA/config/lab.yaml"
+cp config/lab_config.example.yaml "$DATA/config/lab.yaml"
 ```
 
 Edit `lab.yaml` with your data/scratch/container/license paths. Then generate a new configuration directory:
 
 ```sh
-python 04_workflow/lab.py prepare-config \
+python workflow/lab.py prepare-config \
   --lab-config "$DATA/config/lab.yaml" --output-dir "$DATA/config/run-001"
 export PIPELINE_CONFIG="$DATA/config/run-001/pipeline.yaml"
 export ADNI_CONFIG="$PIPELINE_CONFIG"
 ```
 
-This YAML supplies paths to the optional utilities. The four-stage conversion command reads its inputs from your study folder. Local Docker imaging uses the separate [batch JSON](local_batch.md). See [host requirements](platform_execution.md) and [seed settings](seed_reproducibility.md).
+This YAML supplies paths to the optional utilities. The four-stage conversion command reads its inputs from your study folder. Local Docker imaging uses the separate [batch JSON](../03-imaging/docs/local_batch.md). See [host requirements](platform_execution.md) and [seed settings](../03-imaging/docs/seed_reproducibility.md).

@@ -1,17 +1,1 @@
-{
-  "collections": [
-    {
-      "path": "/ABS/collections/mixed_phase_t1.csv",
-      "modality": "T1"
-    },
-    {
-      "path": "/ABS/collections/mixed_phase_resting_fmri.csv",
-      "modality": "EPI"
-    }
-  ],
-  "source_qc": "/ABS/qc/step3a",
-  "output_dir": "/ABS/qc/new-step3b",
-  "policy": {
-    "cross_date_candidate_window_days": null
-  }
-}
+../01-selection/config/image_selection.example.json

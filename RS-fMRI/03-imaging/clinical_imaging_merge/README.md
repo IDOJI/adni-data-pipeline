@@ -9,12 +9,12 @@
 From `RS-fMRI/`, after [setup](../../docs/installation.md). `--included` takes your reviewed session table. `--mastersheet` supplies its scan-to-visit links and `--dxsum` the diagnosis history. For the plots, point each score flag at the original clinical CSV for that instrument. The files written by the two commands go under `RESULTS/clinical/`.
 
 ```sh
-python pipeline/s9_clinical_imaging_merge/build_imaging_input.py \
+python 03-imaging/clinical_imaging_merge/build_imaging_input.py \
   --included "$DATA/review/included_sessions.tsv" \
   --mastersheet "$RESULTS/qc/step5a/data/anchor_plus_dicom_nifti_struct.csv" \
   --dxsum "$DATA/LONI_download/clindata/DXSUM.csv" \
   --output "$RESULTS/clinical/included_sessions_merged.csv"
-python pipeline/s9_clinical_imaging_merge/adni_swimlane_clinical.py \
+python 03-imaging/clinical_imaging_merge/adni_swimlane_clinical.py \
   --imaging "$RESULTS/clinical/included_sessions_merged.csv" \
   --adas "$DATA/LONI_download/clindata/ADAS.csv" \
   --mmse "$DATA/LONI_download/clindata/MMSE.csv" \

@@ -9,6 +9,6 @@ Start with the [four-stage resting-state fMRI guide](RS-fMRI/README.md). It take
 | [3 · 🧠 Process and check quality](RS-fMRI/03-imaging/README.md) | Run MRIQC, fMRIPrep and XCP-D, review images and check clinical eligibility | Denoised data, connectivity matrices and final QC tables |
 | [4 · 📊 Harmonize connectivity](RS-fMRI/04-harmonization/README.md) | Audit eligible participants and fit ComBat across reviewed scanners | Original and adjusted connectivity, with the model diagnostics |
 
-[Set up your study folder](RS-fMRI/stages/setup.md) · [Methods and references](RS-fMRI/docs/protocol-index.md) · [Practice data](RS-fMRI/07_reproducibility/README.md)
+[Set up your study folder](RS-fMRI/docs/setup.md) · [Methods and references](RS-fMRI/docs/protocol-index.md) · [Practice data](RS-fMRI/07_reproducibility/README.md)
 
 Adapted from [statMINDlab/ADNI_fMRI_protocol](https://github.com/statMINDlab/ADNI_fMRI_protocol). [License](LICENSE) · [Citations](RS-fMRI/pipeline/CITATION.cff) · [Attribution](RS-fMRI/NOTICE.md)

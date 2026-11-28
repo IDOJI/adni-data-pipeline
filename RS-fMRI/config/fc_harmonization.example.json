@@ -1,8 +1,1 @@
-{
-  "inclusion_dir": "/ABSOLUTE/PATH/qc/step9b",
-  "final_qc": "/ABSOLUTE/PATH/postprocessing/CONFIG_ID/finalizations/TIMESTAMP/final_qc_master.tsv",
-  "scanner_map": "/ABSOLUTE/PATH/review/scanners.tsv",
-  "config_id": "REPLACE_WITH_ARCHIVED_CONFIG_ID",
-  "min_batch_size": 5,
-  "output_dir": "/ABSOLUTE/PATH/analyses/fc-audit-001"
-}
+../04-harmonization/config/fc_harmonization.example.json

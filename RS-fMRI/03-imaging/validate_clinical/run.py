@@ -9,7 +9,7 @@ from pathlib import Path
 import re
 import sys
 
-sys.path.insert(0, str((Path(__file__).resolve().parents[2] / 'pipeline')))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'pipeline'))
 from s3b_image_selection.selection_identity import image_id as canonical_id
 from _shared import finish, new_output, read, snapshot, unchanged, write, sha
 

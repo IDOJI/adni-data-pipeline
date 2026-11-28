@@ -11,7 +11,7 @@ From `RS-fMRI/`, after [setup](../../docs/installation.md). Point `--included` a
 Use matching `final_included_runs.tsv` and `clinical_scan_links.tsv` from [S10](../xcpd_integrated_qc/README.md).
 
 ```sh
-python pipeline/s9a_validate_clinical/run.py \
+python 03-imaging/validate_clinical/run.py \
   --included "$DATA/review/final_included_runs.tsv" --scan-links "$DATA/review/clinical_scan_links.tsv" \
   --dxsum "$DATA/LONI_download/clindata/DXSUM.csv" \
   --ptdemog "$DATA/LONI_download/clindata/PTDEMOG.csv" \

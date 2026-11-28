@@ -1,5 +1,6 @@
 {
   "s10_xcpd_integrated_qc": "03-imaging/xcpd_integrated_qc",
+  "s11_atlas_bold": "03-imaging/atlas_bold",
   "s12_metrics_summary": "03-imaging/metrics_summary",
   "s13_reproducibility": "03-imaging/reproducibility",
   "s14_fc_harmonization": "04-harmonization/fc_harmonization",

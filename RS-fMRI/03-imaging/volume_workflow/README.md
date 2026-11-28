@@ -28,7 +28,7 @@ if os.environ.get("BIDS_SESSION"):
 if len(sessions) != 1:
     raise SystemExit("Export BIDS_SESSION with one existing sub-label/ses-label and retry.")
 session, = sessions
-cfg = json.loads(Path("pipeline/s7a_volume_workflow/config.seeded.example.json").read_text())
+cfg = json.loads(Path("03-imaging/volume_workflow/config.seeded.example.json").read_text())
 cfg["runs"] = [{"subject": session.parent.name[4:], "session": session.name[4:]}]
 cfg["paths"] = {k: str(out/k) for k in cfg["paths"]}
 cfg["paths"]["bids"] = str(bids)
@@ -50,7 +50,7 @@ The [volume runner](pipeline_seeded.py) reads the selected labels from your conf
 export VOL="$RESULTS/volume.json"
 SUB=$(python -c 'import json,sys; run, = json.load(open(sys.argv[1]))["runs"]; print(run["subject"])' "$VOL") &&
 SES=$(python -c 'import json,sys; run, = json.load(open(sys.argv[1]))["runs"]; print(run["session"])' "$VOL") &&
-python pipeline/s7a_volume_workflow/pipeline_seeded.py --config "$VOL" dry-run \
+python 03-imaging/volume_workflow/pipeline_seeded.py --config "$VOL" dry-run \
   --stage fmriprep --subject "$SUB" --session "$SES"
 ```
 
@@ -74,12 +74,12 @@ fMRIPrep also estimates head motion, aligns BOLD to the T1w, and uses eligible `
 **Start preprocessing** after the preview identifies the intended session.
 
 ```sh
-python pipeline/s7a_volume_workflow/pipeline_seeded.py --config "$VOL" run \
+python 03-imaging/volume_workflow/pipeline_seeded.py --config "$VOL" run \
   --stage fmriprep --subject "$SUB" --session "$SES"
 ```
 
 ```sh
-python pipeline/s7a_volume_workflow/pipeline_seeded.py --config "$VOL" verify \
+python 03-imaging/volume_workflow/pipeline_seeded.py --config "$VOL" verify \
   --stage fmriprep --subject "$SUB" --session "$SES"
 ```
 
@@ -90,7 +90,7 @@ Continue when `verify` prints `structural_checks_passed_visual_and_scientific_qc
 Use the same labels and config after fMRIPrep passes verification. Even the XCP-D preview reads the fMRIPrep output for that session. This profile skips parcellation, ReHo and ALFF.
 
 ```sh
-python pipeline/s7a_volume_workflow/pipeline_seeded.py --config "$VOL" dry-run \
+python 03-imaging/volume_workflow/pipeline_seeded.py --config "$VOL" dry-run \
   --stage xcpd --subject "$SUB" --session "$SES"
 ```
 
@@ -116,12 +116,12 @@ python pipeline/s7a_volume_workflow/pipeline_seeded.py --config "$VOL" dry-run \
 **Start postprocessing** after checking the options in the preview.
 
 ```sh
-python pipeline/s7a_volume_workflow/pipeline_seeded.py --config "$VOL" run \
+python 03-imaging/volume_workflow/pipeline_seeded.py --config "$VOL" run \
   --stage xcpd --subject "$SUB" --session "$SES"
 ```
 
 ```sh
-python pipeline/s7a_volume_workflow/pipeline_seeded.py --config "$VOL" verify \
+python 03-imaging/volume_workflow/pipeline_seeded.py --config "$VOL" verify \
   --stage xcpd --subject "$SUB" --session "$SES"
 ```
 

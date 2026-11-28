@@ -5,7 +5,7 @@ The motion script reads framewise displacement (FD) and DVARS from fMRIPrep conf
 **Motion.** `--derivatives-dir` is the fMRIPrep dataset root containing `sub-*/ses-*/func/`. `--output-dir` receives the summary and per-frame table. The paths below follow the [manual run layout](../../docs/installation.md#paths-for-a-manual-run).
 
 ```sh
-python pipeline/s8_final_qc/summarize_motion_from_confounds.py \
+python 03-imaging/final_qc/summarize_motion_from_confounds.py \
   --derivatives-dir "$CASE/derivatives/fmriprep" --output-dir "$RESULTS/qc/step8"
 ```
 

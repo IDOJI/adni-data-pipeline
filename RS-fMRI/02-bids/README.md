@@ -16,7 +16,7 @@ python 02-bids/run.py "$STUDY" bind
 
 **Already have BIDS and independent conversion records?** Run `python 02-bids/run.py "$STUDY" bind --bids "/path/to/rawdata" --evidence "/path/to/conversion-hashes.csv"`. If the selection receipt is elsewhere, add `--selection "/path/to/07.run-manifest.json"`. [Evidence formats](bids_identity/README.md)
 
-[Study setup](../stages/setup.md) · [All stages](../README.md)
+[Study setup](../docs/setup.md) · [All stages](../README.md)
 
 ## Implementation
 
@@ -27,3 +27,5 @@ python 02-bids/run.py "$STUDY" bind
 - [Post clinica qc](post_clinica_qc/README.md)
 - [Slice timing](slice_timing/README.md)
 - [Validate handoff](validate_handoff/README.md)
+
+[Stage notes](docs/)

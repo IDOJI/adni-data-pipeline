@@ -11,7 +11,7 @@ From `RS-fMRI/`, after [setup](../../docs/installation.md). Replace example path
 For date-based sessions such as `ses-YYYYMMDD`, the NFQ row must match the participant RID, scan date and exact series UID. For the default study layout, preview the proposed changes from your terminal:
 
 ```sh
-python pipeline/s4b_slice_timing/insert_philips_slicetiming.py --dry-run \
+python 02-bids/slice_timing/insert_philips_slicetiming.py --dry-run \
   --bids-dir "$STUDY/02-bids/rawdata" --metadata-csv "$STUDY/LONI_download/clindata/NFQ.csv" \
   --report-tsv "$STUDY/review/philips-slice-timing.tsv"
 ```
@@ -20,14 +20,14 @@ If you use a private YAML, set `paths.clinica_bids_dir` to the converted BIDS tr
 
 ```sh
 # Preview the proposed changes.
-python pipeline/s4b_slice_timing/insert_philips_slicetiming.py \
+python 02-bids/slice_timing/insert_philips_slicetiming.py \
   --config "$PIPELINE_CONFIG" --dry-run
 ```
 
 After checking image identity, slice axis and acquisition order, apply the reviewed changes:
 
 ```sh
-python pipeline/s4b_slice_timing/insert_philips_slicetiming.py \
+python 02-bids/slice_timing/insert_philips_slicetiming.py \
   --config "$PIPELINE_CONFIG"
 ```
 

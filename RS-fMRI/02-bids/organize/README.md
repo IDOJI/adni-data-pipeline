@@ -13,8 +13,8 @@ The current converter reads the selected Image IDs directly and inventories thei
 In your [private lab configuration](../../docs/installation.md#configuration), set `paths.raw_dicom_dir` to the directory whose immediate children are the extracted participant folders. `paths.raw_subject_list` is an optional output text file for older participant-based tools; its parent must exist. The inventory command writes a CSV inside the DICOM directory, and the list command appends IDs. Use a writable staging copy, a fresh list filename and paths without spaces for these legacy shell scripts.
 
 ```sh
-bash pipeline/s3_organize/create_dicom_dir_csv.sh --config "$PIPELINE_CONFIG"
-bash pipeline/s3_organize/make_subject_list_for_conversions.sh --config "$PIPELINE_CONFIG"
+bash 02-bids/organize/create_dicom_dir_csv.sh --config "$PIPELINE_CONFIG"
+bash 02-bids/organize/make_subject_list_for_conversions.sh --config "$PIPELINE_CONFIG"
 ```
 
 Compare the inventory against the downloaded collection CSV before [conversion](../dcm2niix/README.md).

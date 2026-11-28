@@ -7,7 +7,7 @@ import sys
 import nibabel as nb
 import numpy as np
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'pipeline'))
 from _shared import finish, new_output, read, sha, snapshot, write, verify_bundle
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from atlas_contracts import entities, grid_equal

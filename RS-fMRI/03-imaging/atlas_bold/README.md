@@ -11,8 +11,8 @@ From `RS-fMRI/`, after [setup](../../docs/installation.md). Set `--bold` to one 
 Install the selected atlas source and list matching-space atlases:
 
 ```sh
-python pipeline/s11_atlas_bold/sources.py install --source CBIG
-python pipeline/s11_atlas_bold/run.py list --space MNI152NLin6Asym
+python 03-imaging/atlas_bold/sources.py install --source CBIG
+python 03-imaging/atlas_bold/run.py list --space MNI152NLin6Asym
 ```
 
 For one reviewed run, keep its two [adapter outputs](adapters.md) under `$RESULTS/audit/run-001/`. Set `MASK` to the matching brain mask. The command reads the denoised BOLD path and source image ID from that run link.
@@ -30,7 +30,7 @@ print(image)
 PY
 ) &&
 IMAGE_ID=$(python -c 'import json,sys; print(json.load(open(sys.argv[1]))["summary"]["image_id"])' "$LINK_DIR/artifact.json") &&
-python pipeline/s11_atlas_bold/run.py extract \
+python 03-imaging/atlas_bold/run.py extract \
   --bold "$BOLD" --mask "$MASK" \
   --atlas cbig_Schaefer2018_400Parcels_7Networks_order_FSLMNI152_2mm \
   --space MNI152NLin6Asym --input-kind denoised \

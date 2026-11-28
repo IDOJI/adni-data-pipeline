@@ -10,7 +10,7 @@ import tempfile
 
 import numpy as np
 
-sys.path.insert(0, str((Path(__file__).resolve().parents[2] / 'pipeline')))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'pipeline'))
 from _shared import finish, new_output, read, snapshot, verify_bundle, write
 from s3b_image_selection.selection_identity import image_id, scan_date
 from s9b_validate_inclusion.run import participant

@@ -51,7 +51,10 @@ def inspect_protocol(root=None, *, require_clean=True):
         if mode == '120000' and path.decode() in aliases and stage == '0':
             continue
         if mode == '160000':
-            local_name = path.decode()[len(prefix) + 1:]
+            atlas_root = (root / layout['s11_atlas_bold']).relative_to(repository).as_posix()
+            if not path.decode().startswith(atlas_root + '/01_sources/'):
+                raise ValueError('Unexpected submodule outside the atlas library')
+            local_name = 's11_atlas_bold/' + path.decode()[len(atlas_root) + 1:]
             if not local_name.startswith('s11_atlas_bold/01_sources/') or stage != '0':
                 raise ValueError('Unexpected submodule inside the owned pipeline')
             optional_sources[local_name] = blob
@@ -65,7 +68,7 @@ def inspect_protocol(root=None, *, require_clean=True):
     # uncommitted runner eligible for a deployment receipt.
     changed = _git(repository, 'diff', 'HEAD', '--name-only', '-z', '--', *roots)
     untracked = _git(repository, 'ls-files', '--others', '--exclude-standard', '-z', '--', *roots)
-    dirty_names = {name.decode()[len(prefix) + 1:]
+    dirty_names = {name.decode()
                    for name in (changed + untracked).split(b'\0') if name}
     import_manifest = json.loads((root / origin['source_manifest']).read_text())
     history = json.loads((root / origin['history_index']).read_text())

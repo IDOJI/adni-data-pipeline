@@ -1,6 +1,6 @@
 # Resting-state fMRI
 
-<a id="setup"></a>[Set up your study folder](stages/setup.md), then open the stage you need. Each guide includes inputs, terminal commands and the output to check.
+<a id="setup"></a>[Set up your study folder](docs/setup.md), then open the stage you need. Each guide includes inputs, terminal commands and the output to check.
 
 | Stage | What you do |
 |---|---|
@@ -11,4 +11,4 @@
 
 <a id="structure"></a><a id="steps-and-commands"></a>[Protocol and configuration index](docs/protocol-index.md) · [Practice with public data](07_reproducibility/README.md) · [Validation](docs/validation.md) · [Attribution](NOTICE.md)
 
-Shared [configuration](config/), [workflow tools](workflow/), [tests](tests/) and [documentation](docs/) support the four stage folders. Earlier numbered paths are compatibility links. The optional [atlas library](pipeline/s11_atlas_bold/README.md) retains its pinned dependencies.
+Shared [configuration](config/), [workflow tools](workflow/), [tests](tests/) and [documentation](docs/) support the four stage folders. Earlier numbered paths are compatibility links. The [atlas library](03-imaging/atlas_bold/README.md) is part of the imaging stage.

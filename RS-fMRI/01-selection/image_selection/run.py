@@ -14,7 +14,7 @@ from pathlib import Path
 import re
 import sys
 
-sys.path.insert(0, str((Path(__file__).resolve().parents[2] / 'pipeline')))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'pipeline'))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _shared import new_output, read, sha, snapshot, unchanged, verify_bundle, write
 import pairing

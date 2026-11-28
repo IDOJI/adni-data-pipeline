@@ -13,7 +13,7 @@ Original [GPL license](../pipeline/LICENSE), [citation](../pipeline/CITATION.cff
 
 Private original outputs/full Git history are preserved in local backups, outside the public repository. SNP and optional atlas libraries remain separately pinned.
 
-From `RS-fMRI/`, run `python 04_workflow/lab.py doctor` to check tracked files, attribution and source identity. Edit and commit maintained code in this repository; retain the import hashes as historical records.
+From `RS-fMRI/`, run `python workflow/lab.py doctor` to check tracked files, attribution and source identity. Edit and commit maintained code in this repository; retain the import hashes as historical records.
 
 ## Existing live installations
 

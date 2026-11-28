@@ -9,23 +9,23 @@
 From `RS-fMRI/`, after [setup](../../docs/installation.md). `--root` is the results root containing the run records. Add `--archive-root` only when you also want to include receipts in an existing archive. A single invocation creates a snapshot; `--watch` refreshes it until you stop that command.
 
 ```sh
-python pipeline/s7d_processing_timing/run.py --root "$RESULTS"
+python 03-imaging/processing_timing/run.py --root "$RESULTS"
 ```
 
 For an optional continuous refresh:
 
 ```sh
-python pipeline/s7d_processing_timing/run.py --root "$RESULTS" --watch --interval 30
+python 03-imaging/processing_timing/run.py --root "$RESULTS" --watch --interval 30
 ```
 
 To include receipts moved to an archive in a snapshot:
 
 ```sh
-python pipeline/s7d_processing_timing/run.py \
+python 03-imaging/processing_timing/run.py \
   --root "$RESULTS" --archive-root "$DATA/archive"
 ```
 
-7.B/S10 update these reports automatically. Preprocessing = MRIQC + fMRIPrep; postprocessing = XCP-D. Stage sums include retries; wall span includes waiting. Missing timings stay missing. The separate [Docker observer](../../docs/processing_timing.md) measures active container time.
+7.B/S10 update these reports automatically. Preprocessing = MRIQC + fMRIPrep; postprocessing = XCP-D. Stage sums include retries; wall span includes waiting. Missing timings stay missing. The separate [Docker observer](../docs/processing_timing.md) measures active container time.
 
 ## Evidence and limits
 

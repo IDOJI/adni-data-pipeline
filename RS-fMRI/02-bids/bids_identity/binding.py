@@ -15,7 +15,7 @@ from pathlib import Path
 import nibabel as nib
 import numpy as np
 
-sys.path.insert(0, str((Path(__file__).resolve().parents[2] / 'pipeline')))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'pipeline'))
 import scanner_evidence as scanner
 
 VERSION = 'bids-identity-scanner-v3'

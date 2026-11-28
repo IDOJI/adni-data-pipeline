@@ -12,7 +12,7 @@ python 04-harmonization/run.py "$STUDY" audit
 python 04-harmonization/run.py "$STUDY" fit
 ```
 
-**Open** `04-harmonization/fit/fc.npz` for original and adjusted connectivity, `edges.tsv` for ROI pairs, and `diagnostics.json` for before/after checks. **Already at this stage?** Supply the paths to your existing results. Use the same overrides for `fit`. For a revised analysis, use `--output "/path/to/new-result"` to keep both versions. [Method, papers and implementations](../docs/fc_harmonization.md)
+**Open** `04-harmonization/fit/fc.npz` for original and adjusted connectivity, `edges.tsv` for ROI pairs, and `diagnostics.json` for before/after checks. **Already at this stage?** Supply the paths to your existing results. Use the same overrides for `fit`. For a revised analysis, use `--output "/path/to/new-result"` to keep both versions. [Method, papers and implementations](docs/fc_harmonization.md)
 
 ```sh
 python 04-harmonization/run.py "$STUDY" audit \
@@ -20,8 +20,10 @@ python 04-harmonization/run.py "$STUDY" audit \
   --inclusion "/path/to/step9b" --scanners "/path/to/scanners.tsv"
 ```
 
-[Study setup](../stages/setup.md) · [All stages](../README.md)
+[Study setup](../docs/setup.md) · [All stages](../README.md)
 
 ## Implementation
 
 - [Fc harmonization](fc_harmonization/README.md)
+
+[Stage notes](docs/) · [Configuration examples](config/)

@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 REPO = ROOT.parent
 
 
-def test_numbered_directories_and_integrated_source_declaration_agree():
+def test_stage_layout_and_compatibility_paths():
     assert (ROOT / 'pipeline').is_dir()
     assert (ROOT / 'provenance').is_dir()
     assert not (ROOT / '01_upstream').exists()
@@ -21,28 +21,39 @@ def test_numbered_directories_and_integrated_source_declaration_agree():
     for number, name in enumerate(names, 3):
         assert (ROOT / f'{number:02}_{name}').is_dir()
         assert (ROOT / f'{number:02}_{name}').resolve() == ROOT / name
+    stages = ['01-selection', '02-bids', '03-imaging', '04-harmonization']
+    former_scripts = ['01_select.py', '02_bids.py', '03_process.py', '04_harmonize.py']
+    for stage, script in zip(stages, former_scripts):
+        entry = ROOT / stage / 'run.py'
+        assert entry.is_file() and not entry.is_symlink()
+        assert (ROOT / 'start' / script).resolve() == entry
+        assert (ROOT / 'stages' / stage / 'run.py').resolve() == entry
+    for legacy, current in json.loads((ROOT / 'config/stage-paths.json').read_text()).items():
+        source = ROOT / current
+        assert not source.is_symlink() and (source / 'README.md').is_file()
+        assert (ROOT / 'pipeline' / legacy).resolve() == source
     lock = json.loads((ROOT / '03_config/upstream.lock.json').read_text())
     module = configparser.ConfigParser()
     module.read(REPO / '.gitmodules')
     assert 'submodule "upstream/ADNI_fMRI_protocol"' not in module
     assert lock['distribution'] == 'integrated-source'
     entries = subprocess.check_output(['git', '-C', str(REPO), 'ls-files', '--stage', '--',
-                                      'RS-fMRI/' + lock['path']], text=True).splitlines()
+                                      'RS-fMRI/' + lock['path'], 'RS-fMRI/03-imaging/atlas_bold'], text=True).splitlines()
     assert len(entries) > 1
     gitlinks = [entry for entry in entries if entry.startswith('160000 ')]
     assert len(gitlinks) == 4
-    assert all('/s11_atlas_bold/01_sources/' in entry for entry in gitlinks)
+    assert all('/atlas_bold/01_sources/' in entry for entry in gitlinks)
     assert len(module.sections()) == 5  # SNP and the four optional atlas sources remain submodules.
 
 
 def test_document_links_resolve_and_imported_code_hash_is_preserved():
-    files = [REPO / 'README.md', ROOT / 'README.md', *sorted((ROOT / '06_docs').glob('*.md')), *sorted((ROOT / 'stages').rglob('*.md')),
+    files = [REPO / 'README.md', ROOT / 'README.md', *sorted((ROOT / '06_docs').glob('*.md')), *(note for stage in ROOT.glob('0[1-4]-*') for note in [stage / 'README.md', *(stage / 'docs').glob('*.md')]),
              *sorted((ROOT / 'pipeline').glob('*/README.md'))]
     for path in files:
         for target in re.findall(r'\]\(([^)]+)\)', path.read_text()):
             if '://' in target or target.startswith('#'):
                 continue
-            resolved = (path.parent / target.strip('<>').split('#')[0]).resolve()
+            resolved = (path.resolve().parent / target.strip('<>').split('#')[0]).resolve()
             assert resolved.exists(), (path, target)
     imported = json.loads((ROOT / '03_config/imported_sources.json').read_text())['motion_duration_qc']
     assert hashlib.sha256((ROOT / imported['destination']).read_bytes()).hexdigest() == imported['sha256']

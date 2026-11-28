@@ -51,7 +51,7 @@ Each link gives the function, outputs and commands; no separate command copy is 
 | <a id="s9a"></a>9.A | [Check diagnoses against scan dates](../03-imaging/validate_clinical/README.md) |
 | <a id="s9b"></a>9.B | [Combine source and clinical eligibility](../03-imaging/validate_inclusion/README.md) |
 | <a id="s10"></a>10 | [Denoise BOLD and review imaging QC](../03-imaging/xcpd_integrated_qc/README.md) |
-| <a id="s11"></a>11 | [Extract BOLD means with a selected atlas](../pipeline/s11_atlas_bold/README.md) |
+| <a id="s11"></a>11 | [Extract BOLD means with a selected atlas](../03-imaging/atlas_bold/README.md) |
 | <a id="s12"></a>12 | [Collect scalar metrics and report links](../03-imaging/metrics_summary/README.md) |
 
 ## Cross-host comparison

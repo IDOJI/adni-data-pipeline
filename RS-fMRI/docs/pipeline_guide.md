@@ -8,4 +8,4 @@
 
 New local imaging examples use the seeded entry points. Keep the distinct 7.A aCompCor and S10 36P/GSR profiles explicit. Do not present planned features as runnable commands.
 
-After a code change, run `python -m pytest -q` and `python 04_workflow/lab.py doctor` from `RS-fMRI/`. Use a separate checkout for changes while an existing deployment is running.
+After a code change, run `python -m pytest -q` and `python workflow/lab.py doctor` from `RS-fMRI/`. Use a separate checkout for changes while an existing deployment is running.

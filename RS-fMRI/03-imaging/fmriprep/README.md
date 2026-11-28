@@ -10,7 +10,7 @@ Choose the stage that matches the intended outputs. Each linked page gives its o
 | Same 7.B run with ANTs iteration logs | [7.C · logging launcher](../ants_iteration_logging/README.md) | Same derivatives plus attempt logs |
 | One BIDS session, volume-only processing | [7.A · volume workflow](../volume_workflow/README.md) | Configured `fmriprep_output` |
 
-The seeded profiles use fMRIPrep 25.2.7, seed 1123, fixed skull-stripping initialization and one numerical thread. [Seed settings](../../docs/seed_reproducibility.md)
+The seeded profiles use fMRIPrep 25.2.7, seed 1123, fixed skull-stripping initialization and one numerical thread. [Seed settings](../docs/seed_reproducibility.md)
 
 For the public profile values and what each command-line option does, see the [7.A volume options](../volume_workflow/README.md#what-the-volume-fmriprep-options-do) or the [7.B surface-enabled options](../sessionwise_preprocessing/README.md#what-the-fmriprep-options-do).
 

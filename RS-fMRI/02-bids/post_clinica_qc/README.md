@@ -17,7 +17,7 @@ mkdir -p "$RESULTS/qc/step5a/data"
   python "$ADNI_PIPELINE/s5_post_clinica_qc/create_mastersheet/main.py" \
     --config "$PIPELINE_CONFIG"
 )
-python pipeline/s5_post_clinica_qc/create_report/run_session_heuristics.py \
+python 02-bids/post_clinica_qc/create_report/run_session_heuristics.py \
   --input-csv "$RESULTS/qc/step5a/data/anchor_plus_dicom_nifti_struct.csv" \
   --output-dir "$RESULTS/qc/step5"
 ```

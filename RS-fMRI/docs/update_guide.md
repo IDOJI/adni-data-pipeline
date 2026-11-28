@@ -5,11 +5,11 @@ For a clean checkout that is not bound to active jobs:
 ```sh
 git pull --ff-only
 cd RS-fMRI
-python 04_workflow/lab.py doctor
+python workflow/lab.py doctor
 python -m pytest -q
 ```
 
-The maintained code is in `pipeline/`; no original-protocol submodule update is needed. Review optional atlas changes through the [atlas guide](atlas_library.md).
+The maintained code is in `pipeline/`; no original-protocol submodule update is needed. Review optional atlas changes through the [atlas guide](../03-imaging/docs/atlas_library.md).
 
 For active batches, retain the frozen source/configuration and validate a separate checkout first. Source relocation must preserve scientific settings and cache identity at an idle handoff; see the [live-installation contract](source_integration.md#existing-live-installations).
 

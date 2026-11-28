@@ -12,13 +12,13 @@
 
 Python 3.11.16 / NumPy 2.4.6 / pandas 3.1.0 / NiBabel 5.4.2 / PyYAML 6.0.3 / pytest 9.2.0. PATH was configured so the upstream shell's `python` used the same environment.
 
-Initially, pytest collected submodule tests automatically, and the shell used another Python without PyYAML. Wrapper discovery was restricted to `05_tests/`, and upstream tests were rerun separately with the correct PATH to obtain the results above.
+Initially, pytest collected submodule tests automatically, and the shell used another Python without PyYAML. Wrapper discovery was restricted to `tests/`, and upstream tests were rerun separately with the correct PATH to obtain the results above.
 
 ```sh
 # After activating the RS-fMRI virtual environment
 python -m pytest -q
 python -m pytest -q pipeline/utils/tests
-python 04_workflow/lab.py doctor
+python workflow/lab.py doctor
 ```
 
 ## Scope not completed
@@ -95,12 +95,12 @@ Local verification: **351 passed, 17 subtests passed**. Sixteen timing tests cov
 
 Local verification: **385 passed, 17 subtests passed**. Timing-specific synthetic checks: **50 passed**, including the imported observer tests and cross-contract checks. Fake clocks/containers verify the difference between receipt wall intervals and pause/sleep-adjusted Docker execution windows, failure/retry cost, raw numeric precision, explicit display units, S12 ownership and ambiguous-pair non-publication. Source AST checks preserve five receipt numeric functions, eight observer numeric/event functions and the extracted formatter logic.
 
-A separate checkout was used. Live-tool execution was blocked during local tests; no imaging calculation, operational reconciliation or service installation/start was performed. These checks do not establish real event delivery or host sleep tracking. Original working files and uncommitted work are outside the integration checkout. See [Step 7.D](../03-imaging/processing_timing/README.md) and the [Docker observer guide](processing_timing.md).
+A separate checkout was used. Live-tool execution was blocked during local tests; no imaging calculation, operational reconciliation or service installation/start was performed. These checks do not establish real event delivery or host sleep tracking. Original working files and uncommitted work are outside the integration checkout. See [Step 7.D](../03-imaging/processing_timing/README.md) and the [Docker observer guide](../03-imaging/docs/processing_timing.md).
 
 ## Date-based selection and QC corrections, 2026-11-17
 
 The published-main-based change passed **626 tests and 17 subtests** with
-`python -m pytest -q`; `python 04_workflow/lab.py doctor` passed with clean
+`python -m pytest -q`; `python workflow/lab.py doctor` passed with clean
 owned protocol sources and preserved attribution. One existing Nilearn
 `standardize=False` future-deprecation warning remains. Focused new selection,
 binding, nonfinite-MRIQC and S8 checks passed 124 tests. The repository-required
@@ -124,4 +124,4 @@ This is source and contract validation in an isolated checkout. No private ADNI
 cohort was reselected, no MRIQC/fMRIPrep/XCP-D container was launched, and no live
 runtime, cache, service or historical result was migrated. Cross-date anatomy,
 ADNI4, image registration quality and cohort-level denoising performance remain
-outside this validation. See [selection policy and evidence](date_based_selection.md).
+outside this validation. See [selection policy and evidence](../01-selection/docs/date_based_selection.md).

@@ -5,7 +5,7 @@ This step matches the original BOLD frame count and repetition time to the fMRIP
 Use the two inputs from the **same session**. `--bids-root` is the raw BIDS copy, `--derivatives-root` is the fMRIPrep output and `--output-dir` is a new QC directory. The [manual path setup](../../docs/installation.md#paths-for-a-manual-run) supplies `CASE` and `RESULTS`.
 
 ```sh
-python pipeline/s8a_motion_duration_qc/run.py \
+python 03-imaging/motion_duration_qc/run.py \
   --bids-root "$CASE/bids" --derivatives-root "$CASE/derivatives/fmriprep" \
   --output-dir "$RESULTS/qc/step8a"
 ```

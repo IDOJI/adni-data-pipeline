@@ -6,7 +6,7 @@ Use this cohort-level stage for cross-sectional group comparisons after [final i
 
 ## Prepare private inputs
 
-Copy [the example JSON](../../config/fc_harmonization.example.json) outside the repository. Use absolute paths for all inputs and a fresh output directory for each run.
+Copy [the example JSON](../config/fc_harmonization.example.json) outside the repository. Use absolute paths for all inputs and a fresh output directory for each run.
 
 | Field | Input |
 |---|---|
@@ -31,9 +31,9 @@ Use `pair_dir` when the completed archive has moved from the master table's `sou
 ## Run from RS-fMRI
 
 ```sh
-python -m pip install -r requirements.txt -r pipeline/s14_fc_harmonization/requirements.txt
-python 04_workflow/lab.py harmonize-fc --config /private/study/audit.json --audit-only
-python 04_workflow/lab.py harmonize-fc --config /private/study/fit.json
+python -m pip install -r requirements.txt -r 04-harmonization/fc_harmonization/requirements.txt
+python workflow/lab.py harmonize-fc --config /private/study/audit.json --audit-only
+python workflow/lab.py harmonize-fc --config /private/study/fit.json
 ```
 
 Set a different `output_dir` in `fit.json`. Review the audit first. The audit can report missing final QC or scanner tables when the 9.B bundle is available. Inspect `artifact.json → summary.status` for `blocked` or `audit_passed`. A blocked fit returns a nonzero exit status. A successful fit returns `fitted`.
@@ -59,4 +59,4 @@ Set a different `output_dir` in `fit.json`. Review the audit first. The audit ca
 
 ## Evidence
 
-See the [stage source register](../../docs/stage_evidence.md#stage-14) and [method comparison, ADNI applications and software repositories](../../docs/fc_harmonization.md). The baseline calls [neuroCombat](https://github.com/Jfortin1/neuroCombat) 0.2.12. Only synthetic data are used to test the model in this repository.
+See the [stage source register](../../docs/stage_evidence.md#stage-14) and [method comparison, ADNI applications and software repositories](../docs/fc_harmonization.md). The baseline calls [neuroCombat](https://github.com/Jfortin1/neuroCombat) 0.2.12. Only synthetic data are used to test the model in this repository.

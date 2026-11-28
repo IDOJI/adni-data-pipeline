@@ -8,7 +8,7 @@ python 03-imaging/run.py "$STUDY" run
 
 The script checks the acquisition settings for each verified pair, runs **MRIQC** to measure image quality, runs **fMRIPrep** to align the scans, then runs **XCP-D** to denoise BOLD and calculate connectivity. It prints the path to `visual_review.tsv` under `03-imaging/postprocessing/`. Each acquisition has its own work and execution logs in `03-imaging/cases/I<image-id>/`. To start from a previous verified selection, add `--binding "/path/to/07.binding-receipt.json"`. If multiple acquisitions share a visit or dated output, review them and pass the chosen keys in a text file with `--pairs "/path/to/epi-keys.txt"`.
 
-**Review the whole cohort.** Once processing is complete, fit the cohort MRIQC quality thresholds using the [seeded R environment](../docs/seed_reproducibility.md). Look at the flags in `03-imaging/cohort-iqms/all_IQMs_with_QC_flags_clean.tsv`. Open the HTML reports listed in `visual_review.tsv`, especially for flagged registrations and brain masks. Record the requested decisions, reviewer and date there. [Visual review fields](xcpd_integrated_qc/README.md) · [Illustrated MRIQC/fMRIPrep examples and exclusion criteria (Table 3)](https://doi.org/10.3389/fnimg.2022.1073734)
+**Review the whole cohort.** Once processing is complete, fit the cohort MRIQC quality thresholds using the [seeded R environment](docs/seed_reproducibility.md). Look at the flags in `03-imaging/cohort-iqms/all_IQMs_with_QC_flags_clean.tsv`. Open the HTML reports listed in `visual_review.tsv`, especially for flagged registrations and brain masks. Record the requested decisions, reviewer and date there. [Visual review fields](xcpd_integrated_qc/README.md) · [Illustrated MRIQC/fMRIPrep examples and exclusion criteria (Table 3)](https://doi.org/10.3389/fnimg.2022.1073734)
 
 ```sh
 python 03-imaging/run.py "$STUDY" iqms
@@ -28,7 +28,7 @@ python 03-imaging/run.py "$STUDY" clinical
 
 **Open** the printed final imaging QC table and `03-imaging/inclusion/inclusion_audit.tsv`. The first records imaging decisions. The second links scans to source QC and clinical eligibility. Stage 4 uses both. To apply clinical checks to existing imaging results, add `--final-qc "/path/to/finalizations/run/final_qc_master.tsv" --source-qc "/path/to/step3a" --scan-links "/path/to/audited-scan-links.tsv"`.
 
-[Study setup](../stages/setup.md) · [All stages](../README.md)
+[Study setup](../docs/setup.md) · [All stages](../README.md)
 
 ## Implementation
 
@@ -46,3 +46,6 @@ python 03-imaging/run.py "$STUDY" clinical
 - [Validate inclusion](validate_inclusion/README.md)
 - [Volume workflow](volume_workflow/README.md)
 - [Xcpd integrated qc](xcpd_integrated_qc/README.md)
+- [Atlas extraction](atlas_bold/README.md)
+
+[Stage notes](docs/) · [Configuration examples](config/)

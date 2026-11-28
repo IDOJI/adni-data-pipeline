@@ -8,10 +8,12 @@ python 01-selection/run.py "$STUDY"
 
 **Open** `01-selection/images/09.download-candidates.txt` for the IDs to request. The script checks source QC and proposes a structural reference by actual scan date. `05.pairing-review.csv` explains uncertain matches. `10.download-for-qc-review.csv` identifies images that can be retrieved for inspection but still need quality evidence. Different export filenames? Pass their paths, for example `--t1 "/path/to/structural.csv" --epi "/path/to/rest.csv"`. [Selection details](image_selection/README.md)
 
-[Study setup](../stages/setup.md) · [All stages](../README.md)
+[Study setup](../docs/setup.md) · [All stages](../README.md)
 
 ## Implementation
 
 - [Image selection](image_selection/README.md)
 - [Setup account](setup_account/README.md)
 - [Source qc](source_qc/README.md)
+
+[Stage notes](docs/) · [Configuration examples](config/)

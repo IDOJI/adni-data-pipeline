@@ -6,9 +6,9 @@ This command **starts fMRIPrep** through the same seeded [7.B backend](../sessio
 
 ```sh
 SUB=$(python -c 'import sys,yaml; case, = yaml.safe_load(open(sys.argv[1]))["runs"]; print(case["subject"])' "$CFG") &&
-python pipeline/s5d_bids_identity/guarded_runner_seeded.py check --config "$CFG" &&
-python pipeline/s7c_ants_iteration_logging/run.py \
-  --runner pipeline/s7b_sessionwise_preprocessing/run_seeded.py -- \
+python 02-bids/bids_identity/guarded_runner_seeded.py check --config "$CFG" &&
+python 03-imaging/ants_iteration_logging/run.py \
+  --runner 03-imaging/sessionwise_preprocessing/run_seeded.py -- \
   --config "$CFG" run --stage fmriprep --subject "$SUB"
 ```
 

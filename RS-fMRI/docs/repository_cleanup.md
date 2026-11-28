@@ -13,9 +13,9 @@ The standalone `ADNI_fMRI_protocol` checkout was the original statMIND source pl
 | Content | Location and verification |
 |---|---|
 | 76 protocol source, configuration, documentation and attribution files | `pipeline/`; each matched the original file byte for byte at retirement |
-| Five original notebooks | Existing `provenance/notebook_sources/` exports retain code without recorded outputs; original/export hashes remain in `03_config/protocol_notebooks.json` |
-| Local Mac helpers, historical tests and integration probe | 31 Python/R/shell files plus one compatibility JSON in `provenance/local_mac_reference/`; original/export hashes and adaptations in `03_config/local_mac_reference.json` |
-| Historical standalone S10 | Four source/test files in `provenance/s10_local_reference/`; original/export hashes in `03_config/s10_local_reference.json` preserve local changes made after the initial import |
+| Five original notebooks | Existing `provenance/notebook_sources/` exports retain code without recorded outputs; original/export hashes remain in `config/protocol_notebooks.json` |
+| Local Mac helpers, historical tests and integration probe | 31 Python/R/shell files plus one compatibility JSON in `provenance/local_mac_reference/`; original/export hashes and adaptations in `config/local_mac_reference.json` |
+| Historical standalone S10 | Four source/test files in `provenance/s10_local_reference/`; original/export hashes in `config/s10_local_reference.json` preserve local changes made after the initial import |
 | Current execution and postprocessing | Existing Custom Steps 7.A, 7.B, 8.A and 10 retain their reviewed adaptations and source provenance |
 | Exact original files, private configuration, results, environments and Git metadata | Complete private backup outside this repository; every regular file, directory mode and symbolic-link target was checked against the original inventory |
 | Original Git history | Complete verified local Git bundle restores all 154 reachable commits and every reference from the standalone checkout; the existing public history index covers the 153-commit imported main history |

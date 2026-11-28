@@ -9,7 +9,7 @@
 From `RS-fMRI/`, after [setup](../../docs/installation.md). `--source-qc` and `--clinical` take the artifact directories from Steps 3.A and 9.A. `--confirmed-st-absence` takes reviewed source-image evidence. If you have a reviewed conversion-failures file, add `--conversion-failures` with its path to the command.
 
 ```sh
-python pipeline/s9b_validate_inclusion/run.py \
+python 03-imaging/validate_inclusion/run.py \
   --source-qc "$RESULTS/qc/step3a" --clinical "$RESULTS/qc/step9a" \
   --confirmed-st-absence "$DATA/review/confirmed-st-absence.csv" \
   --output-dir "$RESULTS/qc/step9b"

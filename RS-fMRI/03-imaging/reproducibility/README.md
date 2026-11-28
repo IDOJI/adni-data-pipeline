@@ -43,11 +43,11 @@ five-subject setting, scientific source, results and caches are not rewritten.
 This is experiment-wide priority, not simultaneous admission of all trials.
 
 ```sh
-python pipeline/s13_reproducibility/priority.py --root /ABS/experiment \
-  --runner /ABS/frozen-source/pipeline/s13_reproducibility/run.py
+python 03-imaging/reproducibility/priority.py --root /ABS/experiment \
+  --runner /ABS/frozen-source/03-imaging/reproducibility/run.py
 # Inspect the plan, then explicitly execute:
-python pipeline/s13_reproducibility/priority.py --root /ABS/experiment \
-  --runner /ABS/frozen-source/pipeline/s13_reproducibility/run.py --execute
+python 03-imaging/reproducibility/priority.py --root /ABS/experiment \
+  --runner /ABS/frozen-source/03-imaging/reproducibility/run.py --execute
 ```
 
 Review the old worker before switching launchers. An existing controller lock,
@@ -76,18 +76,18 @@ Use the same launcher with `--report-only` to regenerate this combined report.
 
 ## Run
 
-Copy [the example](../../config/thread_reproducibility.example.json) outside the
+Copy [the example](../config/thread_reproducibility.example.json) outside the
 repository and replace its synthetic placeholders. Each source config must
 select exactly one visit and match its successful completion receipt.
 
 ```sh
-python pipeline/s13_reproducibility/run.py init --config /ABS/experiment.json
-python pipeline/s13_reproducibility/run.py run --root /ABS/new-experiment
+python 03-imaging/reproducibility/run.py init --config /ABS/experiment.json
+python 03-imaging/reproducibility/run.py run --root /ABS/new-experiment
 # The command above only reports the plan and blockers. Explicit execution:
-python pipeline/s13_reproducibility/run.py run --root /ABS/new-experiment \
+python 03-imaging/reproducibility/run.py run --root /ABS/new-experiment \
   --execute --wait-idle --poll 60
-python pipeline/s13_reproducibility/run.py status --root /ABS/new-experiment
-python pipeline/s13_reproducibility/run.py report --root /ABS/new-experiment
+python 03-imaging/reproducibility/run.py status --root /ABS/new-experiment
+python 03-imaging/reproducibility/run.py report --root /ABS/new-experiment
 ```
 
 Run the finite experiment in a background process for long datasets. It makes no

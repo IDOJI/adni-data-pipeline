@@ -36,7 +36,7 @@ PY
 ```
 
 ```sh
-python pipeline/s5d_bids_identity/binding.py --config "$RESULTS/binding.json" &&
+python 02-bids/bids_identity/binding.py --config "$RESULTS/binding.json" &&
 export RECEIPT="$RESULTS/binding/07.binding-receipt.json"
 ```
 
@@ -44,14 +44,14 @@ export RECEIPT="$RESULTS/binding/07.binding-receipt.json"
 
 ### 2. Prepare a private runtime
 
-The preparation template supplies two host paths, `source_templateflow` and `freesurfer_license`. The published seed, images, output spaces and thread settings come from the [seeded configuration](../../config/local_batch.seeded.example.json). Run this block once for the new results folder.
+The preparation template supplies two host paths, `source_templateflow` and `freesurfer_license`. The published seed, images, output spaces and thread settings come from the [seeded configuration](../../03-imaging/config/local_batch.seeded.example.json). Run this block once for the new results folder.
 
 ```sh
 python - <<'PY'
 import json, os, yaml
 from pathlib import Path
 data, out = Path(os.environ["DATA"]), Path(os.environ["RESULTS"])
-cfg = json.loads(Path("03_config/local_batch.seeded.example.json").read_text())["preprocessing_template"]
+cfg = json.loads(Path("config/local_batch.seeded.example.json").read_text())["preprocessing_template"]
 cfg.update(source_templateflow=str(data/"templateflow"), freesurfer_license=str(data/"license.txt"))
 with (out/"preprocessing-template.yaml").open("x") as f:
     yaml.safe_dump(cfg, f)
@@ -75,7 +75,7 @@ if key not in keys:
 print(key)
 PY
 ) &&
-python pipeline/s5d_bids_identity/guarded_runner_seeded.py prepare \
+python 02-bids/bids_identity/guarded_runner_seeded.py prepare \
   --receipt "$RECEIPT" --epi-key "$PAIR_KEY" --runtime "$RESULTS/pair" \
   --template "$RESULTS/preprocessing-template.yaml"
 ```
@@ -85,12 +85,12 @@ python pipeline/s5d_bids_identity/guarded_runner_seeded.py prepare \
 `CFG` points to the generated `pair/verified-config.yaml`. The guard rechecks the files; intake evaluates the scan protocol. Continue to [6 · MRIQC](../../03-imaging/mriqc/README.md) when `strict_upstream_eligible` is `True`. A held pair has details in `failed_checks`.
 
 ```sh
-python pipeline/s5d_bids_identity/guarded_runner_seeded.py check --config "$CFG" &&
-python pipeline/s5d_bids_identity/guarded_runner_seeded.py intake --config "$CFG" &&
+python 02-bids/bids_identity/guarded_runner_seeded.py check --config "$CFG" &&
+python 02-bids/bids_identity/guarded_runner_seeded.py intake --config "$CFG" &&
 cat "$CASE/results/step5/intake_decisions.tsv"
 ```
 
-The template uses [seed 1123 and OMP1](../../docs/seed_reproducibility.md). Unresolved identity or source-review cases stay held.
+The template uses [seed 1123 and OMP1](../../03-imaging/docs/seed_reproducibility.md). Unresolved identity or source-review cases stay held.
 
 ## Readiness boundary
 
@@ -98,11 +98,11 @@ Binding verifies the exact EPI and proposed T1, including actual dates, unique U
 
 Scan-level source/JSON contradictions and scanner differences across EPI and T1 block execution. Both physical files must report comparable manufacturer and field strength; model is compared when available and otherwise recorded as unknown. Compare normalized vendor names and numeric strengths. A scanner match is not registration QC. Rebuild old 3.B v1 and 5.D receipts before using this path; unversioned Research pairing receipts still require the current physical checks.
 
-The current executable path requires a unique, eligible `same_day_proposed` pair, documented EPI QC, no pairing-review hold and the reviewed GO/2/3 protocol scope. Cross-date candidates, top ties and protocol extensions remain held even if files exist. A 3.B review window does not authorize cross-date execution. See the [date-based selection guide](../../docs/date_based_selection.md) for the distinction between inventory, proposal and execution.
+The current executable path requires a unique, eligible `same_day_proposed` pair, documented EPI QC, no pairing-review hold and the reviewed GO/2/3 protocol scope. Cross-date candidates, top ties and protocol extensions remain held even if files exist. A 3.B review window does not authorize cross-date execution. See the [date-based selection guide](../../01-selection/docs/date_based_selection.md) for the distinction between inventory, proposal and execution.
 
 `PREPROCESSING_READY` is a technical handoff decision. `ANALYSIS_READY` remains false; anatomical quality, BOLD–T1 registration, denoising, motion/coverage checks and clinical/final inclusion still require their respective stages. Original acquisition dates and source provenance remain unchanged.
 
-Prepare one runtime per EPI key. The [local batch](../../docs/local_batch.md) accepts a separately verified handoff with one pair per participant.
+Prepare one runtime per EPI key. The [local batch](../../03-imaging/docs/local_batch.md) accepts a separately verified handoff with one pair per participant.
 
 ## Evidence and limits
 

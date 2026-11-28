@@ -9,14 +9,14 @@
 From `RS-fMRI/`, after [setup](../../docs/installation.md). `--archive-root` is the parent of the participant/pair folders with verified archive receipts. The exporter writes a `results/` subfolder inside each eligible archived pair. `--status` is a separate status file you can keep in your own results directory.
 
 ```sh
-python 04_workflow/lab.py export-results \
+python workflow/lab.py export-results \
   --archive-root "$DATA/archive" --status "$RESULTS/metrics-status.json"
 ```
 
 Add `--watch` to scan for new completed archives every 120 seconds. The direct equivalent is:
 
 ```sh
-python pipeline/s12_metrics_summary/run.py \
+python 03-imaging/metrics_summary/run.py \
   --archive-root "$DATA/archive" --status "$RESULTS/metrics-status.json"
 ```
 

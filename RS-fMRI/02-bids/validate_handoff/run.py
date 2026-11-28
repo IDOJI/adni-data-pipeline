@@ -9,7 +9,7 @@ from pathlib import Path
 import re
 import sys
 
-sys.path.insert(0, str((Path(__file__).resolve().parents[2] / 'pipeline')))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'pipeline'))
 from _shared import read as read_table, verify_bundle
 
 
