@@ -6,7 +6,7 @@
 
 ## Run
 
-From `RS-fMRI/`, after [setup](../../06_docs/installation.md). Set `--bold` to one reviewed denoised BOLD file and `--mask` to its matching brain mask. Both filenames must retain their BIDS entities. Set `--atlas` to a catalog ID in that template space, `--image-id` to the source EPI Image ID from the inclusion record, and the mapping flags to the directories generated for that run. These are study-specific inputs.
+From `RS-fMRI/`, after [setup](../../docs/installation.md). Set `--bold` to one reviewed denoised BOLD file and `--mask` to its matching brain mask. Both filenames must retain their BIDS entities. Set `--atlas` to a catalog ID in that template space, `--image-id` to the source EPI Image ID from the inclusion record, and the mapping flags to the directories generated for that run. These are study-specific inputs.
 
 Install the selected atlas source and list matching-space atlases:
 
@@ -43,4 +43,4 @@ Use full BIDS filenames from your actual run. Create frame/run mapping evidence 
 
 ## Evidence and limits
 
-Sources: [Schaefer et al. (2018)](https://doi.org/10.1093/cercor/bhx179); [Mehta et al. (2024)](https://doi.org/10.1162/imag_a_00257). The [Stage 11 evidence record](../../06_docs/stage_evidence.md#stage-11) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. These references do not certify the current configuration or any individual image as analysis-ready.
+Sources: [Schaefer et al. (2018)](https://doi.org/10.1093/cercor/bhx179); [Mehta et al. (2024)](https://doi.org/10.1162/imag_a_00257). The [Stage 11 evidence record](../../docs/stage_evidence.md#stage-11) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. These references do not certify the current configuration or any individual image as analysis-ready.

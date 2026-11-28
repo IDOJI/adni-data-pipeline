@@ -1,6 +1,6 @@
 # 🗂️ Set up your study folder
 
-Complete [installation](../06_docs/installation.md) once. In a terminal, go to this repository's **RS-fMRI** folder and activate its Python environment. Change the *one* study path below to a private folder on your computer. Keep the quotes if its name contains spaces.
+Complete [installation](../docs/installation.md) once. In a terminal, go to this repository's **RS-fMRI** folder and activate its Python environment. Change the *one* study path below to a private folder on your computer. Keep the quotes if its name contains spaces.
 
 ```sh
 # From the top of the cloned repository
