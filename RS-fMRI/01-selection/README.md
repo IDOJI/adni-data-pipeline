@@ -1,19 +1,31 @@
-# 1 · 🔎 Select the scans
+# 1 · 🔎 Choose the scans
 
-**Bring** the two IDA collection CSVs and the original ADNI source-quality tables. Use `collections/T1.csv` for structural scans and `collections/EPI.csv` for resting-state scans. Include **Phase**, **acquisition date**, **Image ID**, **participant ID** and description in each export. Include **Age at the scan** if you plan to harmonize connectivity. Place `MRIQC.csv`, `MAYO_ADNI3.csv`, `MAYO_GO2.csv`, `DELMRSCANS.csv` and `NFQ.csv` in `LONI_download/clindata/`. The script lists missing optional tables. Check which source files apply to your ADNI phases before using the download list. Here `MRIQC.csv` is a table supplied by ADNI. The MRIQC software runs in stage 3.
+Find resting scans and a matching picture of the brain’s structure (T1) taken on the same day.
+
+**Prepare.** In [your study folder](../docs/setup.md), put the two scan lists from ADNI in `collections/T1.csv` and `collections/EPI.csv`. Put the ADNI quality tables in `LONI_download/clindata/`.
+
+<details>
+<summary>Which columns and quality tables do I need?</summary>
+
+Export the phase, scan date, Image ID, participant ID and description for each scan. Include age at the scan for step 4.
+
+Use `MRIQC.csv`, `MAYO_ADNI3.csv`, `MAYO_GO2.csv`, `DELMRSCANS.csv` and `NFQ.csv`. Check which tables cover your ADNI phases. Here `MRIQC.csv` is a file from ADNI. [ADNI account](setup_account/README.md) · [Source quality checks](source_qc/README.md)
+
+</details>
+
+**Run** from the repository’s `RS-fMRI/` folder.
 
 ```sh
 python 01-selection/run.py "$STUDY"
 ```
 
-**Open** `01-selection/images/09.download-candidates.txt` for the IDs to request. The script checks source QC and proposes a structural reference by actual scan date. `05.pairing-review.csv` explains uncertain matches. `10.download-for-qc-review.csv` identifies images that can be retrieved for inspection but still need quality evidence. Different export filenames? Pass their paths, for example `--t1 "/path/to/structural.csv" --epi "/path/to/rest.csv"`. [Selection details](image_selection/README.md)
+**Open** `01-selection/images/09.download-candidates.txt` in your study folder. Take those IDs to step 2. Scans listed in `10.download-for-qc-review.csv` still need quality review. Uncertain T1 matches are in `05.pairing-review.csv` beside it.
 
-[Study setup](../docs/setup.md) · [All stages](../README.md)
+<details>
+<summary>Different filenames or questions about selection?</summary>
 
-## Implementation
+Add `--t1 "/path/to/structural.csv" --epi "/path/to/rest.csv"` to the command. [Selection rules](image_selection/README.md) · [Method notes](docs/) · [Example settings](config/)
 
-- [Image selection](image_selection/README.md)
-- [Setup account](setup_account/README.md)
-- [Source qc](source_qc/README.md)
+</details>
 
-[Stage notes](docs/) · [Configuration examples](config/)
+**Next → [2 · Download and convert](../02-bids/README.md)**

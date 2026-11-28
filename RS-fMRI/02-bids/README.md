@@ -1,31 +1,32 @@
-# 2 · 📦 Download the images and convert them to BIDS
+# 2 · 📦 Download and convert
 
-**📥 Download.** In ADNI IDA, request the Image IDs in `01-selection/images/09.download-candidates.txt` as DICOM. Extract the download so that `$STUDY/LONI_download/sourcedata/` contains the participant folders, with `<participant>/<series>/<date>/I<number>/` underneath. If the download is elsewhere, add `--dicom "/path/to/participant-folders"` to the conversion command.
+Turn each selected scan into a file the analysis tools can read. BIDS is the folder and naming format those tools use.
+
+**Download.** Request the Image IDs from step 1 in ADNI IDA. Choose DICOM. Unzip the download so the participant folders sit directly inside `$STUDY/LONI_download/sourcedata/`.
+
+**Convert** one Image ID at a time with dcm2niix.
 
 ```sh
 python 02-bids/run.py "$STUDY" convert
 ```
 
-**🔍 Check the download.** Open `02-bids/rawdata/sourcedata/conversion/conversion-audit.tsv`. There is one row per selected ID. For each match, the script runs dcm2niix on that ID alone and records the original series UID, the BIDS filename and a SHA-256 fingerprint in `conversion-hashes.csv` beside the audit. Repeat scans on the same date get separate run numbers. Missing, conflicting or split series have a reason in the audit. If you correct the download, use a [fresh output directory](dcm2niix/README.md). For Philips scans that need slice timing, review the [source-based repair guide](slice_timing/README.md) before the next command.
+**Check** `02-bids/rawdata/sourcedata/conversion/conversion-audit.tsv` in your study folder. Find each ID and its new filename. A missing or held scan has a reason in the same row.
+
+**Verify the pairs.** This checks each converted file against its source record and matches the resting scan to its T1.
 
 ```sh
 python 02-bids/run.py "$STUDY" bind
 ```
 
-**✅ Check which pairs can proceed.** Open `02-bids/binding/04.epi-execution-manifest.csv`. Binding checks the actual NIfTI against the recorded fingerprint, the acquisition identity, source QC and the proposed same-day T1 reference. Stage 3 reads the resulting binding receipt.
+**Open** `02-bids/binding/04.epi-execution-manifest.csv`. Only pairs marked ready can go to step 3.
 
-**Already have BIDS and independent conversion records?** Run `python 02-bids/run.py "$STUDY" bind --bids "/path/to/rawdata" --evidence "/path/to/conversion-hashes.csv"`. If the selection receipt is elsewhere, add `--selection "/path/to/07.run-manifest.json"`. [Evidence formats](bids_identity/README.md)
+<details>
+<summary>Missing scans, a different download folder, or existing BIDS files?</summary>
 
-[Study setup](../docs/setup.md) · [All stages](../README.md)
+- The expected download layout is `<participant>/<series>/<date>/I<number>/`. For another location, add `--dicom "/path/to/participant-folders"` to `convert`.
+- Same-day repeats get separate run numbers. The adjacent `conversion-hashes.csv` records a fingerprint of each converted image. After correcting a download, use a [fresh output directory](dcm2niix/README.md). For Philips scans missing slice timing, [review the source timing](slice_timing/README.md) before binding.
+- With existing BIDS, run `python 02-bids/run.py "$STUDY" bind --bids "/path/to/rawdata" --evidence "/path/to/conversion-hashes.csv"`. Use `--selection "/path/to/07.run-manifest.json"` for a selection receipt stored elsewhere. [Evidence formats](bids_identity/README.md)
 
-## Implementation
+</details>
 
-- [Bids identity](bids_identity/README.md)
-- [Dcm2niix](dcm2niix/README.md)
-- [Download](download/README.md)
-- [Organize](organize/README.md)
-- [Post clinica qc](post_clinica_qc/README.md)
-- [Slice timing](slice_timing/README.md)
-- [Validate handoff](validate_handoff/README.md)
-
-[Stage notes](docs/)
+**Next → [3 · Process and check](../03-imaging/README.md)**

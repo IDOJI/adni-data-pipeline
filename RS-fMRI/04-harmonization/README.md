@@ -1,18 +1,35 @@
-# 4 · 📊 Harmonize functional connectivity
+# 4 · 📊 Adjust for scanner differences
 
-**Bring** the final imaging and clinical results plus `review/scanners.tsv`. This tab-separated file identifies the physical scanner for each EPI image and records where you verified it. Use the [scanner table example](fc_harmonization/README.md#prepare-private-inputs). The model adjusts the **4S256 connectivity edges** across scanners and retains age, sex and diagnosis as covariates. This profile uses one eligible scan per person.
+Different scanners can measure the same connection differently. This step uses ComBat to adjust the connection measurements while accounting for age, sex and diagnosis.
+
+**Prepare.** Use the final imaging and eligibility tables from step 3. In `review/scanners.tsv`, record which physical scanner took each resting scan and where you checked that information. [Scanner table example](fc_harmonization/README.md#prepare-private-inputs)
+
+**Check the groups first.**
 
 ```sh
 python 04-harmonization/run.py "$STUDY" audit
 ```
 
-**Open** `04-harmonization/audit/decisions.tsv` and `batch_design.tsv`. Check who was selected and whether scanner groups cover comparable ages and diagnoses. This profile requires at least two batches and at least five selected participants per batch. When the audit passes and you have reviewed the design, run the fit.
+Open `04-harmonization/audit/decisions.tsv` to see who was selected. Open `batch_design.tsv` beside it to compare ages and diagnoses across scanners. This analysis uses one scan per person and needs at least two scanner groups, each with five or more selected people.
+
+**Run the adjustment** after the audit passes and you have reviewed the groups.
 
 ```sh
 python 04-harmonization/run.py "$STUDY" fit
 ```
 
-**Open** `04-harmonization/fit/fc.npz` for original and adjusted connectivity, `edges.tsv` for ROI pairs, and `diagnostics.json` for before/after checks. **Already at this stage?** Supply the paths to your existing results. Use the same overrides for `fit`. For a revised analysis, use `--output "/path/to/new-result"` to keep both versions. [Method, papers and implementations](docs/fc_harmonization.md)
+**Find the results** in `04-harmonization/fit/` in your study folder.
+
+| File | What it contains |
+|---|---|
+| `fc.npz` | Original and adjusted connection measurements |
+| `edges.tsv` | The two brain regions for each connection |
+| `diagnostics.json` | Checks comparing the measurements before and after adjustment |
+
+<details>
+<summary>Existing results, model details and references</summary>
+
+For existing XCP-D results with final QC and eligibility records, supply their paths. Use the same paths for `fit`. To keep an earlier analysis, use `--output "/path/to/new-result"`.
 
 ```sh
 python 04-harmonization/run.py "$STUDY" audit \
@@ -20,10 +37,8 @@ python 04-harmonization/run.py "$STUDY" audit \
   --inclusion "/path/to/step9b" --scanners "/path/to/scanners.tsv"
 ```
 
-[Study setup](../docs/setup.md) · [All stages](../README.md)
+This profile adjusts 4S256 connectivity edges. [Model, papers and software](docs/fc_harmonization.md) · [Implementation](fc_harmonization/README.md) · [Example settings](config/)
 
-## Implementation
+</details>
 
-- [Fc harmonization](fc_harmonization/README.md)
-
-[Stage notes](docs/) · [Configuration examples](config/)
+[Back to all four steps](../README.md)
