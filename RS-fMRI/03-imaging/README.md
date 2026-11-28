@@ -8,6 +8,8 @@ Use the verified pairs from step 2. This local route needs Docker, a FreeSurfer 
 python 03-imaging/run.py "$STUDY" run
 ```
 
+If the Docker engine is unavailable, `run` starts Docker Desktop in the background on macOS and waits up to 3 minutes. If Docker is already ready, processing starts immediately.
+
 MRIQC measures image quality. fMRIPrep lines up the brain images. XCP-D reduces noise and measures connections between brain regions.
 
 ### Review the images

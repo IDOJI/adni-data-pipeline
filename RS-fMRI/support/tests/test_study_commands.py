@@ -20,6 +20,72 @@ LAB = Path(__file__).resolve().parents[2]
 START = LAB / 'start'
 
 
+@pytest.fixture
+def imaging(monkeypatch):
+    monkeypatch.syspath_prepend(str(START))
+    from support import imaging
+    return imaging
+
+
+@pytest.mark.parametrize('already_running', [True, False])
+def test_docker_readiness_only_launches_when_needed(imaging, monkeypatch, already_running):
+    calls = []
+    results = [0] if already_running else [1, 0, 1, 0]
+
+    def command(argv, **kwargs):
+        calls.append(argv)
+        return subprocess.CompletedProcess(argv, results.pop(0), '', '')
+
+    monkeypatch.setattr(imaging.subprocess, 'run', command)
+    monkeypatch.setattr(imaging, 'time', SimpleNamespace(monotonic=lambda: 0, sleep=lambda delay: None))
+    imaging.ensure_docker_ready()
+    probe = ['docker', 'info', '--format', '{{.ServerVersion}}']
+    launch = ['/usr/bin/open', '-g', '-j', '-b', 'com.docker.docker']
+    assert calls == ([probe] if already_running else [probe, launch, probe, probe])
+
+
+def test_docker_start_times_out_and_reports_last_engine_error(imaging, monkeypatch):
+    clock = 0
+
+    def sleep(seconds):
+        nonlocal clock
+        clock += seconds
+
+    def command(argv, **kwargs):
+        if argv[0] == 'docker':
+            return subprocess.CompletedProcess(argv, 1, '', 'Docker engine is unavailable')
+        return subprocess.CompletedProcess(argv, 0, '', '')
+
+    monkeypatch.setattr(imaging.subprocess, 'run', command)
+    monkeypatch.setattr(imaging, 'time', SimpleNamespace(monotonic=lambda: clock, sleep=sleep))
+    with pytest.raises(ValueError, match='180 seconds.*Docker engine is unavailable'):
+        imaging.ensure_docker_ready()
+    assert clock == 180
+
+
+def test_imaging_checks_docker_before_creating_processing_settings(imaging, monkeypatch, tmp_path):
+    monkeypatch.setattr(imaging, 'sys', SimpleNamespace(platform='darwin'))
+    monkeypatch.setattr(imaging, 'cohort_plans', lambda receipt, pairs: [])
+    monkeypatch.setattr(imaging, 'template', lambda name: {})
+    (tmp_path / 'receipt.json').touch()
+    (tmp_path / 'license.txt').touch()
+    cache = tmp_path / 'templateflow'
+    cache.mkdir()
+    (cache / 'tpl-example').touch()
+    args = SimpleNamespace(binding=tmp_path / 'receipt.json', study=tmp_path, pairs=None, templateflow=None, license=None)
+
+    def command(argv, **kwargs):
+        if argv[0] == 'docker':
+            return subprocess.CompletedProcess(argv, 1, '', 'Engine is stopped')
+        assert argv[0] == '/usr/bin/open'
+        return subprocess.CompletedProcess(argv, 1, '', 'Docker Desktop is missing')
+
+    monkeypatch.setattr(imaging.subprocess, 'run', command)
+    with pytest.raises(ValueError, match='Could not start Docker Desktop: Docker Desktop is missing'):
+        imaging.run_images(args, tmp_path)
+    assert not (tmp_path / 'preprocessing.yaml').exists()
+
+
 def cli(script, study, *args, success=True, env=None):
     result = subprocess.run([sys.executable, START / script, study, *args], cwd=study.parent,
                             env=env, capture_output=True, text=True)
