@@ -1,5 +1,7 @@
 # Step 14 · Harmonize resting-state functional connectivity across scanners
 
+For the [stage 4 walkthrough](../../README.md#harmonize), set your study path and run `python start/04_harmonize.py "$STUDY" audit` from `RS-fMRI/`.
+
 Use this cohort-level stage for cross-sectional group comparisons after [final imaging QC in Step 10](../s10_xcpd_integrated_qc/README.md) and [clinical eligibility in Step 9.B](../s9b_validate_inclusion/README.md). It fits empirical-Bayes, parametric location-and-scale ComBat using a reviewed site/scanner batch, continuous scan age and categorical sex and diagnosis. It reads the archived XCP-D 4S256Parcels Pearson connectome and coverage file for each included resting-state run. Steps 11–13 are independent branches.
 
 ## Prepare private inputs

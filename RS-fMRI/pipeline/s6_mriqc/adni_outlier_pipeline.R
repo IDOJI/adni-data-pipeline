@@ -74,7 +74,7 @@ cfg_get <- function(key) {
   on.exit(Sys.setenv(PYTHONPATH = old), add = TRUE)
   val <- tryCatch(
     suppressWarnings(system2("python", c("-m", "utils.config_tools", key,
-                                         "--config", config_path),
+                                         "--config", shQuote(config_path)),
                              stdout = TRUE, stderr = FALSE)),
     error = function(e) character(0)
   )

@@ -1,19 +1,14 @@
-# Processing stages
+# 🧭 Find a processing stage
 
-All maintained RS-fMRI stages are in this folder.
+For the copy-and-paste commands, start with the [four-stage study guide](../README.md). The numbered folders here contain the methods those commands call. Lettered stages such as 3.A and 5.D keep their original names so existing commands and run records remain traceable.
 
-Every stage README has an evidence section linked to the [stage-by-stage source register](../06_docs/stage_evidence.md). Scientific references are limited to ADNI official answers and research papers; operational controls and project-specific choices are labeled separately.
+| Study stage | Processing folders |
+|---|---|
+| 🔎 [1 · Select scans](../README.md#select) | [Source quality records](s3a_source_qc/README.md) → [collection audit and date-based pairing](s3b_image_selection/README.md) |
+| 📦 [2 · Download and convert](../README.md#convert) | [IDA download](s2_download/README.md) → [Clinica](s4_clinica/README.md) → [Philips slice timing when needed](s4b_slice_timing/README.md) → [verify the converted image pairs](s5d_bids_identity/README.md) |
+| 🧠 [3 · Process and review](../README.md#process) | [Check acquisition settings](s5_post_clinica_qc/README.md) → [MRIQC](s6_mriqc/README.md) → [fMRIPrep](s7b_sessionwise_preprocessing/README.md) → [motion and surface QC](s8_final_qc/README.md) → [XCP-D and final imaging QC](s10_xcpd_integrated_qc/README.md) → [clinical checks](s9a_validate_clinical/README.md) → [eligibility](s9b_validate_inclusion/README.md) |
+| 📊 [4 · Harmonize connectivity](../README.md#harmonize) | [Fit cross-sectional ComBat on XCP-D connectivity](s14_fc_harmonization/README.md) |
 
-New ADNI selection follows **2 (collection/Study File metadata) → 3.A (source QC) → 3.B (actual-date EPI/T1 proposals) → 2/3/4 (download/inventory/conversion) → 4.B/5 → 5.D (exact image binding) → guarded 6/7.B → S8/S10 → 9.A/9.B → 11**. [3.B](s3b_image_selection/README.md) keeps all images and does not use VISCODE as a date or identity key. [5.D](s5d_bids_identity/README.md) requires one verified same-day reference before execution. Session lists from 5.C alone do not establish that reference. See the [decision diagram and literature](../06_docs/date_based_selection.md).
+The [full index](../README.md#steps-and-commands) also covers the volume-only profile, atlas extraction, scalar export and reproducibility experiments. For sources and assumptions, see the [stage evidence register](../06_docs/stage_evidence.md).
 
-Optional [S13 reproducibility](s13_reproducibility/README.md) measures thread-count
-effects after representative successful 7.B cases are available; it preserves
-the production seed/thread policy and existing results.
-The optional priority launcher waits for a free shared slot and memory rather
-than terminal production queues, retaining the five-subject limit.
-
-For a cross-sectional cohort with completed S10 connectivity and 9.B eligibility, [S14 harmonization](s14_fc_harmonization/README.md) audits acquisition identity, scanner and design, then exports raw and ComBat-adjusted FC.
-
-Use the [step table](../README.md#steps-and-commands) to choose a stage. Each stage README gives its function, output and commands. Start with [installation](../06_docs/installation.md) or the [local batch runner](../06_docs/local_batch.md).
-
-The skeleton was adapted and modified from [statMINDlab/ADNI_fMRI_protocol](https://github.com/statMINDlab/ADNI_fMRI_protocol). Original [GPL license](LICENSE) and [citation](CITATION.cff) are retained.
+Adapted and modified from [statMINDlab/ADNI_fMRI_protocol](https://github.com/statMINDlab/ADNI_fMRI_protocol). The original [GPL license](LICENSE) and [citation](CITATION.cff) are retained.

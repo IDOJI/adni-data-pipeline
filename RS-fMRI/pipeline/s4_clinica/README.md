@@ -1,5 +1,7 @@
 # Stage 4 — DICOM to BIDS
 
+For the [stage 2 walkthrough](../../README.md#convert), set your study path and run `python start/02_bids.py "$STUDY" convert` from `RS-fMRI/`.
+
 **What:** Convert selected DICOMs using Clinica and dcm2niix.
 
 **Output:** BIDS NIfTI/JSON files and conversion records under the selected BIDS output.

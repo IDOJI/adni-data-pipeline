@@ -7,11 +7,13 @@ git clone https://github.com/IDOJI/adni-data-pipeline.git
 cd adni-data-pipeline/RS-fMRI
 python3 -m venv .venv
 source .venv/bin/activate
-python -m pip install -r requirements.txt -r pipeline/s5_post_clinica_qc/requirements.txt
+python -m pip install -r requirements.txt -r pipeline/s5_post_clinica_qc/requirements.txt -r pipeline/s14_fc_harmonization/requirements.txt
 python 04_workflow/lab.py doctor
 ```
 
 For imaging, install Docker Desktop (macOS) or Docker Engine (Linux), obtain a FreeSurfer license and load the pinned container images. fMRIPrep runs inside Docker; a separate host fMRIPrep installation is unnecessary. Cloning the repository alone does not install these dependencies. Clinica/dcm2niix and R are needed only for their stages.
+
+Return to the [four-stage guide](../README.md#setup) to set your study path. The local study publisher uses the macOS clone-copy command on a compatible volume. [Platform notes](platform_execution.md)
 
 ## Paths for a manual run
 

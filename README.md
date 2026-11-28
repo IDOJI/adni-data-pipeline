@@ -1,36 +1,20 @@
-# ADNI Data Pipeline
+# 🧠 ADNI Data Pipeline
 
-Process ADNI resting-state fMRI and SNP data.
+Start with the [four-stage resting-state fMRI guide](RS-fMRI/README.md). It takes you from ADNI collection exports to a table of functional connections adjusted for scanner differences. If you work with genotype data, open the separate [SNP guide](SNP/README.md).
 
-| Pipeline | Results | Start here |
+| Stage | What you do | What you get |
 |---|---|---|
-| RS-fMRI | Preprocessed images, denoised BOLD, QC reports, ROI signals and scalar tables | [Steps and commands](RS-fMRI/README.md) |
-| SNP | Variant QC and cohort workflow | [SNP guide](SNP/README.md) |
+| [1 · 🔎 Select scans](RS-fMRI/README.md#select) | Check ADNI quality records and match resting scans to same-day T1 images | Image IDs to download and a list of cases to review |
+| [2 · 📦 Download and convert](RS-fMRI/README.md#convert) | Download those IDs in IDA, convert to BIDS and verify the actual files | BIDS images and a receipt listing verified pairs |
+| [3 · 🧠 Process and check quality](RS-fMRI/README.md#process) | Run MRIQC, fMRIPrep and XCP-D, review images and check clinical eligibility | Denoised data, connectivity matrices and final QC tables |
+| [4 · 📊 Harmonize connectivity](RS-fMRI/README.md#harmonize) | Audit eligible participants and fit ComBat across reviewed scanners | Original and adjusted connectivity, with the model diagnostics |
 
-```text
-adni-data-pipeline/
-├── RS-fMRI/
-│   ├── pipeline/          # All processing stages
-│   ├── 03_config/         # Configuration examples
-│   ├── 04_workflow/       # Batch runners
-│   ├── 05_tests/          # Tests
-│   ├── 06_docs/           # Setup and reference
-│   ├── 07_reproducibility/ # Runnable examples
-│   └── provenance/        # Historical references
-└── SNP/
-```
+### Where to work
 
-New RS-fMRI runs use **seed 1123**, **fMRIPrep 25.2.7** and fixed skull-stripping initialization. Start with [installation](RS-fMRI/06_docs/installation.md) and [date-based image selection](RS-fMRI/06_docs/date_based_selection.md). The selection path is **collection CSVs → source QC (3.A) → EPI/T1 proposals by actual acquisition date (3.B) → BIDS conversion → exact image verification (5.D) → guarded preprocessing → imaging/clinical QC**. Confirmed targets with missing grade evidence can be downloaded for inspection; they remain ineligible for automatic preprocessing. Only confirmed target series enter the manual download list; the private [Image ID comparison](RS-fMRI/pipeline/s3b_image_selection/README.md#optional-private-comparison) explains differences from previous Search/QC lists. Matching VISCODE or session labels alone does not authorize a T1–EPI pair.
+- **To run a stage**, use the four numbered scripts in [RS-fMRI/start/](RS-fMRI/start/). The guide shows what to paste into the terminal and which file to open afterward.
+- **To understand a method**, open the matching stage in [RS-fMRI/pipeline/](RS-fMRI/pipeline/README.md). Existing stage names and commands are still available.
+- **To store data**, choose one private study folder outside Git. Each script reads the preceding outputs and writes its own numbered folder there. See the [folder map and setup](RS-fMRI/README.md#setup).
 
-New S10 configurations use automatic non-steady-state removal and session-specific Euler QC under an explicit versioned policy; use a fresh runtime. See the [local batch](RS-fMRI/06_docs/local_batch.md) for its single-pair-per-participant handoff contract, or the [public example](RS-fMRI/07_reproducibility/README.md).
+[Installation](RS-fMRI/06_docs/installation.md) · [Practice with public data](RS-fMRI/07_reproducibility/README.md) · [Managed batch runs](RS-fMRI/06_docs/local_batch.md) · [Harmonization papers and software](RS-fMRI/06_docs/fc_harmonization.md)
 
-After final XCP-D imaging QC and Step 9.B eligibility, [Step 14](RS-fMRI/pipeline/s14_fc_harmonization/README.md) audits the cohort and harmonizes 4S256 resting-state connectivity across reviewed scanners using ComBat. It exports original and adjusted FC, the edge map, selection decisions and model diagnostics.
-
-The optional [tolerance-based thread experiment](RS-fMRI/pipeline/s13_reproducibility/README.md)
-compares isolated preprocessing/XCP-D results and measured speed at different
-OMP/ITK limits while retaining existing jobs and outputs.
-Its optional priority launcher admits the finite experiment before pending
-production work when a shared subject slot and memory are available, retaining
-the five-subject cap and existing running calculations.
-
-The RS-fMRI skeleton was adapted and modified from [statMINDlab/ADNI_fMRI_protocol](https://github.com/statMINDlab/ADNI_fMRI_protocol). Original [GPL license](LICENSE), [citations](RS-fMRI/pipeline/CITATION.cff) and [attribution](RS-fMRI/NOTICE.md) are retained.
+The RS-fMRI pipeline adapts [statMINDlab/ADNI_fMRI_protocol](https://github.com/statMINDlab/ADNI_fMRI_protocol). See the [GPL license](LICENSE), [citations](RS-fMRI/pipeline/CITATION.cff) and [attribution](RS-fMRI/NOTICE.md).

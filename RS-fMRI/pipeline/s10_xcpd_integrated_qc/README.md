@@ -1,5 +1,7 @@
 # Stage 10 — XCP-D denoising and imaging QC
 
+For the [stage 3 walkthrough](../../README.md#process), set your study path and run `python start/03_process.py "$STUDY" run` from `RS-fMRI/`.
+
 Start with a [published 7.B pair](../s7b_sessionwise_preprocessing/README.md#publish-the-completed-pair) under `$RESULTS/results/`, or a completed pair delivered by the [batch runner](../../06_docs/local_batch.md). XCP-D checks preprocessed BOLD, confounds, MRIQC measures, FreeSurfer evidence and the successful execution receipts.
 
 ### Configure the input

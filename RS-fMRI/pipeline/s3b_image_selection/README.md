@@ -1,5 +1,7 @@
 # Stage 3.B — Date-based image selection
 
+For the [stage 1 walkthrough](../../README.md#select), set your study path and run `python start/01_select.py "$STUDY"` from `RS-fMRI/`.
+
 **What:** Join explicit IDA collection exports to source QC and propose T1 references for each EPI using actual acquisition dates. This is a metadata inventory and review stage.
 
 **Output:** An image registry, all T1 candidates, within-participant EPI/T1 links, one manifest row per distinct EPI Image ID, review records and a hashed receipt. No image processing starts here.
