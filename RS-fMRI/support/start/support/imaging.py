@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import subprocess
 import sys
+import time
 
 import yaml
 
@@ -71,6 +72,48 @@ def process_pair(receipt, plan, case, prep):
     return publish_verified_pair(case)
 
 
+def docker_engine_error(timeout):
+    try:
+        result = subprocess.run(
+            ['docker', 'info', '--format', '{{.ServerVersion}}'],
+            capture_output=True, text=True, timeout=timeout,
+        )
+    except FileNotFoundError as exc:
+        raise ValueError('Docker CLI is unavailable. Install Docker Desktop and put docker on PATH.') from exc
+    except subprocess.TimeoutExpired:
+        return 'docker info did not respond'
+    if result.returncode == 0:
+        return ''
+    return result.stderr.strip() or result.stdout.strip() or f'docker info exited with {result.returncode}'
+
+
+def ensure_docker_ready():
+    problem = docker_engine_error(timeout=5)
+    if not problem:
+        return
+
+    print('Starting Docker Desktop in the background. Waiting for the engine...', flush=True)
+    try:
+        launch = subprocess.run(
+            ['/usr/bin/open', '-g', '-j', '-b', 'com.docker.docker'],
+            capture_output=True, text=True, timeout=15,
+        )
+    except subprocess.TimeoutExpired as exc:
+        raise ValueError('macOS did not respond to the Docker Desktop launch request.') from exc
+    if launch.returncode:
+        detail = launch.stderr.strip() or launch.stdout.strip() or f'open exited with {launch.returncode}'
+        raise ValueError(f'Could not start Docker Desktop: {detail}')
+
+    deadline = time.monotonic() + 180
+    while (remaining := deadline - time.monotonic()) > 0:
+        problem = docker_engine_error(timeout=min(5, remaining))
+        if not problem:
+            print('Docker is ready.', flush=True)
+            return
+        time.sleep(min(2, max(0, deadline - time.monotonic())))
+    raise ValueError(f'Docker did not become ready within 180 seconds. Check Docker Desktop and the selected context. {problem}')
+
+
 def run_images(args, folder):
     if sys.platform != 'darwin':
         raise ValueError('The local publisher needs macOS clone-copy support. See 06_docs/platform_execution.md.')
@@ -81,6 +124,7 @@ def run_images(args, folder):
         raise ValueError(f'Missing populated TemplateFlow cache: {tf}')
     license_file = existing(args.license or args.study / 'license.txt')
     batch = template('local_batch.seeded.example.json')
+    ensure_docker_ready()
     prep = batch['preprocessing_template']
     prep.update(source_templateflow=str(tf), freesurfer_license=str(license_file))
     prep_path = fixed_text(folder / 'preprocessing.yaml', yaml.safe_dump(prep))
