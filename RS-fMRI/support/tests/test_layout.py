@@ -15,11 +15,12 @@ REPO = ROOT.parent
 def test_stage_layout_and_compatibility_paths():
     assert (ROOT / 'pipeline').is_dir()
     assert (ROOT / 'provenance').is_dir()
-    directories = subprocess.check_output(
-        ['git', '-C', str(REPO), 'ls-tree', '--name-only', 'HEAD:RS-fMRI'], text=True
+    tree = subprocess.check_output(
+        ['git', '-C', str(REPO), 'ls-tree', 'HEAD:RS-fMRI'], text=True
     ).splitlines()
-    assert [name for name in directories if (ROOT / name).is_dir()] == [
+    assert [entry.split('\t')[1] for entry in tree if entry.startswith('040000 ')] == [
         '01-selection', '02-bids', '03-imaging', '04-harmonization', 'support']
+    assert not any(entry.startswith('120000 ') for entry in tree)
     assert not (ROOT / '01_upstream').exists()
     assert not (ROOT / '02_custom').exists()
     names = ('config', 'workflow', 'tests', 'docs')
