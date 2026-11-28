@@ -200,6 +200,12 @@ Each stage README links to its entry here. Source IDs resolve to the exact ADNI 
 
 **Implementation and limits:** This stage exports already calculated archive values and their provenance; it does not compute those methods again. A populated scalar or report link is not proof of biological validity. Retain NA and source units.
 
+<a id="stage-14"></a>
+
+### Stage 14 — s14_fc_harmonization
+
+Yu et al. evaluated ComBat on multisite FC. Blujus et al. used upper-triangle Fisher-z features in ADNI. This implementation uses a reviewed site/scanner batch, 4S256 connectomes and one acquisition per participant. Batch size, coverage and visit rules belong to this analysis design. [Yu et al.](https://doi.org/10.1002/hbm.24241) · [Blujus et al.](https://doi.org/10.1002/hbm.70622) · [Alternatives and implementation repositories](fc_harmonization.md).
+
 ## Parameter and policy traceability
 
 | Current decision | Source-supported point | Exact status in this project |

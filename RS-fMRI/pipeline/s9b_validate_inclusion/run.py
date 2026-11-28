@@ -11,16 +11,10 @@ import re
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from s3b_image_selection.selection_identity import image_id as identifier
 from _shared import finish, new_output, read, sha, snapshot, unchanged, verify_bundle, write
 
 ENTITIES = ('sub', 'ses', 'task', 'acq', 'run', 'echo', 'dir', 'rec')
-
-
-def identifier(value):
-    match = re.fullmatch(r'[Ii]?(\d+)', str(value or '').strip())
-    if not match:
-        raise ValueError('Missing or invalid image identifier')
-    return str(int(match[1]))
 
 
 def participant(value):
@@ -110,7 +104,12 @@ def process(source_qc, clinical, confirmed_st_absence, output_dir, conversion_fa
     rows = read(clinical / 'clinical_validation.tsv', ['sub', 'ses', 'PTID', 'IMAGE_ID', 'MRI_STUDY_DATE', 'CLINICAL_STATUS'])
     if not rows:
         raise ValueError('Empty clinical cohort')
-    duplicates = Counter(r['IMAGE_ID'] for r in rows if r['IMAGE_ID'])
+    duplicates = Counter()
+    for row in rows:
+        try:
+            duplicates[identifier(row['IMAGE_ID'])] += 1
+        except ValueError:
+            continue  # The per-row identity check below records the hold.
     result, seen = [], set()
     for original in rows:
         key = tuple(original.get(k, '') for k in ENTITIES)
@@ -152,10 +151,14 @@ def process(source_qc, clinical, confirmed_st_absence, output_dir, conversion_fa
                 warnings.append('clinical_uid_not_available')
             if state == 'blocked':
                 blocked.append('source_qc_blocked')
-        if duplicates[original['IMAGE_ID']] > 1:
+        if duplicates[iid] > 1:
             holds.append('image_id_reused_for_multiple_runs')
         if row['CLINICAL_STATUS'] != 'pass':
-            blocked.append('clinical_conditions_not_met')
+            reasons = set(row.get('CLINICAL_REASONS', '').split(';'))
+            if (row['IMAGE_ID'] and not iid) or reasons & {'invalid_or_conflicting_scan_image_id', 'image_id_reused_for_multiple_runs'}:
+                holds.append('clinical_scan_identity_unverified')
+            else:
+                blocked.append('clinical_conditions_not_met')
         else:
             gap = float(row.get('DX_DATE_DIFF_DAYS', 'inf') or 'inf')
             if not math.isfinite(gap) or not 0 <= gap <= 28:

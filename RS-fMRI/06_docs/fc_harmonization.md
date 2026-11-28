@@ -1,31 +1,12 @@
 # 🧠 Functional connectivity and harmonization after atlas selection
 
-Evidence and repository documentation reviewed: **2026-11-02**.
+Evidence and repository documentation reviewed: **2026-11-28**.
 
 ## Recommendation and implementation status
 
 **ComBat is a reasonable first baseline to evaluate for multi-scanner ADNI resting-state FC.** Direct ADNI applications and broader FC validation support this choice. This is a practical recommendation based on selected primary studies, not a systematic count establishing the most frequently used method or a guarantee that ComBat is optimal for this cohort. Harmonization should follow a reviewed study design; a single-batch dataset does not automatically need ComBat.
 
-The intended analysis sequence is:
-
-```text
-Reviewed denoised BOLD + a pinned atlas in the correct space
-  -> Step 11: ROI time series + labels + coverage + acquisition-frame evidence
-  -> Pearson FC for each reviewed run, with an explicit run/visit policy
-  -> Fisher-z off-diagonal edges in a fixed atlas/edge order
-  -> Cohort-level batch/covariate audit
-  -> ComBat baseline, with prespecified alternatives when appropriate
-  -> Harmonization evaluation
-  -> Group inference, prediction, or graph/network analysis
-```
-
-| Component | Current repository status |
-|---|---|
-| [Step 11 atlas selection and BOLD extraction](../pipeline/s11_atlas_bold/README.md) | Implemented; produces time series and spatial/temporal audits, without computing FC |
-| [S10 XCP-D products](../pipeline/s10_xcpd_integrated_qc/README.md) | Separate existing atlas/FC products and validation; their atlas, preprocessing and provenance must be checked before reuse |
-| Selected-atlas Step 11 FC adapter | Proposed downstream connection; no runnable adapter or workflow command is introduced by this document |
-| Cohort FC harmonization | Proposed design and external software references; no ComBat fitting, package installation or cohort validation has been performed here |
-| Step 12 scalar/report export | An independent reporting branch; its position after Step 11 in the README does not make it an FC or harmonization step |
+[Step 14](../pipeline/s14_fc_harmonization/README.md) reads archived 4S256 Pearson connectomes and coverage from Step 10, joins 9.B eligibility and final imaging QC, selects one reviewed acquisition per participant, and fits edgewise parametric ComBat on Fisher-z FC. The CLI exposes an audit-only mode. [Step 11](../pipeline/s11_atlas_bold/README.md) supports independent atlas extraction. Its selected-atlas FC adapter is a future extension. Step 12 exports scalar reports.
 
 Harmonization is across scans/participants, not across the time points of one BOLD run. Preserve original FC alongside adjusted FC. Do not pool different atlases, ROI orders, templates or denoising profiles as though they were the same features. The existing 7.A aCompCor and S10 36P/GSR branches remain distinct.
 
@@ -62,7 +43,7 @@ Useful reading order: Blujus for a direct ADNI FC precedent; Yu for FC validatio
 
 ## Connected software repositories
 
-These are verified source/documentation links, **not newly installed dependencies or Git submodules**. The recorded revisions identify the documentation reviewed, not versions already tested with this pipeline. Before implementation, select and lock package versions/commits, check licenses and dependencies, and validate the chosen API.
+Step 14 directly calls the pinned Python neuroCombat dependency. The other repositories give implementations for alternative designs.
 
 | Priority/use | Repository | Role and interface |
 |---|---|---|
@@ -70,6 +51,9 @@ These are verified source/documentation links, **not newly installed dependencie
 | Baseline, R | [Jfortin1/neuroCombat_Rpackage](https://github.com/Jfortin1/neuroCombat_Rpackage) | Implementation cited by Gao; `neuroCombat`; features × scans input; biological design matrix via `mod` |
 | Nonlinear effects / learn–apply separation, Python | [rpomponio/neuroHarmonize](https://github.com/rpomponio/neuroHarmonize) | ComBat extensions, optional GAM covariates and `harmonizationLearn`/`harmonizationApply`; scans × features input with a `SITE` covariate |
 | Network/community comparison, R | [andy1764/FCHarmony](https://github.com/andy1764/FCHarmony) | `fcComBat`, `blComBat`, `fcCovBat`; FC-specific harmonization and evaluation; CovBat dependency |
+| Longitudinal effects, R | [jcbeer/longCombat](https://github.com/jcbeer/longCombat) | Repeated observations with participant effects. Beer et al. demonstrated the method on ADNI cortical thickness. |
+
+For nonlinear age effects, see the lifespan structural MRI study by [Pomponio et al.](https://doi.org/10.1016/j.neuroimage.2019.116450). For repeated visits, see [Beer et al.](https://doi.org/10.1016/j.neuroimage.2020.117129). FC-specific applications require validation on the chosen outcome.
 
 Reviewed documentation snapshots:
 
@@ -124,7 +108,3 @@ Start with an unharmonized reference and a prespecified ComBat baseline. Conside
 - **Provenance:** save the fitted model, batch mapping, covariate encoding, edge map, training membership, software versions and before/after report outside the public repository. Retain raw FC and any failed or held observations with reasons.
 
 This document does not introduce numeric pass/fail thresholds for those comparisons. Study criteria require explicit scientific justification. Harmonization cannot reconstruct a missing ROI, correct misregistration, recover signal dropout or replace motion/coverage/clinical review. Existing QC settings, the nearest/28-day policy and pending-state preservation remain unchanged.
-
-## Next implementation decisions
-
-Before implementing the selected-atlas FC and harmonization adapters, resolve: observation/run aggregation policy; primary atlas/estimator; cohort and batch definition; inferential versus predictive use; covariates and missingness; repeated visits; software lock; and independent validation outcomes. Then add executable code and meaningful synthetic/real-cohort validation with updated workflow contracts. The present change supplies the English evidence summary, repository connections and integration design only.

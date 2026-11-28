@@ -23,3 +23,5 @@ Nearest-date ties and missing evidence remain explicit. A dementia label alone i
 ## Evidence and limits
 
 Sources: [ADNI imaging–diagnosis answer](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=2401); [ADNI diagnosis-code answer](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=1756); [ADNI dementia-etiology answer](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=209). The [Stage 9.A evidence record](../../06_docs/stage_evidence.md#stage-9-a) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. These references do not certify the current configuration or any individual image as analysis-ready.
+
+Image IDs use the same numeric LONI identifier rule as Step 3.B. One optional I/i prefix and leading zeros are normalized. Malformed or conflicting IDs and reuse across runs are reported for review.

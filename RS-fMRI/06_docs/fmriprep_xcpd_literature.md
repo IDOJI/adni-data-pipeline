@@ -10,6 +10,12 @@ This reading list covers nine publications that use the two tools on resting-sta
 
 [7.B fMRIPrep options](../pipeline/s7b_sessionwise_preprocessing/README.md#what-the-fmriprep-options-do) · [Step 10 XCP-D options](../pipeline/s10_xcpd_integrated_qc/README.md#what-the-xcp-d-options-do) · [Seeded Step 10 configuration](../03_config/xcpd_linc.seeded.example.json)
 
+## Reading a functional-to-anatomical alignment panel
+
+Open the original fMRIPrep HTML and toggle between the BOLD reference and T1w. Follow the ventricles and corpus callosum across several slices and all three planes. A consistent offset between the intensity boundaries across views warrants review. Dark or compressed BOLD regions can also reflect signal loss or susceptibility distortion. In a single static frame the red contours alone cannot establish whether the two source images align.
+
+Provins et al. describe this exact panel in §2.4.3.6 and give exclusion criteria in Table 3. Their Figure 2B–C shows frontal signal loss that is conspicuous in one plane and subtle in another. Supplementary Figure 11 illustrates residual distortion. Their decisions reflect a whole-brain voxel-wise study. [Paper, figures and supplement](https://doi.org/10.3389/fnimg.2022.1073734).
+
 ## Paper-by-paper methods
 
 FD is framewise displacement. A run-level FD exclusion or interpolation of a high-motion frame has a different effect from omitting that frame in the final time series. Filter frequencies are in Hz, and smoothing widths are FWHM.

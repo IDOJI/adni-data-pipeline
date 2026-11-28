@@ -10,6 +10,7 @@ import re
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from s3b_image_selection.selection_identity import image_id as canonical_id
 from _shared import finish, new_output, read, snapshot, unchanged, write, sha
 
 STAGES = {'1': 'CN', '2': 'MCI', '3': 'Dementia'}
@@ -142,10 +143,11 @@ def nearest(items, scan, direction='nearest'):
 
 
 def image_id(row):
-    values = {str(row[k]).strip().lstrip('Ii') for k in ('IMAGE_ID', 'Image_ID', 'image_id') if row.get(k)}
-    if len(values) != 1 or not next(iter(values)).isdigit():
+    try:
+        values = {canonical_id(row[k]) for k in ('IMAGE_ID', 'Image_ID', 'image_id') if row.get(k)}
+    except ValueError:
         return ''
-    return str(int(next(iter(values))))
+    return values.pop() if len(values) == 1 else ''
 
 
 def link_uids(row):
@@ -245,6 +247,8 @@ def process(included, scan_links, dxsum, ptdemog, output_dir, apoe=None, adsl=No
         row.update(INPUT_ROW=input_row, PTID=ptid, IMAGE_ID='', MRI_STUDY_DATE='',
                    ANALYSIS_READY=False, BIOLOGICAL_AD_STATUS='not_inferred')
         reasons = []
+        if any(any(r.get(k) for k in ('IMAGE_ID', 'Image_ID', 'image_id')) and not image_id(r) for _, r in matches):
+            reasons.append('invalid_or_conflicting_scan_image_id')
         if any(len(link_uids(r)) > 1 for _, r in matches):
             reasons.append('conflicting_scan_link_uid')
         if len(identity) != 1 or not next(iter(identity), ('', '', ''))[0]:

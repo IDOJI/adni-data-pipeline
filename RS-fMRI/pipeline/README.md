@@ -12,6 +12,8 @@ the production seed/thread policy and existing results.
 The optional priority launcher waits for a free shared slot and memory rather
 than terminal production queues, retaining the five-subject limit.
 
+For a cross-sectional cohort with completed S10 connectivity and 9.B eligibility, [S14 harmonization](s14_fc_harmonization/README.md) audits acquisition identity, scanner and design, then exports raw and ComBat-adjusted FC.
+
 Use the [step table](../README.md#steps-and-commands) to choose a stage. Each stage README gives its function, output and commands. Start with [installation](../06_docs/installation.md) or the [local batch runner](../06_docs/local_batch.md).
 
 The skeleton was adapted and modified from [statMINDlab/ADNI_fMRI_protocol](https://github.com/statMINDlab/ADNI_fMRI_protocol). Original [GPL license](LICENSE) and [citation](CITATION.cff) are retained.

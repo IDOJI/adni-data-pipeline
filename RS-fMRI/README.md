@@ -29,7 +29,7 @@ for the whole production queue to finish; the shared five-subject cap remains.
 
 ```text
 RS-fMRI/
-├── pipeline/           # All stages: s1_* through s13_*
+├── pipeline/           # All stages: s1_* through s14_*
 ├── 03_config/          # Configuration examples
 ├── 04_workflow/        # Batch runners and shared tools
 ├── 05_tests/           # Tests
@@ -41,6 +41,8 @@ RS-fMRI/
 ## Steps and commands
 
 Main flow: **1/2 metadata export → 3.A source QC → 3.B date-based proposals → image download/3/4/4.B/5 → 5.D exact binding → guarded MRIQC/fMRIPrep (6/7.B) → S8/S10 QC and XCP-D → clinical/final checks (9.A/9.B) → atlas signals (11)**. Same VISCODE is not evidence of the same acquisition date. Every Search row is audited; download requires confirmed T1w/resting BOLD; images retrieved for QC inspection are labeled separately from source-QC passes; cross-date pairs, ties and missing evidence remain held. Step 12 independently exports completed archive metrics. **7.A is an alternative profile**; 7.C/7.D provide logs and timing.
+
+For cross-sectional FC, [Step 14](pipeline/s14_fc_harmonization/README.md) joins finalized Step 10 connectomes to Step 9.B and reviewed scanner metadata. Steps 11, 12 and 13 are optional for this route.
 
 Click the code name for its inputs, outputs and execution command. Run commands from `RS-fMRI/` after [setup](06_docs/installation.md).
 
@@ -71,6 +73,7 @@ Click the code name for its inputs, outputs and execution command. Run commands 
 | 11 | Extract BOLD means with a selected atlas | timeseries.tsv and ROI coverage | [run.py](pipeline/s11_atlas_bold/README.md) |
 | 12 | Collect scalar metrics and report links | metrics.csv, dictionary and index.html | [lab.py export-results](pipeline/s12_metrics_summary/README.md) |
 | 13 | Compare isolated OMP/ITK thread trials against frozen repeat-run tolerances | Actual execution evidence, stage timings, comparison policies and HTML/JSON reports | [run.py](pipeline/s13_reproducibility/README.md) |
+| 14 | Audit the cross-sectional cohort and fit scanner ComBat on verified XCP-D FC | Original and adjusted edges, design, attrition, estimates and diagnostics | [lab.py harmonize-fc](pipeline/s14_fc_harmonization/README.md) |
 
 ## Configuration
 
@@ -82,6 +85,7 @@ Keep data, private configuration and results outside this repository, for exampl
 | New local batch: preprocessing + XCP-D | [local_batch.seeded.example.json](03_config/local_batch.seeded.example.json) · [commands](06_docs/local_batch.md) |
 | XCP-D for completed pairs | [xcpd_linc.seeded.example.json](03_config/xcpd_linc.seeded.example.json) |
 | Alternative volume profile | [config.seeded.example.json](pipeline/s7a_volume_workflow/config.seeded.example.json) |
+| Post-XCP-D FC harmonization | [fc_harmonization.example.json](03_config/fc_harmonization.example.json) · [methods and sources](06_docs/fc_harmonization.md) |
 | Optional thread/tolerance experiment | [thread_reproducibility.example.json](03_config/thread_reproducibility.example.json) |
 | DICOM/Clinica and shared paths | [lab_config.example.yaml](03_config/lab_config.example.yaml) · [generate YAML](06_docs/installation.md#configuration) |
 
