@@ -16,4 +16,4 @@ This is a manual portal step; no local code is required.
 
 ## Evidence and limits
 
-Sources: [ADNI FAQ answers](https://adni.loni.usc.edu/help-faqs/faqs/). The [Stage 1 evidence record](../../docs/stage_evidence.md#stage-1) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. These references do not certify the current configuration or any individual image as analysis-ready.
+Sources: [ADNI FAQ answers](https://adni.loni.usc.edu/help-faqs/faqs/). The [Stage 1 evidence record](../../support/docs/stage_evidence.md#stage-1) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. These references do not certify the current configuration or any individual image as analysis-ready.

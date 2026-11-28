@@ -2,7 +2,7 @@
 
 ### Run the tools
 
-Use the verified pairs from step 2. This local route needs Docker, a FreeSurfer license, a populated TemplateFlow cache and a Docker-shared study folder on a compatible Mac volume such as APFS. [Imaging setup](../docs/installation.md#paths-for-a-manual-run)
+Use the verified pairs from step 2. This local route needs Docker, a FreeSurfer license, a populated TemplateFlow cache and a Docker-shared study folder on a compatible Mac volume such as APFS. [Imaging setup](../support/docs/installation.md#paths-for-a-manual-run)
 
 ```sh
 python 03-imaging/run.py "$STUDY" run

@@ -1,0 +1,286 @@
+#!/usr/bin/env python3
+"""Inspect the protocol, plan commands and run explicit scalar exports; never submit jobs."""
+from __future__ import annotations
+
+import argparse
+import copy
+import json
+import os
+from pathlib import Path
+import re
+import shlex
+import subprocess
+import sys
+
+import yaml
+
+WORKFLOW = Path(__file__).resolve().parent
+if str(WORKFLOW) not in sys.path:
+    sys.path.insert(0, str(WORKFLOW))
+
+ROOT = Path(__file__).resolve().parents[2]
+PIPELINE = ROOT / 'pipeline'
+LOCK = ROOT / '03_config/upstream.lock.json'
+
+
+def git(*args, cwd=ROOT):
+    return subprocess.check_output(['git', '-C', str(cwd), *args], text=True).strip()
+
+
+def doctor():
+    from protocol_source import inspect_protocol
+    result = inspect_protocol(ROOT)
+    stages = (
+        's1_setup_account', 's2_download', 's3_organize', 's3a_source_qc', 's3b_image_selection',
+        's4_dcm2niix', 's4b_slice_timing', 's5_post_clinica_qc', 's5c_validate_handoff',
+        's5d_bids_identity', 's6_mriqc', 's7_fmriprep', 's7a_volume_workflow',
+        's7b_sessionwise_preprocessing', 's7c_ants_iteration_logging', 's7d_processing_timing',
+        's8_final_qc', 's8a_motion_duration_qc', 's9_clinical_imaging_merge', 's9a_validate_clinical',
+        's9b_validate_inclusion', 's10_xcpd_integrated_qc', 's11_atlas_bold', 's12_metrics_summary',
+        's13_reproducibility', 's14_fc_harmonization',
+    )
+    for step in stages:
+        if not (PIPELINE / step / 'README.md').is_file():
+            raise ValueError('Missing integrated protocol step: ' + step)
+    result['documented_stages'] = list(stages)
+    return result
+
+
+def is_inside(path, parent):
+    return path == parent or parent in path.parents
+
+
+def external(path):
+    path = Path(path).expanduser().resolve()
+    if is_inside(path, ROOT.parent) or is_inside(ROOT.parent, path):
+        raise ValueError('Data, runtime and output paths must be outside the repository and its ancestors')
+    return path
+
+
+def merge(target, values):
+    for key, value in values.items():
+        if isinstance(value, dict) and isinstance(target.get(key), dict):
+            merge(target[key], value)
+        else:
+            target[key] = copy.deepcopy(value)
+
+
+def expand(value, variables):
+    if isinstance(value, dict):
+        return {k: expand(v, variables) for k, v in value.items()}
+    if isinstance(value, list):
+        return [expand(v, variables) for v in value]
+    if isinstance(value, str):
+        def replace(match):
+            name, _, fallback = match.group(1).partition(':-')
+            if name in variables:
+                return variables[name]
+            if fallback:
+                return fallback
+            raise ValueError('Unresolved upstream variable: ' + name)
+        return re.sub(r'\$\{([^}]+)\}', replace, value)
+    return value
+
+
+def render_config(config_path, output_dir, handoff=None):
+    doctor()
+    raw = yaml.safe_load(Path(config_path).read_text())
+    if not isinstance(raw, dict):
+        raise ValueError('Lab config must be a YAML mapping')
+    values = {}
+    for key in ('data_root', 'scratch_root', 'containers_root', 'freesurfer_license'):
+        if key not in raw or not isinstance(raw[key], str) or not Path(raw[key]).expanduser().is_absolute():
+            raise ValueError('Set an absolute path for ' + key)
+        if 'ABSOLUTE/PATH' in raw[key]:
+            raise ValueError('Replace example placeholders before rendering configuration')
+        values[key] = external(raw[key])
+    out = external(output_dir)
+    for name in ('data_root', 'scratch_root'):
+        if out == values[name] or is_inside(values[name], out):
+            raise ValueError('Output must not contain the entire data or scratch tree')
+    if out.exists():
+        raise ValueError('Use a new output directory')
+    template = yaml.safe_load((PIPELINE / 'config/config_adni.yaml').read_text())
+    data = str(values['data_root'])
+    merge(template, {
+        'slice_timing': {'report_tsv': data + '/qc/step4b/slice_timing_report.tsv'},
+        'mriqc': {'participant_label_file': data + '/config/mriqc_participant_labels.txt',
+                  'bids_filter_file': data + '/config/mriqc_bids_filter.json'},
+        'qc': {'post_clinica_qc_table': data + '/qc/step5/post_clinica_qc.tsv',
+               'mriqc_thresholds_file': data + '/qc/step6/mriqc_thresholds.tsv',
+               'mriqc_qc_table': data + '/qc/step6/mriqc_qc_decisions.tsv',
+               'heuristics_missing_t1w_table': data + '/qc/step5/missing_t1w.tsv',
+               'heuristics_missing_data_table': data + '/qc/step5/missing_data.tsv',
+               'heuristics_final_table': data + '/qc/step5/final_heuristics.tsv',
+               'final_inclusion_table': data + '/qc/step8/included_sessions.tsv',
+               'final_exclusion_table': data + '/qc/step8/excluded_sessions.tsv'},
+        'sample_size': {'manifest': data + '/qc/step8/sample_size_stages.tsv',
+                        'mastersheet_csv': data + '/qc/step5a/data/anchor_plus_dicom_nifti_struct.csv',
+                        'mriqc_iqms_table': data + '/results/mriqc/all_IQMs_with_QC_flags_clean.csv',
+                        'fmriprep_sessions_table': data + '/qc/step8/motion_summary.tsv',
+                        'final_inclusion_table': data + '/qc/step8/included_sessions.tsv'}})
+    overrides = raw.get('pipeline_overrides', raw.get('upstream_overrides', {}))
+    if not isinstance(overrides, dict):
+        raise ValueError('pipeline_overrides must be a mapping')
+    merge(template, overrides)
+    variables = {'ADNI_BASE': str(values['data_root']), 'SCRATCH': str(values['scratch_root']),
+                 'CONTAINERS_DIR': str(values['containers_root']), 'REPO_ROOT': str(PIPELINE),
+                 'FREESURFER_LICENSE': str(values['freesurfer_license'])}
+    template = expand(template, variables)
+    for group, keys in {
+        'paths': ['raw_zip_dir', 'raw_metadata_dir', 'raw_dicom_dir', 'raw_subject_list',
+                  'slurm_jobs_dir', 'clinica_bids_dir', 'mriqc_output_dir', 'mriqc_work_dir',
+                  'mriqc_results_root', 'fmriprep_output_dir', 'fmriprep_work_dir',
+                  'fmriprep_results_root', 'fmriprep_heuristics_csv', 'logs_dir', 'qc_dir'],
+        'qc': list(template['qc']),
+        'sample_size': ['manifest', 'mastersheet_csv', 'mriqc_iqms_table',
+                        'fmriprep_sessions_table', 'final_inclusion_table'],
+        'slice_timing': ['report_tsv'],
+        'mriqc': ['bids_dir', 'output_dir', 'work_dir'],
+        'fmriprep': ['bids_dir', 'output_dir', 'work_dir'],
+    }.items():
+        for key in keys:
+            value = template[group][key]
+            if not isinstance(value, str) or not Path(value).is_absolute():
+                raise ValueError('Use an absolute external path for ' + group + '.' + key)
+            external(value)
+    for name in ('mriqc', 'fmriprep'):
+        image = raw.get(name + '_image')
+        if not isinstance(image, str) or not image:
+            raise ValueError('Set ' + name + '_image')
+        path = Path(image)
+        template['containers'][name + '_image'] = str(external(path if path.is_absolute() else values['containers_root'] / path))
+    # s6 reads a comma CSV; s7 reads the grouped Subject_ID,sessions CSV.
+    if handoff:
+        directory = external(handoff)
+        provenance = json.loads((directory / 'handoff.json').read_text())
+        if provenance.get('status') not in {'format_validated_no_additional_selection', 'source_qc_validated_handoff'} or provenance.get('sessions', 0) < 1:
+            raise ValueError('Invalid Step-5.C handoff')
+        required = {'mriqc_subjects.csv', 'post_clinica.csv', 'mriqc_sessions.csv', 'valid_sessions.tsv'}
+        if provenance['status'] == 'source_qc_validated_handoff':
+            required.add('source_qc_audit.tsv')
+        if not required <= set(provenance.get('outputs_sha256', {})):
+            raise ValueError('Missing required handoff output hashes')
+        from hashlib import sha256
+        for name, expected in provenance['outputs_sha256'].items():
+            if Path(name).name != name:
+                raise ValueError('Unsafe handoff output name')
+            file = directory / name
+            if not file.is_file() or sha256(file.read_bytes()).hexdigest() != expected:
+                raise ValueError('Handoff output is missing or changed: ' + name)
+        for path, expected in provenance.get('source_qc_inputs_sha256', {}).items():
+            file = Path(path)
+            if not file.is_file() or sha256(file.read_bytes()).hexdigest() != expected:
+                raise ValueError('Source QC artifact changed since handoff')
+        template['qc']['heuristics_final_table'] = str(directory / 'mriqc_subjects.csv')
+        template['paths']['fmriprep_heuristics_csv'] = str(directory / 'post_clinica.csv')
+    out.mkdir(parents=True)
+    (out / 'pipeline.yaml').write_text(yaml.safe_dump(template, sort_keys=False))
+    record = {'upstream_commit': json.loads(LOCK.read_text())['commit'],
+              'handoff': str(Path(handoff).resolve()) if handoff else None,
+              'config_source': str(Path(config_path).resolve()), 'jobs_submitted': False}
+    (out / 'configuration.json').write_text(json.dumps(record, indent=2) + '\n')
+    return {'config': str(out / 'pipeline.yaml'), **record}
+
+
+def metrics_summary_command(archive_root, status=None, watch=False):
+    """Build the explicit Step-12 command without launching a process."""
+    archive = external(archive_root)
+    if not archive.is_dir():
+        raise ValueError('Use an existing external archive root')
+    argv = [sys.executable, str(ROOT / 'pipeline/s12_metrics_summary/run.py'),
+            '--archive-root', str(archive)]
+    if status:
+        state = external(status)
+        if state.is_dir():
+            raise ValueError('Metrics status must be a file path')
+        argv += ['--status', str(state)]
+    if watch:
+        argv.append('--watch')
+    return argv
+
+
+def commands(config, session_handoff=None, archive_root=None, metrics_status=None):
+    """Explicit plans only. Upstream script-specific working directories are retained."""
+    cfg = external(config)
+    if not cfg.is_file():
+        raise ValueError('Render an external config first')
+    root = shlex.quote(str(PIPELINE))
+    c = shlex.quote(str(cfg))
+    env = f'ADNI_CONFIG={c} PYTHONPATH={root}'
+    base = f'cd {root} && {env}'
+    configured = yaml.safe_load(cfg.read_text())
+    work5 = external(Path(configured['base']['adni_base']) / 'qc/step5a')
+    w5 = shlex.quote(str(work5))
+    plans = {
+        '3': f'{base} bash s3_organize/create_dicom_dir_csv.sh --config {c}',
+        '4b': f'{base} python s4b_slice_timing/insert_philips_slicetiming.py --config {c} --dry-run',
+        '5a': f'mkdir -p {w5} && cd {w5} && {env} python {root}/s5_post_clinica_qc/create_mastersheet/main.py --config {c}',
+        '6': f'{base} bash s6_mriqc/adni_mriqc.slurm --config {c} --dry-run',
+        '7': f'{base} bash s7_fmriprep/run_fmriprep_bids_filter_array_all.sh --config {c} --dry-run',
+    }
+    if session_handoff:
+        csv = external(session_handoff) / 'mriqc_sessions.csv'
+        if not csv.is_file():
+            raise ValueError('Missing mriqc_sessions.csv')
+        plans['7'] += ' --sessions-csv ' + shlex.quote(str(csv))
+    if metrics_status and not archive_root:
+        raise ValueError('Step-12 status requires an explicit archive root')
+    if archive_root:
+        plans['12'] = shlex.join(metrics_summary_command(archive_root, metrics_status))
+    return {'mode': 'print_only', 'commands': plans,
+            'caveats': ['Step 6 is subject-scoped and may process other BIDS sessions; subset group IQMs before outlier fitting.',
+                        'Upstream --dry-run can write job files; it is not a read-only command.',
+                        'HPC settings are not fully honored by all upstream scripts. Inspect generated Slurm jobs.',
+                        'For Step 4 use start/02_bids.py STUDY convert with the Stage 1 selection receipt.',
+                        'Step 4b defaults to dry-run; inspect identity and slice axis before applying.',
+                        'Step 5b, MRIQC group/outliers, final QC and clinical merge require explicit input arguments; see README.']}
+
+
+def main():
+    p = argparse.ArgumentParser(description=__doc__)
+    sub = p.add_subparsers(dest='action', required=True)
+    sub.add_parser('doctor')
+    r = sub.add_parser('prepare-config')
+    r.add_argument('--lab-config', required=True)
+    r.add_argument('--output-dir', required=True)
+    r.add_argument('--handoff')
+    c = sub.add_parser('plan')
+    c.add_argument('--config', required=True)
+    c.add_argument('--handoff')
+    c.add_argument('--archive-root', help='Include the explicit Step-12 archive export in the printed plan')
+    c.add_argument('--metrics-status', help='External Step-12 status JSON path')
+    e = sub.add_parser('export-results', help='Run Step 12 for verified archives; no image processing')
+    e.add_argument('--archive-root', required=True)
+    e.add_argument('--status')
+    e.add_argument('--watch', action='store_true')
+    h = sub.add_parser('harmonize-fc', help='Audit or fit cross-sectional ComBat on verified Step 10 FC')
+    h.add_argument('--config', required=True)
+    h.add_argument('--audit-only', action='store_true')
+    a = p.parse_args()
+    try:
+        if a.action == 'doctor':
+            result = doctor()
+        elif a.action == 'prepare-config':
+            result = render_config(a.lab_config, a.output_dir, a.handoff)
+        elif a.action == 'harmonize-fc':
+            sys.path.insert(0, str(PIPELINE))
+            from s14_fc_harmonization.run import run
+            result = run(a.config, a.audit_only)
+            if result['status'] == 'blocked' and not a.audit_only:
+                print(json.dumps(result, indent=2, ensure_ascii=False))
+                p.exit(2)
+        elif a.action == 'export-results':
+            doctor()
+            child = subprocess.run(metrics_summary_command(a.archive_root, a.status, a.watch), check=False)
+            p.exit(child.returncode)
+        else:
+            doctor()
+            result = commands(a.config, a.handoff, a.archive_root, a.metrics_status)
+        print(json.dumps(result, indent=2, ensure_ascii=False))
+    except (ValueError, KeyError, FileNotFoundError, subprocess.CalledProcessError) as exc:
+        p.exit(1, str(exc) + '\n')
+
+
+if __name__ == '__main__':
+    main()

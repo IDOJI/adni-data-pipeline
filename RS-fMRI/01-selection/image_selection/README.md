@@ -8,7 +8,7 @@ For the [stage 1 walkthrough](../../README.md#select), set your study path and r
 
 ## Inputs and execution
 
-From `RS-fMRI/`, after [setup](../../docs/installation.md):
+From `RS-fMRI/`, after [setup](../../support/docs/installation.md):
 
 1. Export reviewed T1 and resting-fMRI collection CSVs and the original Study Files through [Step 2](../../02-bids/download/README.md).
 2. Produce [3.A source QC](../source_qc/README.md). Its `artifact.json` must bind the unchanged `image_qc.tsv` used here.
@@ -67,4 +67,4 @@ python 01-selection/image_selection/reconcile.py --receipt /ABS/new-step3b/07.ru
 
 ## Evidence and limits
 
-Sources: [ADNI VISCODE answer](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=2126); [ADNI EPI–T1 pairing answer](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=434). The [Stage 3.B evidence record](../../docs/stage_evidence.md#stage-3-b) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. These references do not certify the current configuration or any individual image as analysis-ready.
+Sources: [ADNI VISCODE answer](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=2126); [ADNI EPI–T1 pairing answer](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=434). The [Stage 3.B evidence record](../../support/docs/stage_evidence.md#stage-3-b) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. These references do not certify the current configuration or any individual image as analysis-ready.

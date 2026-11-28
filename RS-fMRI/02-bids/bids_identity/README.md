@@ -10,7 +10,7 @@ Start here for an ADNI resting-state EPI and same-day T1w that have passed sourc
 
 ### 1. Choose the binding receipt
 
-Set [your two paths](../../docs/installation.md#paths-for-a-manual-run) first. If you already have a receipt, set `RECEIPT` to that file. Its referenced source files, manifests and validation code must still be accessible at the recorded paths.
+Set [your two paths](../../support/docs/installation.md#paths-for-a-manual-run) first. If you already have a receipt, set `RECEIPT` to that file. Its referenced source files, manifests and validation code must still be accessible at the recorded paths.
 
 ```sh
 export RECEIPT="$DATA/binding/07.binding-receipt.json"
@@ -108,4 +108,4 @@ Prepare one runtime per EPI key. The [local batch](../../03-imaging/docs/local_b
 
 ## Evidence and limits
 
-Sources: [ADNI FAQ answers](https://adni.loni.usc.edu/help-faqs/faqs/); [ADNI EPI–T1 pairing answer](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=434); [Gorgolewski et al. (2016)](https://doi.org/10.1038/sdata.2016.44). The [Stage 5.D evidence record](../../docs/stage_evidence.md#stage-5-d) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. These references do not certify the current configuration or any individual image as analysis-ready.
+Sources: [ADNI FAQ answers](https://adni.loni.usc.edu/help-faqs/faqs/); [ADNI EPI–T1 pairing answer](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=434); [Gorgolewski et al. (2016)](https://doi.org/10.1038/sdata.2016.44). The [Stage 5.D evidence record](../../support/docs/stage_evidence.md#stage-5-d) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. These references do not certify the current configuration or any individual image as analysis-ready.

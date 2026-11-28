@@ -2,7 +2,7 @@
 
 The motion script reads framewise displacement (FD) and DVARS from fMRIPrep confounds. The Euler script reads left and right hemisphere values from FreeSurfer reconstruction logs. Run these after [7.B](../sessionwise_preprocessing/README.md) succeeds.
 
-**Motion.** `--derivatives-dir` is the fMRIPrep dataset root containing `sub-*/ses-*/func/`. `--output-dir` receives the summary and per-frame table. The paths below follow the [manual run layout](../../docs/installation.md#paths-for-a-manual-run).
+**Motion.** `--derivatives-dir` is the fMRIPrep dataset root containing `sub-*/ses-*/func/`. `--output-dir` receives the summary and per-frame table. The paths below follow the [manual run layout](../../support/docs/installation.md#paths-for-a-manual-run).
 
 ```sh
 python 03-imaging/final_qc/summarize_motion_from_confounds.py \
@@ -38,4 +38,4 @@ require the separate source, clinical and study-specific inclusion checks.
 
 ## Evidence and limits
 
-Sources: [Power et al. (2012)](https://doi.org/10.1016/j.neuroimage.2011.10.018); [Rosen et al. (2018)](https://doi.org/10.1016/j.neuroimage.2017.12.059). The [Stage 8 evidence record](../../docs/stage_evidence.md#stage-8) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. These references do not certify the current configuration or any individual image as analysis-ready.
+Sources: [Power et al. (2012)](https://doi.org/10.1016/j.neuroimage.2011.10.018); [Rosen et al. (2018)](https://doi.org/10.1016/j.neuroimage.2017.12.059). The [Stage 8 evidence record](../../support/docs/stage_evidence.md#stage-8) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. These references do not certify the current configuration or any individual image as analysis-ready.

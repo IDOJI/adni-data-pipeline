@@ -6,7 +6,7 @@ Start with a [published 7.B pair](../sessionwise_preprocessing/README.md#publish
 
 ### Configure the input
 
-For the [manual layout](../../docs/installation.md#paths-for-a-manual-run), set `root` to the directory **containing** `results/` and `runs/`. `license` points to the FreeSurfer license file and `templateflow` to the prepared cache. This block creates a private copy of the [seeded XCP-D profile](../config/xcpd_linc.seeded.example.json) with those paths and the local-batch resource settings. If the batch or an earlier manual setup already created the JSON, use that file as `XCFG` and skip creation.
+For the [manual layout](../../support/docs/installation.md#paths-for-a-manual-run), set `root` to the directory **containing** `results/` and `runs/`. `license` points to the FreeSurfer license file and `templateflow` to the prepared cache. This block creates a private copy of the [seeded XCP-D profile](../config/xcpd_linc.seeded.example.json) with those paths and the local-batch resource settings. If the batch or an earlier manual setup already created the JSON, use that file as `XCFG` and skip creation.
 
 ```sh
 export XCFG="$RESULTS/xcpd.json"
@@ -89,7 +89,7 @@ The default profile also produces an ALFF map (strength of slow BOLD fluctuation
 
 **Two different motion decisions.** The repository first screens the whole run using mean FD above 0.5 mm or more than 30% of frames above 0.5 mm, along with its other QC checks. For a run admitted to XCP-D, `--fd-thresh 0.3` then censors individual frames. A 0.4 mm frame counts toward XCP-D censoring while staying below the earlier 0.5 mm cutoff.
 
-**Execution settings.** The manual setup uses the batch resource settings (`--nprocs 2 --omp-nthreads 1 --mem-mb 4000`) with a 16 GiB container limit. `--random-seed 1123` supplies the fixed seed, `--fs-license-file /license.txt` supplies the license, and `--work-dir /job/work` keeps intermediate files with the attempt. `--stop-on-first-crash` and `--notrack` control error handling and telemetry. [Docker and runtime options](../../docs/installation.md#read-a-docker-preview)
+**Execution settings.** The manual setup uses the batch resource settings (`--nprocs 2 --omp-nthreads 1 --mem-mb 4000`) with a 16 GiB container limit. `--random-seed 1123` supplies the fixed seed, `--fs-license-file /license.txt` supplies the license, and `--work-dir /job/work` keeps intermediate files with the attempt. `--stop-on-first-crash` and `--notrack` control error handling and telemetry. [Docker and runtime options](../../support/docs/installation.md#read-a-docker-preview)
 
 ## Scientific QC policy and new runtimes
 
@@ -136,4 +136,4 @@ insufficient for scientific inclusion.
 
 ## Evidence and limits
 
-Sources: [Mehta et al. (2024)](https://doi.org/10.1162/imag_a_00257); [Ciric et al. (2017)](https://doi.org/10.1016/j.neuroimage.2017.03.020); [Parkes et al. (2018)](https://doi.org/10.1016/j.neuroimage.2017.12.073); [Hallquist et al. (2013)](https://doi.org/10.1016/j.neuroimage.2013.05.116); [Rosen et al. (2018)](https://doi.org/10.1016/j.neuroimage.2017.12.059). The [Stage 10 evidence record](../../docs/stage_evidence.md#stage-10) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. These references do not certify the current configuration or any individual image as analysis-ready.
+Sources: [Mehta et al. (2024)](https://doi.org/10.1162/imag_a_00257); [Ciric et al. (2017)](https://doi.org/10.1016/j.neuroimage.2017.03.020); [Parkes et al. (2018)](https://doi.org/10.1016/j.neuroimage.2017.12.073); [Hallquist et al. (2013)](https://doi.org/10.1016/j.neuroimage.2013.05.116); [Rosen et al. (2018)](https://doi.org/10.1016/j.neuroimage.2017.12.059). The [Stage 10 evidence record](../../support/docs/stage_evidence.md#stage-10) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. These references do not certify the current configuration or any individual image as analysis-ready.

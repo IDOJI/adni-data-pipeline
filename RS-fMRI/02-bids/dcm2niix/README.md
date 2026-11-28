@@ -24,4 +24,4 @@ python start/02_bids.py "$STUDY" bind --bids "$STUDY/02-bids/revised-rawdata" --
 
 ### Evidence and references
 
-[dcm2niix](https://github.com/rordenlab/dcm2niix) · [BIDS MRI specification](https://bids-specification.readthedocs.io/en/stable/modality-specific-files/magnetic-resonance-imaging-data.html) · [Stage evidence](../../docs/stage_evidence.md#stage-4)
+[dcm2niix](https://github.com/rordenlab/dcm2niix) · [BIDS MRI specification](https://bids-specification.readthedocs.io/en/stable/modality-specific-files/magnetic-resonance-imaging-data.html) · [Stage evidence](../../support/docs/stage_evidence.md#stage-4)

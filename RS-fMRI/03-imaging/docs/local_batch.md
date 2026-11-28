@@ -8,7 +8,7 @@ For new collection exports, start with [3.B date-based selection](../../01-selec
 
 ## Run
 
-From `RS-fMRI/` after [setup](../../docs/installation.md):
+From `RS-fMRI/` after [setup](../../support/docs/installation.md):
 
 ```sh
 mkdir -p /ABS/private-config
@@ -37,4 +37,4 @@ Use the actual `root` value in place of `/ABS/new-runtime`. Open `<root>/status.
 | `results/<PTID>/<pair>/` | Published preprocessing, XCP-D and QC reports |
 | `control/jobs/`, `control/events.jsonl` | Per-case state and failure/hold records |
 
-The controller permits at most five subjects, subject to available memory/disk reserves. Run one controller per runtime. This integrated publisher is macOS-specific; [Linux requires operational adapters](../../docs/platform_execution.md). Existing batches retain their frozen source/configuration; seed 1123 runs need a fresh runtime.
+The controller permits at most five subjects, subject to available memory/disk reserves. Run one controller per runtime. This integrated publisher is macOS-specific; [Linux requires operational adapters](../../support/docs/platform_execution.md). Existing batches retain their frozen source/configuration; seed 1123 runs need a fresh runtime.

@@ -6,7 +6,7 @@
 
 ## Run
 
-From `RS-fMRI/`, after [setup](../../docs/installation.md). `--input` takes the Step 5 heuristics TSV. `--source-qc` takes the whole Step 3.A artifact directory, including its audit and fingerprints. Write to a new `--output-dir` and check the surviving session count in `handoff.json`.
+From `RS-fMRI/`, after [setup](../../support/docs/installation.md). `--input` takes the Step 5 heuristics TSV. `--source-qc` takes the whole Step 3.A artifact directory, including its audit and fingerprints. Write to a new `--output-dir` and check the surviving session count in `handoff.json`.
 
 ```sh
 python 02-bids/validate_handoff/run.py \
@@ -21,4 +21,4 @@ This stage validates selected BOLD at session scope. It does not identify or app
 
 ## Evidence and limits
 
-Sources: [ADNI VISCODE answer](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=2126); [ADNI EPI–T1 pairing answer](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=434). The [Stage 5.C evidence record](../../docs/stage_evidence.md#stage-5-c) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. These references do not certify the current configuration or any individual image as analysis-ready.
+Sources: [ADNI VISCODE answer](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=2126); [ADNI EPI–T1 pairing answer](https://adni.loni.usc.edu/support/experts-knowledge-base/question/?QID=434). The [Stage 5.C evidence record](../../support/docs/stage_evidence.md#stage-5-c) identifies the relevant answer/section and separates direct evidence from project policy and engineering controls. These references do not certify the current configuration or any individual image as analysis-ready.

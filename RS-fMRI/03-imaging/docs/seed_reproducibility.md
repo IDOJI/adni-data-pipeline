@@ -50,4 +50,4 @@ python workflow/iqm_seeded.py \
 
 **Records:** `<runtime>/seed_policy/` stores the policy and frozen implementation; stage logs/cache signatures store the effective command. A changed seed or implementation requires a new runtime.
 
-The MRIQC adapter accepts only the audited image digest in `workflow/seed_policy.py`; its package reports `24.1.0.dev0+gd5b13cb5.d20240826` despite the historical `24.0.2` tag. Historical/Slurm entry points do not automatically enable this profile. Fixed seeds do not guarantee identical floating-point results across machines; use the [comparison commands](../../07_reproducibility/README.md#compare-two-runs).
+The MRIQC adapter accepts only the audited image digest in `workflow/seed_policy.py`; its package reports `24.1.0.dev0+gd5b13cb5.d20240826` despite the historical `24.0.2` tag. Historical/Slurm entry points do not automatically enable this profile. Fixed seeds do not guarantee identical floating-point results across machines; use the [comparison commands](../../support/reproducibility/README.md#compare-two-runs).
