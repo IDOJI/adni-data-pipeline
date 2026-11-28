@@ -75,3 +75,10 @@ RS-fMRI/pipeline/**/config.json
 
 # Local R dependency libraries; never publish installed packages.
 .R-library/
+
+# Private artifacts in the stage-based source layout
+RS-fMRI/0[1-4]-*/**/config.json
+RS-fMRI/0[1-4]-*/**/*.png
+RS-fMRI/0[1-4]-*/**/*.svg
+RS-fMRI/0[1-4]-*/**/*.html
+RS-fMRI/0[1-4]-*/**/*.ipynb

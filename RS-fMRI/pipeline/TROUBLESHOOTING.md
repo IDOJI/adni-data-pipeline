@@ -26,7 +26,7 @@ tooling or notes to help. See each step's `README.md` for full detail.
 ## Step 4 — DICOM to BIDS with dcm2niix
 
 - **An Image ID is missing.** Check the ID in the stage 1 download list and the extracted participant/series/date/Image ID directory. Pass its participant-folder root with `convert --dicom`.
-- **A series is held.** Open `02-bids/rawdata/sourcedata/conversion/conversion-audit.tsv`. Once dcm2niix has run, its output is in the adjacent `series/I<number>.log`. Use a fresh destination after correcting an input. [Conversion guide](s4_dcm2niix/README.md)
+- **A series is held.** Open `02-bids/rawdata/sourcedata/conversion/conversion-audit.tsv`. Once dcm2niix has run, its output is in the adjacent `series/I<number>.log`. Use a fresh destination after correcting an input. [Conversion guide](../02-bids/dcm2niix/README.md)
 
 ## Step 4b — Philips SliceTiming
 
