@@ -15,7 +15,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
-sys.path.insert(0, str(ROOT.parent))
+sys.path.insert(0, str(ROOT.parents[1] / "pipeline"))
 from sources import verify
 from atlas_contracts import entities, tr_seconds, grid_equal
 from _shared import finish, new_output, read, sha, snapshot, unchanged, verify_bundle, write
