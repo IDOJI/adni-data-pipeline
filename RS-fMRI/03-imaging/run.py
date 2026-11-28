@@ -71,6 +71,8 @@ def clinical_qc(args, folder):
 
 
 def process(args):
+    if args.bids is not None and args.action != 'run':
+        raise ValueError('--bids is used with the run action.')
     with stage_folder(args.study, '03-imaging') as folder:
         if args.action == 'clinical':
             clinical_qc(args, folder)
@@ -88,6 +90,7 @@ if __name__ == '__main__':
     cli = parser(__doc__, ('run', 'iqms', 'finalize', 'clinical'))
     for flag, help_text in (
         ('binding', 'Run from an existing 5.D binding receipt'),
+        ('bids', 'BIDS directory verified by the binding receipt'),
         ('pairs', 'Reviewed text file containing one verified epi_key per line'),
         ('templateflow', 'Populated local TemplateFlow directory'), ('license', 'FreeSurfer license file'),
         ('mriqc-flags', 'Reviewed cohort MRIQC flags for finalize'), ('final-qc', 'Existing final QC master for clinical'),

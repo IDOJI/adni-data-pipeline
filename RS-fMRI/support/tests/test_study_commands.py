@@ -65,14 +65,15 @@ def test_docker_start_times_out_and_reports_last_engine_error(imaging, monkeypat
 
 def test_imaging_checks_docker_before_creating_processing_settings(imaging, monkeypatch, tmp_path):
     monkeypatch.setattr(imaging, 'sys', SimpleNamespace(platform='darwin'))
-    monkeypatch.setattr(imaging, 'cohort_plans', lambda receipt, pairs: [])
+    monkeypatch.setattr(imaging, 'cohort_plans', lambda receipt, pairs, bids: [])
     monkeypatch.setattr(imaging, 'template', lambda name: {})
     (tmp_path / 'receipt.json').touch()
     (tmp_path / 'license.txt').touch()
     cache = tmp_path / 'templateflow'
     cache.mkdir()
     (cache / 'tpl-example').touch()
-    args = SimpleNamespace(binding=tmp_path / 'receipt.json', study=tmp_path, pairs=None, templateflow=None, license=None)
+    args = SimpleNamespace(binding=tmp_path / 'receipt.json', study=tmp_path, pairs=None,
+                           bids=None, templateflow=None, license=None)
 
     def command(argv, **kwargs):
         if argv[0] == 'docker':
@@ -113,7 +114,8 @@ def study_inputs(study):
     return tables
 
 
-def test_default_study_select_convert_bind_clinical(tmp_path):
+@pytest.mark.parametrize('external_bids', [False, True])
+def test_study_select_convert_bind_clinical(tmp_path, imaging, external_bids):
     study = tmp_path / 'private study'
     tables = study_inputs(study)
     for _ in range(2):
@@ -144,14 +146,20 @@ for ext in ('.nii.gz', '.json'):
 """)
     exe.chmod(0o700)
     env = dict(os.environ, PATH=str(tmp_path) + os.pathsep + os.environ['PATH'], STUDY_FIXTURE=str(bids))
-    cli('02_bids.py', study, 'convert', env=env)
-    rawdata = study / '02-bids/rawdata'
+    rawdata = tmp_path / 'BIDS outside study' if external_bids else study / '02-bids/rawdata'
+    bids_args = ['--bids', rawdata] if external_bids else []
+    cli('02_bids.py', study, 'convert', *bids_args, env=env)
     recorded = read(rawdata / 'sourcedata/conversion/conversion-hashes.csv')
     assert {r['SOURCE_IMAGE_ID']: r['NIFTI_SHA256'] for r in recorded} == {
         r['SOURCE_IMAGE_ID'].lstrip('I'): r['NIFTI_SHA256'] for r in read(tmp_path / 'hashes.csv')}
     for _ in range(2):
-        assert 'Verified pairs: 1' in cli('02_bids.py', study, 'bind').stdout
-    assert cli('02_bids.py', study, 'convert', env=env, success=False).returncode == 1
+        assert 'Verified pairs: 1' in cli('02_bids.py', study, 'bind', *bids_args).stdout
+    receipt = study / '02-bids/binding/07.binding-receipt.json'
+    plans = imaging.cohort_plans(receipt, None, rawdata)
+    assert plans == imaging.cohort_plans(receipt, None)
+    with pytest.raises(ValueError, match='does not match the verified pairs'):
+        imaging.cohort_plans(receipt, None, study)
+    assert cli('02_bids.py', study, 'convert', *bids_args, env=env, success=False).returncode == 1
     final = study / '03-imaging/postprocessing/test/finalizations/one'
     final.mkdir(parents=True)
     included, _, dx, pt = clinical_fixture(tmp_path)
@@ -169,7 +177,7 @@ for ext in ('.nii.gz', '.json'):
     row, = read(study / '03-imaging/inclusion/inclusion_audit.tsv')
     assert row['MRI_AGE_YEARS'] == '70.0' and row['SERIES_UID'] == '1.2.200' and row['CLINICAL_STATUS'] == 'pass'
     next(rawdata.glob('sub-*/ses-*/func/*bold.json')).write_text('{}')
-    assert 'changed' in cli('02_bids.py', study, 'bind', success=False).stderr
+    assert 'changed' in cli('02_bids.py', study, 'bind', *bids_args, success=False).stderr
 
 
 def test_harmonize_existing_finalization_audit_and_fit(tmp_path):

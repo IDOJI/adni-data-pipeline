@@ -20,7 +20,7 @@ import continuation
 from s10_xcpd_integrated_qc import pipeline_seeded as xcpd
 
 
-def cohort_plans(receipt, pairs):
+def cohort_plans(receipt, pairs, bids=None):
     proof = binding.proof_files(receipt)
     plans = binding.read_json(proof['outputs']['plans']['path'])
     if pairs:
@@ -30,6 +30,13 @@ def cohort_plans(receipt, pairs):
             raise ValueError('Unverified EPI key in --pairs. Check the execution plans.')
     if not plans:
         raise ValueError('No verified pairs for imaging.')
+    if bids is not None:
+        root = bids.expanduser().resolve()
+        if not root.is_dir():
+            raise ValueError(f'Missing BIDS directory: {root}')
+        verified_roots = {Path(plan[scan]['BIDS_ROOT']).resolve() for plan in plans for scan in ('epi', 't1')}
+        if verified_roots != {root}:
+            raise ValueError(f'BIDS directory does not match the verified pairs: {root}. Run step 2 bind for this directory.')
     if any(p['subject'] != 'ADNI' + p['ptid'].replace('_', '') for p in plans):
         raise ValueError('The local publisher requires ADNI subject labels of the form sub-ADNI... .')
     for fields in [('ptid', 'date'), ('subject', 'session')]:
@@ -118,7 +125,7 @@ def run_images(args, folder):
     if sys.platform != 'darwin':
         raise ValueError('The local publisher needs macOS clone-copy support. See 06_docs/platform_execution.md.')
     receipt = existing(args.binding or args.study / '02-bids/binding/07.binding-receipt.json')
-    plans = cohort_plans(receipt, args.pairs)
+    plans = cohort_plans(receipt, args.pairs, args.bids)
     tf = (args.templateflow or args.study / 'templateflow').expanduser().resolve()
     if not tf.is_dir() or not any(tf.iterdir()):
         raise ValueError(f'Missing populated TemplateFlow cache: {tf}')
