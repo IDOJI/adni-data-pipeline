@@ -7,9 +7,13 @@ Find resting scans and a matching picture of the brain’s structure (T1) taken 
 - `collections/T1.csv` and `collections/EPI.csv` from ADNI IDA. Include phase, scan date, Image ID, participant ID and description. Include age at the scan for step 4.
 - `LONI_download/clindata/MRIQC.csv` and the ADNI quality tables that apply to your scans. [Which ADNI tables to use](source_qc/README.md)
 
-**Run** from the repository’s `RS-fMRI/` folder.
+**Run.** Replace the two example paths with your code folder and study folder.
 
 ```sh
+cd "/absolute/path/to/adni-data-pipeline/RS-fMRI"
+source .venv/bin/activate
+export STUDY="/absolute/path/to/my ADNI study"
+
 python 01-selection/run.py "$STUDY"
 ```
 

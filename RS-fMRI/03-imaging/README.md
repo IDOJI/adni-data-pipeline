@@ -4,7 +4,13 @@
 
 Use the verified pairs from step 2. This local route needs Docker, a FreeSurfer license, a populated TemplateFlow cache and a Docker-shared study folder on a compatible Mac volume such as APFS. [Imaging setup](../support/docs/installation.md#paths-for-a-manual-run)
 
+Use the same study folder you used in step 1.
+
 ```sh
+cd "/absolute/path/to/adni-data-pipeline/RS-fMRI"
+source .venv/bin/activate
+export STUDY="/absolute/path/to/my ADNI study"
+
 python 03-imaging/run.py "$STUDY" run
 ```
 
